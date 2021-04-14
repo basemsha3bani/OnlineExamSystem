@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ServicesClasseslibrary.Interface
 {
-    interface IQuestionsService
+   public interface IQuestionsService
     {
         void Add(QuestionsDataModel questionAnswers);
         void Edit(QuestionsDataModel questionAnswers);

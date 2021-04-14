@@ -12,6 +12,6 @@ namespace  DataModel
 
         public String AnswerText { get; set; }
 
-        public bool IsCorrext { get; set; }
+        public bool IsCorrext { get; set; }  
     }
 }

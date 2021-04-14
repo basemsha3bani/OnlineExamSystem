@@ -13,5 +13,12 @@ namespace DataRepository.DataRepositoryEntities
         public int ExamId { get; set; }
 
         public virtual Exam Exam{get;set;}
+
+        [ForeignKey("Question")]
+        public int QuestionId { get; set; }
+
+        public virtual Questions Question { get; set; }
+
+
     }
 }

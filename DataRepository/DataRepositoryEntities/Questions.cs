@@ -19,5 +19,8 @@ namespace DataRepository.DataRepositoryEntities
 
         public virtual DifficultyLevels DifficultyLevel { get; set; }
 
+
+        public virtual ICollection<ExamQuestions> ExamQuestions { get; set; }
+
     }
 }

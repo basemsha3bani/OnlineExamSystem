@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ServicesClasseslibrary
 {
-    interface IExamTypesDetailsService
+   public interface IExamTypesDetailsService
     {
         void Add(ExamTypesDetailsDataModel examTypesDetails);
         void Edit(ExamTypesDetailsDataModel examTypesDetails);

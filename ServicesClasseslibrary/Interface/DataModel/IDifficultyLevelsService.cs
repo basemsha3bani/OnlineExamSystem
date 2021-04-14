@@ -8,7 +8,7 @@ namespace ServicesClasseslibrary
    public interface IDifficultyLevelsService
     {
         void Add(DifficultyLevelsDataModel difficultyLevels);
-        void Edit(ExamDataModel model);
+        void Edit(DifficultyLevelsDataModel model);
 
         void Delete(int id);
 

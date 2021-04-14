@@ -5,9 +5,9 @@ using System.Text;
 
 namespace ServicesClasseslibrary
 {
-    class DifficultyLevelsService : IDifficultyLevelsService
+    public class ExamOprationsService : IExamOprationsService
     {
-        public void Add(DifficultyLevelsDataModel difficultyLevels)
+        public void Add(ExamDataModel Exam)
         {
             throw new NotImplementedException();
         }
@@ -22,15 +22,14 @@ namespace ServicesClasseslibrary
             throw new NotImplementedException();
         }
 
-        public DifficultyLevelsDataModel GetById(int id)
+        public ExamDataModel GetById(int id)
         {
             throw new NotImplementedException();
         }
 
-        public List<DifficultyLevelsDataModel> list()
+        public List<ExamDataModel> list()
         {
             throw new NotImplementedException();
         }
     }
 }
- 

@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using ServicesClasseslibrary;
+using ServicesClasseslibrary.Interface;
 
 namespace OnlineExamSystem
 {
@@ -24,6 +26,13 @@ namespace OnlineExamSystem
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+            services.AddScoped<IDifficultyLevelsService, DifficultyLevelsService>();
+            services.AddScoped<IExamOprationsService, ExamOprationsService>();
+            services.AddScoped<IExamQuestionsService, ExamQuestionsService>();
+            services.AddScoped<IExamTypesDetailsService, ExamTypesDetailsService>();
+            services.AddScoped<IExamTypesService, ExamTypesService>();
+            services.AddScoped<IQuestionAnswersService, QuestionAnswersService>();
+            services.AddScoped<IQuestionsService, QuestionsService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

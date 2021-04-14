@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ServicesClasseslibrary
 {
-    class QuestionsService
+    interface IExamBuilder
     {
     }
 }

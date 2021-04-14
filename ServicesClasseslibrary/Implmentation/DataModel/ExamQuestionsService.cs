@@ -5,9 +5,11 @@ using System.Text;
 
 namespace ServicesClasseslibrary
 {
-    class ExamOprationsService : IExamOprationsService
+    public class ExamQuestionsService : IExamQuestionsService
     {
-        public void Add(ExamDataModel Exam)
+       
+
+        public void Add(ExamQuestionsDataModel examQuestions)
         {
             throw new NotImplementedException();
         }
@@ -17,19 +19,24 @@ namespace ServicesClasseslibrary
             throw new NotImplementedException();
         }
 
-        public void Edit(ExamDataModel model)
+      
+
+        public void Edit(ExamQuestionsDataModel examQuestions)
         {
             throw new NotImplementedException();
         }
 
-        public ExamDataModel GetById(int id)
+        public ExamQuestionsDataModel GetById(int id)
         {
             throw new NotImplementedException();
         }
 
-        public List<ExamDataModel> list()
+        public List<ExamQuestionsDataModel> list()
         {
             throw new NotImplementedException();
         }
+
+     
+
     }
 }
