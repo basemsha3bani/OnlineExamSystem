@@ -6,5 +6,6 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
 {
     class ExamQuestionsOperations
     {
+
     }
 }
