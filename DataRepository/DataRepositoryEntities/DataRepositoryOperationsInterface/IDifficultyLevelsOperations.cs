@@ -5,7 +5,7 @@ using System.Text;
 
 namespace DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface
 {
-    interface IDifficultyLevelsOperations
+   public interface IDifficultyLevelsOperations
     {
         void Add(DifficultyLevelsDataModel difficultyLevels);
         void Edit(DifficultyLevelsDataModel difficultyLevels);

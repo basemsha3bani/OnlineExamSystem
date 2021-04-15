@@ -7,77 +7,84 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DataRepository.DataRepositoryEntities;
 using DataRepository.GateWay;
-using ServicesClasseslibrary;
-using DataModel;
 using ServicesClasseslibrary.Interface;
+using DataModel;
+using ServicesClasseslibrary;
 
 namespace OnlineExamSystem.Controllers
 {
-    public class DifficultyLevelsController : Controller
+    public class QuestionsController : Controller
     {
-        private readonly DbConext _context;
+        private readonly IQuestionsService _questionsService;
         private readonly IDifficultyLevelsService _difficultyLevelsService;
 
-        public DifficultyLevelsController(IDifficultyLevelsService difficultyLevelsService)
+        public QuestionsController(IQuestionsService questionsService, IDifficultyLevelsService difficultyLevelsService)
         {
-
+            _questionsService = questionsService;
             _difficultyLevelsService = difficultyLevelsService;
         }
 
-        // GET: DifficultyLevels
-        public  IActionResult Index()
+        // GET: Questions
+        public IActionResult Index()
         {
-            return View(_difficultyLevelsService.list());
+           
+            return View(_questionsService.list());
         }
 
-        // GET: DifficultyLevels/Details/5
+        // GET: Questions/Details/5
        
 
-        // GET: DifficultyLevels/Create
+        // GET: Questions/Create
         public IActionResult Create()
         {
-            return View();
+            var x = new List<QuestionAnswersDataModel>(5);
+
+            ViewData["DifficultyLevelId"] = new SelectList(_difficultyLevelsService.list(), "Id", "DifficultyLevelName");
+            
+            return View(new QuestionsDataModel { QuestionAnswersDataModel=x });
         }
 
-        // POST: DifficultyLevels/Create
+        // POST: Questions/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to, for 
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(DifficultyLevelsDataModel difficultyLevels)
+        public IActionResult Create(QuestionsDataModel questions)
         {
             if (ModelState.IsValid)
             {
-                _difficultyLevelsService.Add(difficultyLevels);
+                _questionsService.Add(questions);
                 return RedirectToAction(nameof(Index));
             }
-            return View(difficultyLevels);
+            ViewData["DifficultyLevelId"] = new SelectList(_difficultyLevelsService.list(), "Id", "DifficultyLevelName");
+            return View(questions);
         }
 
-        // GET: DifficultyLevels/Edit/5
-        public  IActionResult Edit(int? id)
+        // GET: Questions/Edit/5
+        public IActionResult Edit(int? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var difficultyLevels = _difficultyLevelsService.GetById((int)id);
-            if (difficultyLevels == null)
+            var questions = _questionsService.GetById((int) id);
+            if (questions == null)
             {
                 return NotFound();
             }
-            return View(difficultyLevels);
+            ViewData["DifficultyLevelId"] = new SelectList(_difficultyLevelsService.list(), "Id", "DifficultyLevelName");
+            return View(questions);
         }
 
-        // POST: DifficultyLevels/Edit/5
+        // POST: Questions/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to, for 
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id,DifficultyLevelsDataModel difficultyLevels)
+        public IActionResult Edit(int id, [Bind("Id,QuestionText,DifficultyLevelId")] QuestionsDataModel questions)
         {
-            if (id != difficultyLevels.Id)
+            if (id != questions.Id)
             {
                 return NotFound();
             }
@@ -86,11 +93,12 @@ namespace OnlineExamSystem.Controllers
             {
                 try
                 {
-                    _difficultyLevelsService.Edit(difficultyLevels);
+                    _questionsService.Edit(questions);
+                  
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (_difficultyLevelsService.GetById(difficultyLevels.Id)==null)
+                    if (_questionsService.GetById(questions.Id)==null)
                     {
                         return NotFound();
                     }
@@ -101,10 +109,11 @@ namespace OnlineExamSystem.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(difficultyLevels);
+            ViewData["DifficultyLevelId"] = new SelectList(_difficultyLevelsService.list(), "Id", "DifficultyLevelName", questions.DifficultyLevelId);
+            return View(questions);
         }
 
-        // GET: DifficultyLevels/Delete/5
+        // GET: Questions/Delete/5
         public IActionResult Delete(int? id)
         {
             if (id == null)
@@ -112,24 +121,26 @@ namespace OnlineExamSystem.Controllers
                 return NotFound();
             }
 
-            var difficultyLevels = _difficultyLevelsService.GetById((int)id);
-            if (difficultyLevels == null)
+            var questions = _questionsService.GetById((int)id);
+            if (questions == null)
             {
                 return NotFound();
             }
 
-            return View(difficultyLevels);
+            return View(questions);
         }
 
-        // POST: DifficultyLevels/Delete/5
+        // POST: Questions/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
-            _difficultyLevelsService.Delete((int)id);
+            var questions = _questionsService.GetById(id);
+            _questionsService.Delete(id);
+
             return RedirectToAction(nameof(Index));
         }
 
-       
+        
     }
 }

@@ -11,5 +11,8 @@ namespace DataModel
         public String QuestionText{ get; set; }
 
         public int DifficultyLevelId { get; set; }
-    }
+
+
+        public List<QuestionAnswersDataModel> QuestionAnswersDataModel { get; set; }
+}
 }

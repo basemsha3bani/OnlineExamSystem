@@ -7,6 +7,7 @@ namespace DataRepository.GateWay
 {
     public class DbConext:DbContext
     {
+        
        public DbConext()
         {
            
@@ -36,11 +37,11 @@ namespace DataRepository.GateWay
             modelBuilder.Entity<DifficultyLevels>().HasKey(o => o.Id);
 
         }
-    
-    
 
 
 
+
+        public DbSet<Questions> Questions { get; set; }
 
         public  DbSet<QuestionAnswers> QuestionAnswers { get; set; }
 

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace DataRepository.DataRepositoryEntities
 {
-    public class DifficultyLevels
+    public class DifficultyLevels:IRepository
     {
         public int Id { get; set; }
 

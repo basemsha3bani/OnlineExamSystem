@@ -33,6 +33,7 @@ namespace OnlineExamSystem
             services.AddScoped<IExamTypesService, ExamTypesService>();
             services.AddScoped<IQuestionAnswersService, QuestionAnswersService>();
             services.AddScoped<IQuestionsService, QuestionsService>();
+            services.AddServicesOnWhichServiceClassLibaryDepend();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

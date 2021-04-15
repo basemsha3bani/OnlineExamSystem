@@ -1,4 +1,5 @@
 ﻿using DataModel;
+using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
 using ServicesClasseslibrary.Interface;
 using System;
 using System.Collections.Generic;
@@ -8,6 +9,11 @@ namespace ServicesClasseslibrary
 {
     public class QuestionsService : IQuestionsService
     {
+        private readonly IQuestionsOperations _questionsOperations;
+        public  QuestionsService(IQuestionsOperations questionsOperations)
+        {
+            throw new NotImplementedException();
+        }
         public void Add(QuestionsDataModel questionAnswers)
         {
             throw new NotImplementedException();

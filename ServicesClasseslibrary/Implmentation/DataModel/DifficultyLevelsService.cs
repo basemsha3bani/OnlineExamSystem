@@ -1,4 +1,6 @@
 ﻿using DataModel;
+using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
+using ServicesClasseslibrary.Interface;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -6,30 +8,36 @@ using System.Text;
 namespace ServicesClasseslibrary
 {
     public class DifficultyLevelsService : IDifficultyLevelsService
+
     {
+        private readonly IDifficultyLevelsOperations _difficultyLevelsOperations;
+       public DifficultyLevelsService(IDifficultyLevelsOperations difficultyLevelsOperations)
+        {
+            _difficultyLevelsOperations = difficultyLevelsOperations;
+        }
         public void Add(DifficultyLevelsDataModel difficultyLevels)
         {
-            throw new NotImplementedException();
+            _difficultyLevelsOperations.Add(difficultyLevels);
         }
 
         public void Delete(int id)
         {
-            throw new NotImplementedException();
+            _difficultyLevelsOperations.Delete(id);
         }
 
         public void Edit(DifficultyLevelsDataModel model)
         {
-            throw new NotImplementedException();
+            _difficultyLevelsOperations.Edit(model);
         }
 
         public DifficultyLevelsDataModel GetById(int id)
         {
-            throw new NotImplementedException();
+           return _difficultyLevelsOperations.GetById(id);
         }
 
         public List<DifficultyLevelsDataModel> list()
         {
-            throw new NotImplementedException();
+            return _difficultyLevelsOperations.list();
         }
     }
 }

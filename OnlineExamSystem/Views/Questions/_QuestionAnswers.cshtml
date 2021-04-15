@@ -1,0 +1,53 @@
+﻿@model IEnumerable<DataModel.QuestionAnswersDataModel>
+
+@{
+    ViewData["Title"] = "_QuestionAnswers";
+}
+
+<h1>_QuestionAnswers</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+              
+            </th>
+            <th>
+               
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AnswerText)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsCorrext)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.QuestionId)
+            </td>
+            <td>
+                @Html.TextBoxFor(modelItem => item.AnswerText)
+            </td>
+            <td>
+                @Html.RadioButton("IsCorrext", item.IsCorrext, new {name="rbCorectAnswer"})
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

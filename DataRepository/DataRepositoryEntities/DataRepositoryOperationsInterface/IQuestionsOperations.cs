@@ -4,7 +4,8 @@ using System.Text;
 
 namespace DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface
 {
-    interface IQuestionsOperations
+   public interface IQuestionsOperations
     {
+
     }
 }

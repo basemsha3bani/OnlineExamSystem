@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ServicesClasseslibrary
+namespace ServicesClasseslibrary.Interface
 {
    public interface IDifficultyLevelsService
     {
