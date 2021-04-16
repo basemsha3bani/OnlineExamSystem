@@ -5,7 +5,7 @@ using System.Text;
 
 namespace DataRepository.DataRepositoryEntities
 {
-    public class Questions
+    public class Questions:IRepository
     {
         public int Id { get; set; }
 

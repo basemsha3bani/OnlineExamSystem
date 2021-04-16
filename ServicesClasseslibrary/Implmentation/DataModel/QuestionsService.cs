@@ -10,13 +10,14 @@ namespace ServicesClasseslibrary
     public class QuestionsService : IQuestionsService
     {
         private readonly IQuestionsOperations _questionsOperations;
-        public  QuestionsService(IQuestionsOperations questionsOperations)
+        public QuestionsService(IQuestionsOperations questionsOperations)
         {
-            throw new NotImplementedException();
+            _questionsOperations = questionsOperations;
         }
-        public void Add(QuestionsDataModel questionAnswers)
+        
+        public void Add(QuestionsDataModel questions)
         {
-            throw new NotImplementedException();
+            _questionsOperations.Add(questions);
         }
 
         public void Delete(int id)
@@ -24,9 +25,9 @@ namespace ServicesClasseslibrary
            
         }
 
-        public void Edit(QuestionsDataModel questionAnswers)
+        public void Edit(QuestionsDataModel questions)
         {
-           
+            _questionsOperations.Edit(questions);
         }
 
         public QuestionsDataModel GetById(int id)
@@ -36,7 +37,7 @@ namespace ServicesClasseslibrary
 
         public List<QuestionsDataModel> list()
         {
-            return null;
+           return _questionsOperations.list();
         }
     }
 }

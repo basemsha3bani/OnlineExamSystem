@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DataModel;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -6,6 +7,17 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterfac
 {
    public interface IQuestionsOperations
     {
+        void Add(QuestionsDataModel questions);
+        void Edit(QuestionsDataModel questions);
+
+
+
+        void Delete(int id);
+
+
+        QuestionsDataModel GetById(int id);
+
+        List<QuestionsDataModel> list();
 
     }
 }
