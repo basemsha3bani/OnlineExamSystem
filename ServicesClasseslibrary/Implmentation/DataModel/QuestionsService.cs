@@ -3,16 +3,18 @@ using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
 using ServicesClasseslibrary.Interface;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace ServicesClasseslibrary
 {
     public class QuestionsService : IQuestionsService
     {
         private readonly IQuestionsOperations _questionsOperations;
+      
         public  QuestionsService(IQuestionsOperations questionsOperations)
         {
-            throw new NotImplementedException();
+            _questionsOperations = questionsOperations;
+           
         }
         public void Add(QuestionsDataModel questionAnswers)
         {
@@ -31,12 +33,19 @@ namespace ServicesClasseslibrary
 
         public QuestionsDataModel GetById(int id)
         {
-            return null;
+          return _questionsOperations.GetById(id);
         }
 
         public List<QuestionsDataModel> list()
         {
-            return null;
+            var questions = _questionsOperations.list();
+            return (from qrec in questions
+                    select new QuestionsDataModel
+                    {
+                        Id = qrec.Id,
+                        QuestionText = qrec.QuestionText,
+                        DifficultyLevelId = qrec.DifficultyLevelId
+                    }).ToList();
         }
     }
 }

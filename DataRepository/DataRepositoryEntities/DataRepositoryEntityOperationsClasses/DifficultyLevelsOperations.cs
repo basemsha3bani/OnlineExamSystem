@@ -1,6 +1,7 @@
 ﻿using DataModel;
 using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
 using DataRepository.GateWay;
+using DataRepository.ModelMapper.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,8 +9,9 @@ using System.Text;
 
 namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses
 {
-    public class DifficultyLevelsOperations : IDifficultyLevelsOperations
+    public class DifficultyLevelsOperations : IDifficultyLevelsOperations, IModelMapper<DifficultyLevelsDataModel>
     {
+      
         RepositoryGateWay<DifficultyLevels> DifficultyLevelsRepositoryGateWay = new RepositoryGateWay<DifficultyLevels>();
         public void Add(DifficultyLevelsDataModel difficultyLevels)
         {
@@ -35,20 +37,33 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
         public DifficultyLevelsDataModel GetById(int id)
         {
             DifficultyLevels difficultyLevelsInstance = new DifficultyLevels();
+            difficultyLevelsInstance = new DifficultyLevels();
             difficultyLevelsInstance = DifficultyLevelsRepositoryGateWay.GetById(g => g.Id == id);
-            return new DataModel.DifficultyLevelsDataModel { Id = difficultyLevelsInstance.Id, DifficultyLevelName = difficultyLevelsInstance.DifficultyLevelName };
+            return (DifficultyLevelsDataModel) this.Map(difficultyLevelsInstance);
+
+            //return new DataModel.DifficultyLevelsDataModel { Id = difficultyLevelsInstance.Id, DifficultyLevelName = difficultyLevelsInstance.DifficultyLevelName };
         }
 
         public List<DifficultyLevelsDataModel> list()
         {
-            List<DifficultyLevels> difficultyLevels = DifficultyLevelsRepositoryGateWay.List();
-            return (from df in difficultyLevels
-                    select new DifficultyLevelsDataModel
-                    {
-                        Id = df.Id,
-                        DifficultyLevelName = df.DifficultyLevelName
-                    }).ToList();
+           List<DifficultyLevelsDataModel> listOfDifficultyLevels = DifficultyLevelsRepositoryGateWay.List().Select
+                (s=>new DifficultyLevelsDataModel  { Id = s.Id, DifficultyLevelName = s.DifficultyLevelName }).ToList();
+            return listOfDifficultyLevels;
 
         }
+
+        public DifficultyLevelsDataModel Map(IRepository RepoistoryObject)
+        {
+            DifficultyLevels difficultyLevelsInstance = (DifficultyLevels)RepoistoryObject;
+
+            return new DataModel.DifficultyLevelsDataModel { Id = difficultyLevelsInstance.Id, DifficultyLevelName = difficultyLevelsInstance.DifficultyLevelName };
+        }
+
+       
+
+
+
+
     }
+    
 }

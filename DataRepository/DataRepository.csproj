@@ -49,8 +49,4 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="ModelMappers\Interface\" />
-  </ItemGroup>
-
 </Project>

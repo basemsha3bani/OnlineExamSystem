@@ -37,7 +37,8 @@ namespace OnlineExamSystem.Controllers
         // GET: Questions/Create
         public IActionResult Create()
         {
-            var x = new List<QuestionAnswersDataModel>(5);
+            var x = new List<QuestionAnswersDataModel>(5) {
+            new QuestionAnswersDataModel(),new QuestionAnswersDataModel(),new QuestionAnswersDataModel(),new QuestionAnswersDataModel(),new QuestionAnswersDataModel(), };
 
             ViewData["DifficultyLevelId"] = new SelectList(_difficultyLevelsService.list(), "Id", "DifficultyLevelName");
             

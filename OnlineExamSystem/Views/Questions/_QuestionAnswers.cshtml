@@ -4,11 +4,9 @@
     ViewData["Title"] = "_QuestionAnswers";
 }
 
-<h1>_QuestionAnswers</h1>
+<h1>_uestion Answers</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+
 <table class="table">
     <thead>
         <tr>
@@ -30,23 +28,20 @@
     <tbody>
 @foreach (var item in Model) {
         <tr>
-            <td>
+            <td style="visibility:hidden">
                 @Html.DisplayFor(modelItem => item.Id)
             </td>
-            <td>
+            <td style="visibility:hidden">
                 @Html.DisplayFor(modelItem => item.QuestionId)
             </td>
             <td>
                 @Html.TextBoxFor(modelItem => item.AnswerText)
+                @Html.ValidationMessageFor(modelItem => item.AnswerText)
             </td>
             <td>
-                @Html.RadioButton("IsCorrext", item.IsCorrext, new {name="rbCorectAnswer"})
+                @Html.RadioButton("IsCorrext", item.IsCorrext, new { name = "rbCorectAnswer" })
             </td>
-            <td>
-                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
-            </td>
+
         </tr>
 }
     </tbody>

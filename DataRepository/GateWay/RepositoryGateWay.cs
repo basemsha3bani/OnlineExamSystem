@@ -7,30 +7,30 @@ using System.Text;
 
 namespace DataRepository.GateWay
 {
-    public class RepositoryGateWay<TModelRepository> where TModelRepository:class
+    public class RepositoryGateWay<TModelRepository> where TModelRepository : class
     {
         DbConext dbConext = new DbConext();
-       
 
 
-        internal  void Add(IRepository repository)
+
+        internal void Add(IRepository repository)
         {
             dbConext.Entry(repository).State = EntityState.Added;
 
             dbConext.SaveChanges();
         }
-        internal  void Edit(IRepository repository)
+        internal void Edit(IRepository repository)
         {
 
             dbConext.Entry(repository).State = EntityState.Modified;
-          
-            dbConext.SaveChanges();
-            
 
-         
+            dbConext.SaveChanges();
+
+
+
         }
 
-        
+
 
         internal void Edit(IRepository repository, IRepository withnewvalues)
         {
@@ -38,10 +38,10 @@ namespace DataRepository.GateWay
 
             dbConext.Entry(withnewvalues).State = EntityState.Modified;
             dbConext.SaveChanges();
-           
+
         }
 
-        internal  void Delete(IRepository repository)
+        internal void Delete(IRepository repository)
         {
             dbConext.Entry(repository).State = EntityState.Deleted;
 
@@ -52,15 +52,25 @@ namespace DataRepository.GateWay
         {
             return dbConext.Set<TModelRepository>().Where(predicate).FirstOrDefault();
 
-           
+
         }
 
-        internal List<TModelRepository> List()
+        internal List<TModelRepository> List(Expression<Func<TModelRepository, bool>> predicate = null, params Expression<Func<TModelRepository, object>>[] includeProperties)
         {
-          return  dbConext.Set<TModelRepository>().ToList();
-
            
+            if(predicate==null)
+            {
+                return (includeProperties.Aggregate
+             (dbConext.Set<TModelRepository>(), (current, includeProperty) => (DbSet<TModelRepository>)current.Include(includeProperty)).ToList());
+            }
+
+            return (includeProperties.Aggregate
+               (dbConext.Set<TModelRepository>().Where(predicate), (current, includeProperty) => current.Include(includeProperty)).ToList());
         }
+
+
+       
+       
 
 
 
@@ -68,5 +78,5 @@ namespace DataRepository.GateWay
 
 
     }
-    
+
 }

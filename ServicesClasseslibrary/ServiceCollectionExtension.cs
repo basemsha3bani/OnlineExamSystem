@@ -9,6 +9,7 @@ using DataRepository.GateWay;
 using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
 using DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses;
 
+
 namespace ServicesClasseslibrary
 {
     public static  class ServiceCollectionExtension
@@ -17,6 +18,8 @@ namespace ServicesClasseslibrary
         {
 
             services.AddScoped<IDifficultyLevelsOperations, DifficultyLevelsOperations>();
+            services.AddScoped<IQuestionsOperations, QuestionsOperations>();
+         
             //services.AddScoped<ISystemSettingsModelMapper, SystemSettingsModelMapper>();
             //services.AddScoped<IRegistrarsModelMapper, RegistrarsModelMapper>();
             //services.AddScoped<IVaccinationTypesModelMapper, VaccinationTypesModelMapper>();
@@ -25,7 +28,7 @@ namespace ServicesClasseslibrary
             //services.AddScoped<RecordListInterface<VaccinationTypesRepository>, RepositoryGateWay<VaccinationTypesRepository>>();
             //services.AddScoped<RecordListInterface<VaccinationReservationRepository>, RepositoryGateWay<VaccinationReservationRepository>>();
             //services.AddScoped<RecordListInterface<SystemSettingsRepository>, RepositoryGateWay<SystemSettingsRepository>>();
-            
+
             return services;
         }
        

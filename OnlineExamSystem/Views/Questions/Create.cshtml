@@ -9,9 +9,10 @@
 <h4>Questions</h4>
 <hr />
 <div class="container">
-    <div class="row">
-        <div class="col-md-4">
-            <form asp-action="Create">
+    <form asp-action="Create">
+        <div class="row">
+            <div class="col-md-4">
+
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="form-group">
                     <label asp-for="QuestionText" class="control-label"></label>
@@ -23,16 +24,16 @@
                     <select asp-for="DifficultyLevelId" class="form-control" asp-items="ViewBag.DifficultyLevelId"></select>
                 </div>
 
-            </form>
-        </div>
-    </div>
-    <div class="row">
-        @Html.PartialAsync("_QuestionAnswers", Model.QuestionAnswersDataModel);
-        <div class="form-group">
-            <input type="submit" value="Save" class="btn btn-primary" />
-        </div>
-    </div>
 
+            </div>
+        </div>
+        <div class="row">
+            @Html.Partial("_QuestionAnswers", Model.QuestionAnswersDataModel);
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </div>
+    </form>
     <div>
         <a asp-action="Index">Back to List</a>
     </div>

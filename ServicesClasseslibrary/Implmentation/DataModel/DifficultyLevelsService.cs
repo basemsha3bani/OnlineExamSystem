@@ -1,5 +1,6 @@
 ﻿using DataModel;
 using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
+
 using ServicesClasseslibrary.Interface;
 using System;
 using System.Collections.Generic;
@@ -11,9 +12,11 @@ namespace ServicesClasseslibrary
 
     {
         private readonly IDifficultyLevelsOperations _difficultyLevelsOperations;
-       public DifficultyLevelsService(IDifficultyLevelsOperations difficultyLevelsOperations)
+       
+        public DifficultyLevelsService(IDifficultyLevelsOperations difficultyLevelsOperations)
         {
             _difficultyLevelsOperations = difficultyLevelsOperations;
+           
         }
         public void Add(DifficultyLevelsDataModel difficultyLevels)
         {
@@ -32,7 +35,8 @@ namespace ServicesClasseslibrary
 
         public DifficultyLevelsDataModel GetById(int id)
         {
-           return _difficultyLevelsOperations.GetById(id);
+            return _difficultyLevelsOperations.GetById(id);
+
         }
 
         public List<DifficultyLevelsDataModel> list()
