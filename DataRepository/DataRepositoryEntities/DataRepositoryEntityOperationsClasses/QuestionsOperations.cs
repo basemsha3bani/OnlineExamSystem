@@ -11,10 +11,37 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
 {
    public class QuestionsOperations : IQuestionsOperations, IModelMapper<QuestionsDataModel>
     {
-        RepositoryGateWay<Questions> repositoryGateWay;
-        public void Add(Questions questions)
+        ContextGateway<Questions> repositoryGateWay;
+        public void Add(QuestionsDataModel questionsDataModel)
         {
+            Questions Question= new Questions
+            {
+                Id = questionsDataModel.Id,
+                QuestionText = questionsDataModel.QuestionText,
+                DifficultyLevelId = questionsDataModel.DifficultyLevelId,
+
+
+            };
             
+            ContextGateway<Questions>.CreateDatabaseTransaction();
+            ContextGateway<Questions>.Add(Question);
+            
+            foreach(QuestionAnswersDataModel questionAnswers in questionsDataModel.QuestionAnswersDataModel)
+            {
+
+                ContextGateway<Questions>.Add(
+                    new QuestionAnswers
+                    {
+                        Id = questionAnswers.Id,
+                        AnswerText = questionAnswers.AnswerText,
+                        IsCorrect = questionAnswers.IsCorrext,
+                        QuestionId = Question.Id
+                    });
+            }
+            ContextGateway<Questions>.Commit();
+
+
+
         }
 
         public void Delete(int id)
@@ -22,28 +49,28 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
            
         }
 
-        public void Edit(Questions questions)
+        public void Edit(QuestionsDataModel questions)
         {
            
         }
 
         public QuestionsDataModel GetById(int id)
         {
-            repositoryGateWay = new RepositoryGateWay<Questions>();
-            RepositoryGateWay<QuestionAnswers> QuestionAnswersRepositoryGateWay;
+            //repositoryGateWay = new RepositoryGateWay<Questions>();
+            //RepositoryGateWay<QuestionAnswers> QuestionAnswersRepositoryGateWay;
 
-            Questions questions = repositoryGateWay.GetById(e => e.Id == id);
-            QuestionAnswersRepositoryGateWay = new RepositoryGateWay<QuestionAnswers>();
-            questions.QuestionAnswers = QuestionAnswersRepositoryGateWay.List(e => e.QuestionId == id);
+           Questions questions = ContextGateway<Questions>.GetById(e => e.Id == id);
+            //QuestionAnswersRepositoryGateWay = new RepositoryGateWay<QuestionAnswers>();
+            questions.QuestionAnswers = ContextGateway<QuestionAnswers>.List(e => e.QuestionId == id);
             return this.Map(questions);
         }
 
         public List<QuestionsDataModel> list()
         {
-            repositoryGateWay = new RepositoryGateWay<Questions>();
-            RepositoryGateWay<QuestionAnswers> QuestionAnswersRepositoryGateWay = new RepositoryGateWay<QuestionAnswers>();
-          
-            return repositoryGateWay.List(l=>l.Id==l.Id,i=>i.QuestionAnswers).Select
+            //repositoryGateWay = new RepositoryGateWay<Questions>();
+            //RepositoryGateWay<QuestionAnswers> QuestionAnswersRepositoryGateWay = new RepositoryGateWay<QuestionAnswers>();
+            ContextGateway<Questions>.GetContextInstance();
+            return ContextGateway <Questions>.List(l=>l.Id==l.Id,i=>i.QuestionAnswers).Select
                 (s => new QuestionsDataModel
                 {
                     Id = s.Id,

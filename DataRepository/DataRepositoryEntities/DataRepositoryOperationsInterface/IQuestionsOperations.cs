@@ -7,8 +7,8 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterfac
 {
    public interface IQuestionsOperations
     {
-        void Add(Questions questions);
-        void Edit(Questions questions);
+        void Add(QuestionsDataModel questions);
+        void Edit(QuestionsDataModel questions);
 
 
 

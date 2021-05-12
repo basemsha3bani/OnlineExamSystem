@@ -5,7 +5,7 @@ using System.Text;
 
 namespace DataRepository.DataRepositoryEntities
 {
-  public  class QuestionAnswers
+  public  class QuestionAnswers:IRepository
     {
         public int Id { get; set; }
         [ForeignKey("Question")]

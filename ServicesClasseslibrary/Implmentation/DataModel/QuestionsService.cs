@@ -18,7 +18,7 @@ namespace ServicesClasseslibrary
         }
         public void Add(QuestionsDataModel questionAnswers)
         {
-            throw new NotImplementedException();
+            _questionsOperations.Add(questionAnswers);
         }
 
         public void Delete(int id)

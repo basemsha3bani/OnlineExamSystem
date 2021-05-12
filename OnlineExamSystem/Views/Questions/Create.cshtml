@@ -28,7 +28,56 @@
             </div>
         </div>
         <div class="row">
-            @Html.Partial("_QuestionAnswers", Model.QuestionAnswersDataModel);
+            <h1>_uestion Answers</h1>
+
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+
+                        </th>
+                        <th>
+
+                        </th>
+                        <th>
+                           Answer text
+                        </th>
+                        <th>
+                          Is correct
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int counter = 0;
+                    }
+                    @foreach (var item in Model.QuestionAnswersDataModel)
+                    { 
+
+                        <tr>
+                            <td style="visibility:hidden">
+                                <input asp-for="@item.Id"  type="hidden" name="QuestionAnswersDataModel[@counter].Id" id="QuestionAnswersDataModel[@counter].Id" />
+                            </td>
+                            <td style="visibility:hidden">
+                                <input asp-for="@item.QuestionId" name="QuestionAnswersDataModel[@counter].QuestionId" id="QuestionAnswersDataModel[@counter].QuestionId"   type="hidden" />
+                            </td>
+                            <td>
+                                
+                                <input asp-for="@item.AnswerText" class="form-control" name="QuestionAnswersDataModel[@counter].AnswerText" id="QuestionAnswersDataModel[@counter].AnswerText"   />
+                                @Html.ValidationMessageFor(x=>Model.QuestionAnswersDataModel[counter].AnswerText)
+                            </td>
+                            <td>
+                              <input type="radio" asp-for="@item.IsCorrext" value="@item.Id" name="IsCorrext" id="QuestionAnswersDataModel[@counter].IsCorrext" />
+                            </td>
+
+                        </tr>
+                        counter++;
+                    }
+                </tbody>
+            </table>
+
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>

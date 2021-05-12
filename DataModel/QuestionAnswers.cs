@@ -10,7 +10,7 @@ namespace  DataModel
         public int Id { get; set; }
 
         public int QuestionId { get; set; }
-        [Required]
+       // [Required]
         public String AnswerText { get; set; }
 
         public bool IsCorrext { get; set; }  
