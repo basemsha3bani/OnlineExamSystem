@@ -28,7 +28,7 @@ namespace ServicesClasseslibrary
 
         public void Edit(QuestionsDataModel questionAnswers)
         {
-           
+            _questionsOperations.Edit(questionAnswers);
         }
 
         public QuestionsDataModel GetById(int id)

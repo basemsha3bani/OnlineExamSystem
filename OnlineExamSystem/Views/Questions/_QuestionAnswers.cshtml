@@ -39,7 +39,7 @@
                 @Html.ValidationMessageFor(modelItem => item.AnswerText)
             </td>
             <td>
-                @Html.RadioButton("IsCorrext", item.IsCorrext, new { name = "rbCorectAnswer" })
+                    @Html.RadioButtonFor(modelItem => item.IsCorrext,item.IsCorrext,new {name=item.radioButtonDisplay})
             </td>
 
         </tr>

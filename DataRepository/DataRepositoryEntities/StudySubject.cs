@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace DataRepository
+namespace DataRepository.DataRepositoryEntities
 {
     public class StudySubject:IRepository
     {

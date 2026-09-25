@@ -1,15 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using DataModel;
+using DataRepository.DataRepositoryEntities;
+using DataRepository.GateWay;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using DataRepository.DataRepositoryEntities;
-using DataRepository.GateWay;
-using ServicesClasseslibrary.Interface;
-using DataModel;
 using ServicesClasseslibrary;
+using ServicesClasseslibrary.Interface;
+using ServicesClasseslibrary.Interface.DataModel;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace OnlineExamSystem.Controllers
 {
@@ -17,11 +18,15 @@ namespace OnlineExamSystem.Controllers
     {
         private readonly IQuestionsService _questionsService;
         private readonly IDifficultyLevelsService _difficultyLevelsService;
+        private readonly IStudySubjectsService _studySubjectsService;
+        
 
-        public QuestionsController(IQuestionsService questionsService, IDifficultyLevelsService difficultyLevelsService)
+        public QuestionsController(IQuestionsService questionsService, IDifficultyLevelsService difficultyLevelsService,
+            IStudySubjectsService studySubjectsService )
         {
             _questionsService = questionsService;
             _difficultyLevelsService = difficultyLevelsService;
+            _studySubjectsService = studySubjectsService;
         }
 
         // GET: Questions
@@ -41,7 +46,7 @@ namespace OnlineExamSystem.Controllers
             new QuestionAnswersDataModel(),new QuestionAnswersDataModel(),new QuestionAnswersDataModel(),new QuestionAnswersDataModel(),new QuestionAnswersDataModel(), };
 
             ViewData["DifficultyLevelId"] = new SelectList(_difficultyLevelsService.list(), "Id", "DifficultyLevelName");
-            
+            ViewData["StudySubjectsId"] = new SelectList(_studySubjectsService.list(), "Id", "SubjectName");
             return View(new QuestionsDataModel { QuestionAnswersDataModel=x });
         }
 
@@ -58,6 +63,7 @@ namespace OnlineExamSystem.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["DifficultyLevelId"] = new SelectList(_difficultyLevelsService.list(), "Id", "DifficultyLevelName");
+            ViewData["StudySubjectsId"] = new SelectList(_studySubjectsService.list(), "Id", "SubjectName");
             return View(questions);
         }
 
@@ -74,7 +80,8 @@ namespace OnlineExamSystem.Controllers
             {
                 return NotFound();
             }
-            ViewData["DifficultyLevelId"] = new SelectList(_difficultyLevelsService.list(), "Id", "DifficultyLevelName");
+            ViewData["DifficultyLevelId"] = new SelectList(_difficultyLevelsService.list(), "Id", "DifficultyLevelName",questions.DifficultyLevelId);
+            ViewData["StudySubjectsId"] = new SelectList(_studySubjectsService.list(), "Id", "SubjectName",questions.StudySubjectId);
             return View(questions);
         }
 
@@ -83,7 +90,7 @@ namespace OnlineExamSystem.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, [Bind("Id,QuestionText,DifficultyLevelId")] QuestionsDataModel questions)
+        public IActionResult Edit(int id, [Bind("Id,QuestionText,DifficultyLevelId,StudySubjectId")] QuestionsDataModel questions)
         {
             if (id != questions.Id)
             {

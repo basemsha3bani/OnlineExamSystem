@@ -15,12 +15,12 @@ namespace DataRepository.DataRepositoryEntities
 
         [ForeignKey("DifficultyLevel")]
         public int DifficultyLevelId { get; set; }
-
-
+        [ForeignKey("StudySubject")]
+        public int? StudySubjectId { get; set; }
         public virtual DifficultyLevels DifficultyLevel { get; set; }
 
 
-        public virtual ICollection<ExamQuestions> ExamQuestions { get; set; }
+       // public virtual ICollection<ExamQuestions> ExamQuestions { get; set; }
 
     }
 }

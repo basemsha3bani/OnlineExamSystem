@@ -11,7 +11,7 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
 {
    public class QuestionsOperations : IQuestionsOperations, IModelMapper<QuestionsDataModel>
     {
-        ContextGateway<Questions> repositoryGateWay;
+        
         public void Add(QuestionsDataModel questionsDataModel)
         {
             Questions Question= new Questions
@@ -19,6 +19,7 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
                 Id = questionsDataModel.Id,
                 QuestionText = questionsDataModel.QuestionText,
                 DifficultyLevelId = questionsDataModel.DifficultyLevelId,
+                StudySubjectId=questionsDataModel.StudySubjectId,
 
 
             };
@@ -58,9 +59,10 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
         {
             //repositoryGateWay = new RepositoryGateWay<Questions>();
             //RepositoryGateWay<QuestionAnswers> QuestionAnswersRepositoryGateWay;
-
-           Questions questions = ContextGateway<Questions>.GetById(e => e.Id == id);
+            ContextGateway<Questions>.GetContextInstance();
+            Questions questions = ContextGateway<Questions>.GetById(e => e.Id == id);
             //QuestionAnswersRepositoryGateWay = new RepositoryGateWay<QuestionAnswers>();
+            ContextGateway<QuestionAnswers>.GetContextInstance();
             questions.QuestionAnswers = ContextGateway<QuestionAnswers>.List(e => e.QuestionId == id);
             return this.Map(questions);
         }
@@ -105,7 +107,8 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
                            QuestionId = qa.QuestionId,
                            AnswerText = qa.AnswerText,
                            IsCorrext = qa.IsCorrect,
-                           Id = qa.Id
+                           Id = qa.Id,
+                           radioButtonDisplay=string.Join("",qa.Id,"rbIsCorrect")
 
                        }).ToList()
 

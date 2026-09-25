@@ -13,7 +13,7 @@ namespace DataModel
 
         public int DifficultyLevelId { get; set; }
 
-
+        public int? StudySubjectId { get; set; }
         public List<QuestionAnswersDataModel> QuestionAnswersDataModel { get; set; }
 }
 }
