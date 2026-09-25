@@ -1,7 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses;
+using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -10,6 +8,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ServicesClasseslibrary;
 using ServicesClasseslibrary.Interface;
+using ServicesClasseslibrary.Interface.DataModel;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace OnlineExamSystem
 {
@@ -33,6 +36,8 @@ namespace OnlineExamSystem
             services.AddScoped<IExamTypesService, ExamTypesService>();
             services.AddScoped<IQuestionAnswersService, QuestionAnswersService>();
             services.AddScoped<IQuestionsService, QuestionsService>();
+            services.AddScoped<IStudySubjectsOperations, StudySubjectsOperations>();
+            services.AddScoped<IStudySubjectsService, StudySubjectsService>();
             services.AddServicesOnWhichServiceClassLibaryDepend();
         }
 

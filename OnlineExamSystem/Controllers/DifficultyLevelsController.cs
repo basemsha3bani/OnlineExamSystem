@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DataRepository.DataRepositoryEntities;
 using DataRepository.GateWay;
-using ServicesClasseslibrary;
 using DataModel;
 using ServicesClasseslibrary.Interface;
 

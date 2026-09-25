@@ -19,7 +19,9 @@ namespace ServicesClasseslibrary
 
             services.AddScoped<IDifficultyLevelsOperations, DifficultyLevelsOperations>();
             services.AddScoped<IQuestionsOperations, QuestionsOperations>();
-         
+            services.AddScoped<IStudySubjectsOperations, StudySubjectsOperations>();
+          
+
             //services.AddScoped<ISystemSettingsModelMapper, SystemSettingsModelMapper>();
             //services.AddScoped<IRegistrarsModelMapper, RegistrarsModelMapper>();
             //services.AddScoped<IVaccinationTypesModelMapper, VaccinationTypesModelMapper>();
