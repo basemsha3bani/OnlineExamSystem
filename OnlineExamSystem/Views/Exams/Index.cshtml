@@ -1,0 +1,17 @@
+﻿@using DataModel
+@model List<ExamDataModel>
+<a asp-action="Create" class="btn btn-primary">Add Exam</a>
+<table class="table">
+    <tr><th>Title</th><th>Subject</th><th>Actions</th></tr>
+    @foreach (var e in Model)
+    {
+        <tr>
+            <td>@e.Title</td>
+            <td>@e.StudySubjectName</td>
+            <td>
+                <a asp-action="Details" asp-route-id="@e.Id">Sections</a> |
+                <a asp-action="Edit" asp-route-id="@e.Id">Edit</a>
+            </td>
+        </tr>
+    }
+</table>

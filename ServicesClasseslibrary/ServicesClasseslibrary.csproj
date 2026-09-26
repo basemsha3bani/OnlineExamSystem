@@ -10,4 +10,8 @@
     <ProjectReference Include="..\DataRepository\DataRepository.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Implmentation\Builder\" />
+  </ItemGroup>
+
 </Project>

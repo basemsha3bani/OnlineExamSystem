@@ -28,7 +28,18 @@ namespace OnlineExamSystem
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDistributedMemoryCache();
+
             services.AddControllersWithViews();
+
+            // 2. ADD THIS
+         
+            services.AddControllersWithViews();
+            services.AddSession(options => {
+                options.IdleTimeout = TimeSpan.FromMinutes(60);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
             services.AddScoped<IDifficultyLevelsService, DifficultyLevelsService>();
             
             services.AddScoped<IExamQuestionsService, ExamQuestionsService>();
@@ -40,6 +51,7 @@ namespace OnlineExamSystem
             services.AddScoped<IStudySubjectsService, StudySubjectsService>();
             services.AddScoped<IExamService, ExamService>();
             services.AddScoped<IExamSectionService, ExamSectionService>();
+            services.AddScoped<IUserService, UserService>();
             services.AddServicesOnWhichServiceClassLibaryDepend();
         }
 
@@ -62,7 +74,7 @@ namespace OnlineExamSystem
             app.UseRouting();
 
             app.UseAuthorization();
-
+            app.UseSession();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(

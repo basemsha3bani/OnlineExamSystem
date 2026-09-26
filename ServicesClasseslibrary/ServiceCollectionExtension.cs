@@ -1,13 +1,14 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿//using DataRepository.ModelMappers;
+//using DataRepository.ModelMappers.Interface;
+using DataRepository;
+using DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses;
+using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
+using DataRepository.GateWay;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Text;
-//using DataRepository.ModelMappers;
-//using DataRepository.ModelMappers.Interface;
-using DataRepository;
-using DataRepository.GateWay;
-using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
-using DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses;
+using static DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses.ExamsOperations;
 
 
 namespace ServicesClasseslibrary
@@ -20,16 +21,12 @@ namespace ServicesClasseslibrary
             services.AddScoped<IDifficultyLevelsOperations, DifficultyLevelsOperations>();
             services.AddScoped<IQuestionsOperations, QuestionsOperations>();
             services.AddScoped<IStudySubjectsOperations, StudySubjectsOperations>();
-          
+            services.AddScoped<IExamOprations, ExamsOperations>();
+            services.AddScoped<IExamSectionsOperations, ExamSectionsOperations>();
+            services.AddScoped<IUserOperations, UserOperations>();
 
-            //services.AddScoped<ISystemSettingsModelMapper, SystemSettingsModelMapper>();
-            //services.AddScoped<IRegistrarsModelMapper, RegistrarsModelMapper>();
-            //services.AddScoped<IVaccinationTypesModelMapper, VaccinationTypesModelMapper>();
-            //services.AddScoped<IVaccinationAppointmentModelMapper, VaccinationAppointmentModelMapper>();
-            //services.AddScoped<RecordListInterface<RegistrarsRepository>, RepositoryGateWay<RegistrarsRepository>>();
-            //services.AddScoped<RecordListInterface<VaccinationTypesRepository>, RepositoryGateWay<VaccinationTypesRepository>>();
-            //services.AddScoped<RecordListInterface<VaccinationReservationRepository>, RepositoryGateWay<VaccinationReservationRepository>>();
-            //services.AddScoped<RecordListInterface<SystemSettingsRepository>, RepositoryGateWay<SystemSettingsRepository>>();
+
+
 
             return services;
         }

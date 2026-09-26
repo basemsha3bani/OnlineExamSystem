@@ -39,13 +39,7 @@ namespace ServicesClasseslibrary
         public List<QuestionsDataModel> list()
         {
             var questions = _questionsOperations.list();
-            return (from qrec in questions
-                    select new QuestionsDataModel
-                    {
-                        Id = qrec.Id,
-                        QuestionText = qrec.QuestionText,
-                        DifficultyLevelId = qrec.DifficultyLevelId
-                    }).ToList();
+            return (questions);
         }
     }
 }

@@ -1,0 +1,27 @@
+﻿@using DataModel
+@model LoginModel
+@{
+    Layout = null; // or keep _Layout if you want
+}
+<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+<div class="container mt-5" style="max-width:400px">
+    <h3>Login</h3>
+    <form asp-action="Login" method="post">
+        <div class="mb-3">
+            <label>Username</label>
+            <input asp-for="Username" class="form-control" required />
+        </div>
+        <div class="mb-3">
+            <label>Password</label>
+            <input asp-for="Password" type="password" class="form-control" required />
+        </div>
+        <div class="text-danger">
+            @Html.ValidationSummary()
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+    </form>
+    <p class="mt-3">No account? <a asp-action="Register">Register as Examiner</a></p>
+    <hr />
+    
+</div>

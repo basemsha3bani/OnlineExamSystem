@@ -20,7 +20,7 @@
                 @Html.DisplayNameFor(model => model.AnswerText)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.IsCorrext)
+                @Html.DisplayNameFor(model => model.IsCorrect)
             </th>
             <th></th>
         </tr>
@@ -39,7 +39,7 @@
                 @Html.ValidationMessageFor(modelItem => item.AnswerText)
             </td>
             <td>
-                    @Html.RadioButtonFor(modelItem => item.IsCorrext,item.IsCorrext,new {name=item.radioButtonDisplay})
+                    @Html.RadioButtonFor(modelItem => item.IsCorrect,item.IsCorrect,new {name=item.radioButtonDisplay})
             </td>
 
         </tr>

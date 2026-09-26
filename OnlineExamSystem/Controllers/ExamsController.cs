@@ -1,5 +1,4 @@
 ﻿using DataModel;
-using DataRepository.DataRepositoryEntities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.CodeAnalysis;
@@ -31,6 +30,7 @@ namespace OnlineExamSystem.Controllers
             ViewBag.StudySubjectsId = new SelectList(_subjectService.list(), "Value", "Text");
             return View(model);
         }
+    }
+
     
-}
 }

@@ -40,6 +40,16 @@ namespace DataRepository.GateWay
 
         }
 
+        internal static void Edit(IEnumerable<IRepository> repository)
+        {
+
+            dbConext.UpdateRange(repository);
+
+            dbConext.SaveChanges();
+
+
+
+        }
 
 
         internal static void Edit(IRepository repository, IRepository withnewvalues)
@@ -60,7 +70,15 @@ namespace DataRepository.GateWay
 
         internal static TModelRepository GetById(Expression<Func<TModelRepository, bool>> predicate, params Expression<Func<TModelRepository, object>>[] includeProperties)
         {
-            return dbConext.Set<TModelRepository>().Where(predicate).FirstOrDefault();
+            GetContextInstance();
+            if (predicate == null)
+            {
+                return (includeProperties.Aggregate
+             (dbConext.Set<TModelRepository>(), (current, includeProperty) => (DbSet<TModelRepository>)current.Include(includeProperty)).FirstOrDefault());
+            }
+
+            return (includeProperties.Aggregate
+               (dbConext.Set<TModelRepository>().AsNoTracking().Where(predicate), (current, includeProperty) => current.Include(includeProperty)).FirstOrDefault());
 
 
         }
@@ -75,7 +93,7 @@ namespace DataRepository.GateWay
             }
 
             return (includeProperties.Aggregate
-               (dbConext.Set<TModelRepository>().Where(predicate), (current, includeProperty) => current.Include(includeProperty)).ToList());
+               (dbConext.Set<TModelRepository>().AsNoTracking().Where(predicate), (current, includeProperty) => current.Include(includeProperty)).ToList());
         }
         private static IDbContextTransaction _transaction;
 

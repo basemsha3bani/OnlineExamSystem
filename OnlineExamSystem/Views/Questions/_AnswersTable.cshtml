@@ -14,13 +14,15 @@
             <tr>
                 <td class="text-center">
                     <!-- Same name = only one can be checked -->
-                    <input type="radio" name="CorrectAnswerIndex" value="@i"
-                           @(Model.QuestionAnswersDataModel[i].IsCorrext ? "checked" : "") required />
+                    <input type="radio"
+                           name="CorrectAnswerIndex"
+                           value="@i"
+                           @(Model.QuestionAnswersDataModel[i].IsCorrect ? "checked" : "") />
                     @Html.HiddenFor(m => m.QuestionAnswersDataModel[i].Id)
                     @Html.HiddenFor(m => m.QuestionAnswersDataModel[i].QuestionId)
                 </td>
                 <td>
-                    <input asp-for="QuestionAnswersDataModel[i].AnswerText" class="form-control" placeholder="Answer @(i + 1)" />
+                    <input asp-for="QuestionAnswersDataModel[i].AnswerText" class="form-control" required />
                     <span asp-validation-for="QuestionAnswersDataModel[i].AnswerText" class="text-danger"></span>
                 </td>
             </tr>

@@ -10,9 +10,13 @@ using System.Text;
 
 namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses
 {
-   public partial class QuestionsOperations : IQuestionsOperations, IModelMapper<QuestionsDataModel,Questions>
+   public  class QuestionsOperations : IQuestionsOperations, IModelMapper<QuestionsDataModel,Questions>
     {
-        
+        public QuestionsOperations()
+        {
+            ContextGateway<DifficultyLevels>.GetContextInstance();
+        }
+
         public void Add(QuestionsDataModel questionsDataModel)
         {
             Questions Question= new Questions
@@ -36,7 +40,7 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
                     {
                         Id = questionAnswers.Id,
                         AnswerText = questionAnswers.AnswerText,
-                        IsCorrect = questionAnswers.IsCorrext,
+                        IsCorrect = questionAnswers.IsCorrect,
                         QuestionId = Question.Id
                     });
             }
@@ -53,38 +57,41 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
 
         public void Edit(QuestionsDataModel questionsDataModel)
         {
-            Questions Question = new Questions
-            {
-                Id = questionsDataModel.Id,
-                QuestionText = questionsDataModel.QuestionText,
-                DifficultyLevelId = questionsDataModel.DifficultyLevelId,
-                StudySubjectId = questionsDataModel.StudySubjectId,
-                QuestionAnswers = (from QuestionAnswersDataModel questionAnswers in questionsDataModel.QuestionAnswersDataModel
-                                   select new QuestionAnswers
-                                   {
-                                       Id = questionAnswers.Id,
-                                       AnswerText = questionAnswers.AnswerText,
-                                       IsCorrect = questionAnswers.IsCorrext,
-                                       QuestionId = questionsDataModel.Id
-                                   }).ToList()
+            Questions Question= ContextGateway<Questions>.GetById(g => g.Id == questionsDataModel.Id,g=>g.QuestionAnswers);
 
-            };
+
+
+            Question.QuestionText = questionsDataModel.QuestionText;
+            Question.DifficultyLevelId = questionsDataModel.DifficultyLevelId;
+            Question.StudySubjectId = questionsDataModel.StudySubjectId;
+            questionsDataModel.QuestionAnswersDataModel.ForEach (qa =>
+                {
+                    QuestionAnswers answer = Question.QuestionAnswers.First(w => w.Id == qa.Id);
+
+
+                    answer.AnswerText = qa.AnswerText;
+                    answer.IsCorrect = qa.IsCorrect;
+                    
+                                   }
+                ) ;
+
+            ;
             ContextGateway<Questions>.CreateDatabaseTransaction();
-            ContextGateway<Questions>.Edit(Question);
+            try
+            {
 
-            //foreach (QuestionAnswersDataModel questionAnswers in questionsDataModel.QuestionAnswersDataModel)
-            //{
+                ContextGateway<Questions>.Edit(Question);
+                ContextGateway<Questions>.Edit(Question.QuestionAnswers);
 
-            //    ContextGateway<Questions>.Edit(
-            //        new QuestionAnswers
-            //        {
-            //            Id = questionAnswers.Id,
-            //            AnswerText = questionAnswers.AnswerText,
-            //            IsCorrect = questionAnswers.IsCorrext,
-            //            QuestionId = Question.Id
-            //        });
-            //}
-            ContextGateway<Questions>.Commit();
+                ContextGateway<Questions>.Commit();
+            }
+            catch(Exception ex)
+            {
+                ContextGateway<Questions>.Rollback();
+                throw;
+            }
+            
+           
         }
 
         public QuestionsDataModel GetById(int id)
@@ -111,31 +118,10 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
            
         }
 
-        public QuestionsDataModel Map(IRepository repository)
-        {
-            Questions questions = (Questions)repository;
-            QuestionsDataModel questionsDataModel =
-                new QuestionsDataModel
-                {
-                    Id = questions.Id,
-                    QuestionText = questions.QuestionText,
-                    QuestionAnswersDataModel
-                    = (from qa in questions.QuestionAnswers
-                       select new QuestionAnswersDataModel
-                       {
-                           QuestionId = qa.QuestionId,
-                           AnswerText = qa.AnswerText,
-                           IsCorrext = qa.IsCorrect,
-                           Id = qa.Id,
-                           radioButtonDisplay=string.Join("",qa.Id,"rbIsCorrect")
-
-                       }).ToList()
-
-                };
-        return questionsDataModel;
+      
 
 
-    }
+    
 
         public QuestionsDataModel Map(Questions questions)
         {
@@ -143,18 +129,14 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
                new QuestionsDataModel
                {
                    Id = questions.Id,
+                   DifficultyLevelId=questions.DifficultyLevelId,
+                   StudySubjectId=questions.StudySubjectId,
                    QuestionText = questions.QuestionText,
                    QuestionAnswersDataModel
                    = (from qa in questions.QuestionAnswers
-                      select new QuestionAnswersDataModel
-                      {
-                          QuestionId = qa.QuestionId,
-                          AnswerText = qa.AnswerText,
-                          IsCorrext = qa.IsCorrect,
-                          Id = qa.Id,
-                          radioButtonDisplay = string.Join("", qa.Id, "rbIsCorrect")
+                      select qa.Map(qa)
 
-                      }).ToList()
+                      ).ToList()
 
                };
             return questionsDataModel;

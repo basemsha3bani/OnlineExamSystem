@@ -14,14 +14,14 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
     {
             public  List<ExamDataModel> list()
             {
-                var exams = ContextGateway<Exams>.List();
-                var subjects = ContextGateway<StudySubject>.List().ToDictionary(x => x.Id, x => x.SubjectName);
+                var exams = ContextGateway<Exams>.List(l=> l.Id == l.Id, l=>l.StudySubject );
+                
                 return exams.Select(e => new ExamDataModel
                 {
                     Id = e.Id,
                     Title = e.Title,
                     StudySubjectId = e.StudySubjectId,
-                  
+                    StudySubjectName=e.StudySubject.SubjectName,
                     TotalMarks = e.TotalMarks
                 }).ToList();
             }
@@ -42,7 +42,16 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
                 Id = repository.Id,
                 StudySubjectId = repository.StudySubjectId,
                 Title = repository.Title,
-                TotalMarks = repository.TotalMarks
+                TotalMarks = repository.TotalMarks,
+                Sections = repository.Sections.Select(
+                    s =>
+                    new ExamSectionsDataModel
+                    {
+                        ExamId = s.ExamId,
+                        SectionName = s.SectionName,
+                        Id = s.Id,
+                        Percentage = s.Percentage
+                    }).ToList()
             };
         }
     }

@@ -1,4 +1,6 @@
-﻿namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses
+﻿using DataRepository.ModelMapper.Interface;
+
+namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses
 {
     public class ExamSections:IRepository
     {

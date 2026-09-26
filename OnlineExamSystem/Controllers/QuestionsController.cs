@@ -90,7 +90,7 @@ namespace OnlineExamSystem.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, QuestionsDataModel questions)
+        public IActionResult Edit(int id, QuestionsDataModel questions, int CorrectAnswerIndex)
         {
             if (id != questions.Id)
             {
@@ -101,6 +101,10 @@ namespace OnlineExamSystem.Controllers
             {
                 try
                 {
+                    for (int i = 0; i < questions.QuestionAnswersDataModel.Count; i++)
+                    {
+                        questions.QuestionAnswersDataModel[i].IsCorrect = (i == CorrectAnswerIndex);
+                    }
                     _questionsService.Edit(questions);
                   
                 }
