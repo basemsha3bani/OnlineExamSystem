@@ -58,7 +58,7 @@ namespace DataRepository.GateWay
             dbConext.SaveChanges();
         }
 
-        internal static TModelRepository GetById(Expression<Func<TModelRepository, bool>> predicate)
+        internal static TModelRepository GetById(Expression<Func<TModelRepository, bool>> predicate, params Expression<Func<TModelRepository, object>>[] includeProperties)
         {
             return dbConext.Set<TModelRepository>().Where(predicate).FirstOrDefault();
 

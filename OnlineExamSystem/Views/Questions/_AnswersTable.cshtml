@@ -1,0 +1,29 @@
+﻿@using DataModel
+@model QuestionsDataModel
+
+<table class="table table-bordered" id="answersTable">
+    <thead>
+        <tr>
+            <th style="width:50px">Correct</th>
+            <th>Answer Text</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (int i = 0; i < Model.QuestionAnswersDataModel.Count; i++)
+        {
+            <tr>
+                <td class="text-center">
+                    <!-- Same name = only one can be checked -->
+                    <input type="radio" name="CorrectAnswerIndex" value="@i"
+                           @(Model.QuestionAnswersDataModel[i].IsCorrext ? "checked" : "") required />
+                    @Html.HiddenFor(m => m.QuestionAnswersDataModel[i].Id)
+                    @Html.HiddenFor(m => m.QuestionAnswersDataModel[i].QuestionId)
+                </td>
+                <td>
+                    <input asp-for="QuestionAnswersDataModel[i].AnswerText" class="form-control" placeholder="Answer @(i + 1)" />
+                    <span asp-validation-for="QuestionAnswersDataModel[i].AnswerText" class="text-danger"></span>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

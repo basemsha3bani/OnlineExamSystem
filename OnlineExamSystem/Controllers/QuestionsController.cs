@@ -90,7 +90,7 @@ namespace OnlineExamSystem.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, [Bind("Id,QuestionText,DifficultyLevelId,StudySubjectId")] QuestionsDataModel questions)
+        public IActionResult Edit(int id, QuestionsDataModel questions)
         {
             if (id != questions.Id)
             {

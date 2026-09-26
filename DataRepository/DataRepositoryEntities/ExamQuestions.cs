@@ -12,7 +12,7 @@ namespace DataRepository.DataRepositoryEntities
         [ForeignKey("Exam")]
         public int ExamId { get; set; }
 
-        public virtual Exam Exam{get;set;}
+        public virtual Exams Exam{get;set;}
 
         [ForeignKey("Question")]
         public int QuestionId { get; set; }

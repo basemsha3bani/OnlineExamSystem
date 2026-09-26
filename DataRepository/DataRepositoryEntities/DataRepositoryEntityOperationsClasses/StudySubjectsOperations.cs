@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses
 {
-    public class StudySubjectsOperations : IStudySubjectsOperations, IModelMapper<StudySubjectDataModel>
+    public class StudySubjectsOperations : IStudySubjectsOperations, IModelMapper<StudySubjectDataModel, StudySubject>
     {
         public StudySubjectsOperations()
         {
@@ -45,10 +45,11 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
                .Select(s => new StudySubjectDataModel { Id = s.Id, SubjectName = s.SubjectName }).ToList();
         }
 
-        public StudySubjectDataModel Map(IRepository obj)
+ 
+
+        public StudySubjectDataModel Map(StudySubject subject)
         {
-            var e = (StudySubject)obj;
-            return new StudySubjectDataModel { Id = e.Id, SubjectName = e.SubjectName };
+            return new StudySubjectDataModel { Id = subject.Id, SubjectName = subject.SubjectName };
         }
     }
 }

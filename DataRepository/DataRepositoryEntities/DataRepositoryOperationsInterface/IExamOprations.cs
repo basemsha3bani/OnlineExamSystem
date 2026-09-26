@@ -5,7 +5,7 @@ using System.Text;
 
 namespace DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface
 {
-    interface IExamOprations
+   public interface IExamOprations
     {
 
         void Add(ExamDataModel Exam);
@@ -13,7 +13,7 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterfac
 
 
 
-        void Delete(int id);
+        
 
 
         ExamDataModel GetById(int id);

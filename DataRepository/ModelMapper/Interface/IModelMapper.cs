@@ -4,8 +4,8 @@ using System.Text;
 
 namespace DataRepository.ModelMapper.Interface
 {
-    interface IModelMapper<T> where T:class
+    interface IModelMapper<T,Y> where T:class where Y : IRepository
     {
-         T Map(IRepository repository);
+         T Map(Y repository);
     }
 }

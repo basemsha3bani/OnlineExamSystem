@@ -30,14 +30,16 @@ namespace OnlineExamSystem
         {
             services.AddControllersWithViews();
             services.AddScoped<IDifficultyLevelsService, DifficultyLevelsService>();
-            services.AddScoped<IExamOprationsService, ExamOprationsService>();
+            
             services.AddScoped<IExamQuestionsService, ExamQuestionsService>();
             services.AddScoped<IExamTypesDetailsService, ExamTypesDetailsService>();
-            services.AddScoped<IExamTypesService, ExamTypesService>();
+          
             services.AddScoped<IQuestionAnswersService, QuestionAnswersService>();
             services.AddScoped<IQuestionsService, QuestionsService>();
             services.AddScoped<IStudySubjectsOperations, StudySubjectsOperations>();
             services.AddScoped<IStudySubjectsService, StudySubjectsService>();
+            services.AddScoped<IExamService, ExamService>();
+            services.AddScoped<IExamSectionService, ExamSectionService>();
             services.AddServicesOnWhichServiceClassLibaryDepend();
         }
 

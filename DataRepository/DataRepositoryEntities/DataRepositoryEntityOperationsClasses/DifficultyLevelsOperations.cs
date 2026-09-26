@@ -9,7 +9,7 @@ using System.Text;
 
 namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses
 {
-    public class DifficultyLevelsOperations : IDifficultyLevelsOperations, IModelMapper<DifficultyLevelsDataModel>
+    public class DifficultyLevelsOperations : IDifficultyLevelsOperations, IModelMapper<DifficultyLevelsDataModel,DifficultyLevels>
     {
 
         //RepositoryGateWay<DifficultyLevels> DifficultyLevelsRepositoryGateWay = new RepositoryGateWay<DifficultyLevels>();
@@ -58,27 +58,19 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
             //     (s=>new DifficultyLevelsDataModel  { Id = s.Id, DifficultyLevelName = s.DifficultyLevelName }).ToList();
             // return listOfDifficultyLevels;
             List<DifficultyLevelsDataModel> listOfDifficultyLevels = ContextGateway<DifficultyLevels>.List().Select
-                 (s => new DifficultyLevelsDataModel { Id = s.Id, DifficultyLevelName = s.DifficultyLevelName }).ToList();
+                 (s => this.Map(s)).ToList();
             return listOfDifficultyLevels;
            
            // return null;
 
         }
 
-        public DifficultyLevelsDataModel Map(IRepository RepoistoryObject)
+      
+
+        public DifficultyLevelsDataModel Map(DifficultyLevels difficultyLevelsInstance)
         {
-            //DifficultyLevels difficultyLevelsInstance = (DifficultyLevels)RepoistoryObject;
-
-            //return new DataModel.DifficultyLevelsDataModel { Id = difficultyLevelsInstance.Id, DifficultyLevelName = difficultyLevelsInstance.DifficultyLevelName };
-
-            return null;
+          return new DataModel.DifficultyLevelsDataModel { Id = difficultyLevelsInstance.Id, DifficultyLevelName = difficultyLevelsInstance.DifficultyLevelName };
         }
-
-       
-
-
-
-
     }
     
 }
