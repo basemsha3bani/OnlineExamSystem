@@ -1,4 +1,4 @@
-﻿using DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses;
+﻿
 using System.Collections.Generic;
 
 namespace DataModel
@@ -10,8 +10,8 @@ namespace DataModel
         public int StudySubjectId { get; set; }
 
         public string StudySubjectName { get; set; }
-        public double TotalMarks { get; set; }
+        public decimal TotalMarks { get; set; }
 
-        public List<ExamSectionsDataModel> Sections { get; set; }
+        public List<ExamSectionsDataModel> Sections { get; set; } = new List<ExamSectionsDataModel>();
     }
 }

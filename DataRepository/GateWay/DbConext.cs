@@ -1,4 +1,5 @@
 ﻿using DataRepository.DataRepositoryEntities;
+using DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading.Tasks;
@@ -45,9 +46,12 @@ namespace DataRepository.GateWay
 
         public  DbSet<QuestionAnswers> QuestionAnswers { get; set; }
 
-        public DbSet<ExamTypesDetails> ExamTypesDetails { get; set; }
 
-        public DbSet<ExamTypes> ExamTypes { get; set; }
+        public DbSet<Exams> Exams { get; set; }
+
+        public DbSet<ExamSectionRules> ExamSectionRules { get; set; }
+
+        public DbSet<ExamSections> ExamSections { get; set; }
 
         public DbSet<DifficultyLevels> DifficultyLevels { get; set; }
 

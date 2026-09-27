@@ -1,0 +1,61 @@
+﻿@using DataModel
+@model ExamDataModel
+
+@{
+    ViewData["Title"] = "Create Exam";
+}
+
+<h3>Create Exam</h3>
+<hr />
+
+<form asp-action="Create" method="post">
+    <div class="row">
+        <div class="col-md-6">
+            <label asp-for="StudySubjectId" class="form-label"></label>
+            <select asp-for="StudySubjectId" asp-items="ViewBag.Subjects" class="form-select" required>
+                <option value="">-- Select Subject --</option>
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Title" class="form-label"></label>
+            <input asp-for="Title" class="form-control" required />
+        </div>
+    </div>
+
+    
+
+    <h5 class="mt-4">Sections (Must total 100%)</h5>
+    <div id="sections">
+        @for (int i = 0; i < Model.Sections.Count; i++)
+        {
+            <div class="input-group mb-2">
+                <input asp-for="Sections[i].SectionName" class="form-control" placeholder="Section Name" />
+                <input asp-for="Sections[i].Percentage" class="form-control" placeholder="%" type="number" />
+                <input type="hidden" asp-for="Sections[i].Id" />
+            </div>
+        }
+    </div>
+
+    <button type="button" class="btn btn-secondary btn-sm" onclick="addSection()">+ Add Section</button>
+    <div class="text-danger">
+        @Html.ValidationSummary()
+    </div>
+    <div class="mt-4">
+        <button type="submit" class="btn btn-primary">Create</button>
+        <a asp-action="Index" class="btn btn-light">Back</a>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        let idx = 2;
+        function addSection(){
+            const div = document.createElement('div');
+            div.className = 'input-group mb-2';
+            div.innerHTML = `<input name="Sections[${idx}].Name" class="form-control" placeholder="Section Name" required />
+                             <input name="Sections[${idx}].Percentage" class="form-control" placeholder="%" type="number" required />`;
+            document.getElementById('sections').appendChild(div);
+            idx++;
+        }
+    </script>
+}

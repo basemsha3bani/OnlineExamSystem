@@ -1,4 +1,5 @@
-﻿using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
+﻿using DataModel;
+using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
 using DataRepository.GateWay;
 using DataRepository.ModelMapper.Interface;
 using System.Collections.Generic;
@@ -7,8 +8,8 @@ using System.Linq;
 namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses
 {
  
-        public partial class ExamsOperations
-    {
+    
+
         public class ExamSectionsOperations: IExamSectionsOperations, IModelMapper<ExamSectionsDataModel,ExamSections>
         {
             public ExamSectionsDataModel Map(ExamSections repository)
@@ -44,6 +45,6 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
 
             }
         }
-    }
+    
     
 }

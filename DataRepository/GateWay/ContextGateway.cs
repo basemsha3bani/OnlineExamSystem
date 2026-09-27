@@ -29,6 +29,12 @@ namespace DataRepository.GateWay
 
             dbConext.SaveChanges();
         }
+        internal static void Add(IEnumerable<IRepository> repository)
+        {
+            dbConext.AddRange(repository);
+
+            dbConext.SaveChanges();
+        }
         internal static void Edit(IRepository repository)
         {
 

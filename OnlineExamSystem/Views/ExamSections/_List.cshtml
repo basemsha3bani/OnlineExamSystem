@@ -1,0 +1,6 @@
+﻿@using DataModel
+@model List<ExamSectionsDataModel>
+@foreach (var s in Model)
+{
+    <div>@s.SectionName - @s.Percentage% <a href="/ExamSectionRules/Index?sectionId=@s.Id">Rules</a></div>
+}

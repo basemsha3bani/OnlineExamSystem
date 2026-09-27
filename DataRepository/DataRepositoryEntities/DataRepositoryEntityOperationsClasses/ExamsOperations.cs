@@ -9,28 +9,92 @@ using static DataRepository.DataRepositoryEntities.DataRepositoryEntityOperation
 
 namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses
 {
- 
-        public partial class ExamsOperations: IExamOprations, IModelMapper<ExamDataModel, Exams>
+
+    public class ExamsOperations : IExamOprations, IModelMapper<ExamDataModel, Exams>
     {
-            public  List<ExamDataModel> list()
+        public ExamsOperations()
+        {
+            ContextGateway<Exams>.GetContextInstance();
+        }
+
+        public List<ExamDataModel> list()
+        {
+            var exams = ContextGateway<Exams>.List(l => l.Id == l.Id, l => l.StudySubject);
+
+            return exams.Select(e => new ExamDataModel
             {
-                var exams = ContextGateway<Exams>.List(l=> l.Id == l.Id, l=>l.StudySubject );
+                Id = e.Id,
+                Title = e.Title,
+                StudySubjectId = e.StudySubjectId,
+                StudySubjectName = e.StudySubject.SubjectName,
+                TotalMarks = e.TotalMarks
+            }).ToList();
+        }
+        public void Add(ExamDataModel m)
+            {
+            List<ExamSections> sections = m.Sections.Select(s=>new ExamSections
+            {
                 
-                return exams.Select(e => new ExamDataModel
-                {
-                    Id = e.Id,
-                    Title = e.Title,
-                    StudySubjectId = e.StudySubjectId,
-                    StudySubjectName=e.StudySubject.SubjectName,
-                    TotalMarks = e.TotalMarks
-                }).ToList();
+                Percentage=s.Percentage,
+                SectionName=s.SectionName,
+               
+            }).ToList();
+            ContextGateway<Exams>.CreateDatabaseTransaction();
+            try
+            {
+                ContextGateway<Exams>.Add(new Exams { Title = m.Title, StudySubjectId = m.StudySubjectId, TotalMarks = m.TotalMarks,Sections=sections });
+            
+                ContextGateway<Exams>.Commit();
             }
-            public void Add(ExamDataModel m) => ContextGateway<Exams>.Add(new Exams { Title = m.Title, StudySubjectId = m.StudySubjectId, TotalMarks = m.TotalMarks });
-            public void Edit(ExamDataModel m) => ContextGateway<Exams>.Edit(new Exams { Id = m.Id, Title = m.Title, StudySubjectId = m.StudySubjectId, TotalMarks = m.TotalMarks });
+            catch (Exception ex)
+            {
+                ContextGateway<Exams>.Rollback();
+                throw;
+            }
+
+        }
+            public void Edit(ExamDataModel m)
+        {
+            Exams exam = ContextGateway<Exams>.GetById(g => g.Id == m.Id, g => g.Sections);
+
+
+
+            
+            exam.StudySubjectId = m.StudySubjectId;
+            exam.TotalMarks = m.TotalMarks;
+            exam.Sections.ForEach(es =>
+            {
+                ExamSections section = exam.Sections.First(w => w.Id == es.Id);
+
+
+                section.SectionName = es.SectionName;
+                section.Percentage = es.Percentage;
+                
+
+            }
+                );
+
+            ;
+            ContextGateway<Questions>.CreateDatabaseTransaction();
+            try
+            {
+
+                ContextGateway<Questions>.Edit(exam);
+                ContextGateway<Questions>.Edit(exam.Sections);
+
+                ContextGateway<Questions>.Commit();
+            }
+            catch (Exception ex)
+            {
+                ContextGateway<Questions>.Rollback();
+                throw;
+            }
+        }
+        
 
             public ExamDataModel GetById(int id)
             {
-           Exams exam=  ContextGateway<Exams>.GetById(g=>g.Id==id);
+           Exams exam=  ContextGateway<Exams>.GetById(g=>g.Id==id,g=>g.Sections);
             return this.Map(exam);
 
         }

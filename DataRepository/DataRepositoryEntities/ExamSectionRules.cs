@@ -6,13 +6,8 @@
         public int SectionId { get; set; }
         public int DifficultyLevelId { get; set; }
         public int NoOfQuestions { get; set; }
-
-        public ExamSectionRules(int Id_, int SectionId_, int DifficultyLevelId_, int NoOfQuestions_)
+        public ExamSectionRules()
         {
-            this.Id = Id_;
-            this.SectionId = SectionId_;
-            this.DifficultyLevelId = DifficultyLevelId_;
-            this.NoOfQuestions = NoOfQuestions_;
         }
     }
 }

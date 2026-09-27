@@ -1,4 +1,5 @@
-﻿using DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses;
+﻿using DataModel;
+using DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses;
 using System.Collections.Generic;
 
 namespace ServicesClasseslibrary

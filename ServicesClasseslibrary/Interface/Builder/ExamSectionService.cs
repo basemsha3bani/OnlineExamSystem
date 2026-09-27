@@ -1,4 +1,5 @@
-﻿using DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses;
+﻿using DataModel;
+using DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses;
 using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
 using System.Collections.Generic;
 

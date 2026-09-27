@@ -2,7 +2,7 @@
 @model ExamDataModel
 
 <h2>@Model.Title</h2>
-
+<p><b>Subject:</b> @Model.StudySubjectName</p>
 <div id="sections-container">
     @await Html.PartialAsync("~/Views/ExamSections/_List.cshtml", Model.Sections)
 </div>

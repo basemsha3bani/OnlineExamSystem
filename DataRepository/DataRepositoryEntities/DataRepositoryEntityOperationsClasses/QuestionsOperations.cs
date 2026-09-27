@@ -31,19 +31,14 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
             
             ContextGateway<Questions>.CreateDatabaseTransaction();
             ContextGateway<Questions>.Add(Question);
-            
-            foreach(QuestionAnswersDataModel questionAnswers in questionsDataModel.QuestionAnswersDataModel)
+            List<QuestionAnswers> answers=questionsDataModel.QuestionAnswersDataModel.Select(s=> new QuestionAnswers
             {
-
-                ContextGateway<Questions>.Add(
-                    new QuestionAnswers
-                    {
-                        Id = questionAnswers.Id,
-                        AnswerText = questionAnswers.AnswerText,
-                        IsCorrect = questionAnswers.IsCorrect,
-                        QuestionId = Question.Id
-                    });
-            }
+               
+                AnswerText = s.AnswerText,
+                IsCorrect = s.IsCorrect,
+                QuestionId = s.QuestionId
+            }).ToList();
+            ContextGateway<Questions>.Add(answers);
             ContextGateway<Questions>.Commit();
 
 
@@ -68,7 +63,7 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
                 {
                     QuestionAnswers answer = Question.QuestionAnswers.First(w => w.Id == qa.Id);
 
-
+                    answer.QuestionId = qa.QuestionId;
                     answer.AnswerText = qa.AnswerText;
                     answer.IsCorrect = qa.IsCorrect;
                     

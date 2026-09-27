@@ -11,10 +11,10 @@ namespace DataRepository.DataRepositoryEntities
         [ForeignKey("StudySubject")]
         public int StudySubjectId { get; set; }
 
-        public double TotalMarks { get; set; }
+        public decimal TotalMarks { get; set; }
 
         public StudySubject StudySubject{ get; set; }
 
-        public List<ExamSections> Sections { get; set; }
+        public List<ExamSections> Sections { get; set; } = new List<ExamSections>();
     }
 }

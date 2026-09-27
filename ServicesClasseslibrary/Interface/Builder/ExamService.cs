@@ -5,6 +5,7 @@ using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
 using ServicesClasseslibrary.Interface.DataModel;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using static DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses.QuestionsOperations;
 
@@ -24,7 +25,15 @@ namespace ServicesClasseslibrary
         public ExamDataModel GetById(int id)
         {
             var e = _examsOperations.GetById(id);
-            return new ExamDataModel { Id = e.Id, Title = e.Title, StudySubjectId = e.StudySubjectId, TotalMarks = e.TotalMarks };
+            return new ExamDataModel { Id = e.Id, Title = e.Title, StudySubjectName = e.StudySubjectName, TotalMarks = e.TotalMarks,
+            Sections=e.Sections.Select(s=>
+            new ExamSectionsDataModel
+            {
+                Id=s.Id,
+                SectionName=s.SectionName,
+                ExamId=s.ExamId,
+                Percentage=s.Percentage
+            }).ToList()};
         }
         public void Add(ExamDataModel exam)
         {
