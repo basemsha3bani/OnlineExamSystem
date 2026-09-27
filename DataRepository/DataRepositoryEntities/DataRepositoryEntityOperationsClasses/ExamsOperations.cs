@@ -32,18 +32,23 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
         }
         public void Add(ExamDataModel m)
             {
+            Exams exam = new Exams { Title = m.Title, StudySubjectId = m.StudySubjectId, TotalMarks = m.TotalMarks };
             List<ExamSections> sections = m.Sections.Select(s=>new ExamSections
             {
                 
                 Percentage=s.Percentage,
                 SectionName=s.SectionName,
+                Exam=exam
                
             }).ToList();
             ContextGateway<Exams>.CreateDatabaseTransaction();
             try
             {
-                ContextGateway<Exams>.Add(new Exams { Title = m.Title, StudySubjectId = m.StudySubjectId, TotalMarks = m.TotalMarks,Sections=sections });
-            
+                
+
+                ContextGateway<Exams>.Add(exam);
+                ContextGateway<Exams>.Add(sections);
+
                 ContextGateway<Exams>.Commit();
             }
             catch (Exception ex)
@@ -57,22 +62,32 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
         {
             Exams exam = ContextGateway<Exams>.GetById(g => g.Id == m.Id, g => g.Sections);
 
-
+            List<ExamSections> NewExamSections= new List<ExamSections>();
 
             
             exam.StudySubjectId = m.StudySubjectId;
             exam.TotalMarks = m.TotalMarks;
-            exam.Sections.ForEach(es =>
+            m.Sections.ForEach(es =>
             {
-                ExamSections section = exam.Sections.First(w => w.Id == es.Id);
+                ExamSections section = exam.Sections.FirstOrDefault(w => w.Id == es.Id);
 
-
-                section.SectionName = es.SectionName;
-                section.Percentage = es.Percentage;
+                if (section == null)
+                {
+                    NewExamSections.Add(new ExamSections
+                    {
+                        SectionName = es.SectionName,
+                        Percentage = es.Percentage,
+                        Exam = exam
+                    });
+                }
+                else
+                {
+                    section.SectionName = es.SectionName;
+                    section.Percentage = es.Percentage;
+                }
                 
 
-            }
-                );
+            });
 
             ;
             ContextGateway<Questions>.CreateDatabaseTransaction();
@@ -81,6 +96,7 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
 
                 ContextGateway<Questions>.Edit(exam);
                 ContextGateway<Questions>.Edit(exam.Sections);
+                ContextGateway<Questions>.Add(NewExamSections);
 
                 ContextGateway<Questions>.Commit();
             }

@@ -8,9 +8,15 @@ using System.Text;
 
 namespace DataRepository.GateWay
 {
-   internal class ContextGateway<TModelRepository> where TModelRepository : class
+    internal class ContextGateway
     {
-        private static DbConext dbConext;
+        internal static DbConext dbConext;
+        internal static IDbContextTransaction _transaction;
+        public static void CreateDatabaseTransaction()
+        {
+            GetContextInstance();
+            _transaction = dbConext.Database.BeginTransaction();
+        }
 
         internal static void GetContextInstance()
         {
@@ -18,8 +24,29 @@ namespace DataRepository.GateWay
             {
                 dbConext = new DbConext();
             }
-           //return dbConext;
+            //return dbConext;
         }
+
+        public static void Rollback()
+        {
+            _transaction.Rollback();
+        }
+
+        public static void Dispose()
+        {
+            _transaction.Dispose();
+        }
+
+        public static void Commit()
+        {
+            _transaction.Commit();
+        }
+    }
+   internal class ContextGateway<TModelRepository>: ContextGateway where TModelRepository : class
+    {
+       
+
+      
 
         private ContextGateway() { }
 
@@ -76,11 +103,11 @@ namespace DataRepository.GateWay
 
         internal static TModelRepository GetById(Expression<Func<TModelRepository, bool>> predicate, params Expression<Func<TModelRepository, object>>[] includeProperties)
         {
-            GetContextInstance();
+          
             if (predicate == null)
             {
                 return (includeProperties.Aggregate
-             (dbConext.Set<TModelRepository>(), (current, includeProperty) => (DbSet<TModelRepository>)current.Include(includeProperty)).FirstOrDefault());
+             (dbConext.Set<TModelRepository>().AsNoTracking(), (current, includeProperty) => (DbSet<TModelRepository>)current.Include(includeProperty)).FirstOrDefault());
             }
 
             return (includeProperties.Aggregate
@@ -101,31 +128,10 @@ namespace DataRepository.GateWay
             return (includeProperties.Aggregate
                (dbConext.Set<TModelRepository>().AsNoTracking().Where(predicate), (current, includeProperty) => current.Include(includeProperty)).ToList());
         }
-        private static IDbContextTransaction _transaction;
+      
 
 
 
-        public static void CreateDatabaseTransaction()
-        {
-            GetContextInstance();
-            _transaction = dbConext.Database.BeginTransaction();
-        }
-
-
-
-        public static void Rollback()
-        {
-            _transaction.Rollback();
-        }
-
-        public static  void Dispose()
-        {
-            _transaction.Dispose();
-        }
-
-        public static void Commit()
-        {
-            _transaction.Commit();
-        }
+      
     }
 }

@@ -48,15 +48,9 @@ namespace OnlineExamSystem.Controllers
                .Where(s => !string.IsNullOrWhiteSpace(s.SectionName))
                .ToList();
 
-            // 3. Validate total = 100%
-            var total = model.Sections.Sum(s => s.Percentage);
-            if (total != 100)
-            {
-                ModelState.AddModelError("", $"Sections total must be 100%, currently {total}%");
-                return View(model);
-            }
+            
 
-            // 4. Save if valid
+            // 3. Save if valid
             if (ModelState.IsValid)
             {
                 // Set CreatedBy / Id if you need

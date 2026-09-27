@@ -23,14 +23,14 @@
           });
 
           // 2. After saving section (form inside _Create.cshtml must have id="createSectionForm")
-          $(document).on("submit", "#createSectionForm", function(e){
-            e.preventDefault();
-            $.post($(this).attr("action"), $(this).serialize(), function(newSectionHtml){
-              // Append new section to list without reload
-              $("#sections-container").append(newSectionHtml);
-              $("#section-form-container").html(""); // clear form
-            });
-          });
+          // $(document).on("submit", "#createSectionForm", function(e){
+          //   e.preventDefault();
+          //   $.post($(this).attr("action"), $(this).serialize(), function(newSectionHtml){
+          //     // Append new section to list without reload
+          //     $("#sections-container").append(newSectionHtml);
+          //     $("#section-form-container").html(""); // clear form
+          //   });
+          // });
 
         });
     </script>

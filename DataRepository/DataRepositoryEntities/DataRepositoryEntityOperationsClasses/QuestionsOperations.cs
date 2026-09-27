@@ -30,14 +30,15 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
             };
             
             ContextGateway<Questions>.CreateDatabaseTransaction();
-            ContextGateway<Questions>.Add(Question);
+           ;
             List<QuestionAnswers> answers=questionsDataModel.QuestionAnswersDataModel.Select(s=> new QuestionAnswers
             {
                
                 AnswerText = s.AnswerText,
                 IsCorrect = s.IsCorrect,
-                QuestionId = s.QuestionId
+                Question=Question
             }).ToList();
+            ContextGateway<Questions>.Add(Question);
             ContextGateway<Questions>.Add(answers);
             ContextGateway<Questions>.Commit();
 

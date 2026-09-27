@@ -1,0 +1,41 @@
+﻿@model DataModel.ExamSectionsDataModel
+
+@{
+    ViewData["Title"] = "View";
+}
+
+<h1>Create Section</h1>
+
+<h4>ExamSectionsDataModel</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post" id="createSectionForm" action="@Url.Action("Create","ExamSections")">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <input asp-for="ExamId"type="hidden" />
+            <div class="form-group">
+                <label asp-for="SectionName" class="control-label"></label>
+                <input asp-for="SectionName" class="form-control" />
+                <span asp-validation-for="SectionName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Percentage" class="control-label"></label>
+                <input asp-for="Percentage" class="form-control" />
+                <span asp-validation-for="Percentage" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Add section" class="btn btn-primary" />
+            </div>
+            
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index" asp-controller="Exams">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

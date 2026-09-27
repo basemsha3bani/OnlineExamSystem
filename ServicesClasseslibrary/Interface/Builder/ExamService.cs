@@ -25,11 +25,12 @@ namespace ServicesClasseslibrary
         public ExamDataModel GetById(int id)
         {
             var e = _examsOperations.GetById(id);
-            return new ExamDataModel { Id = e.Id, Title = e.Title, StudySubjectName = e.StudySubjectName, TotalMarks = e.TotalMarks,
+            return new ExamDataModel { Id = e.Id,StudySubjectId=e.StudySubjectId, Title = e.Title, StudySubjectName = e.StudySubjectName, TotalMarks = e.TotalMarks,
             Sections=e.Sections.Select(s=>
             new ExamSectionsDataModel
             {
                 Id=s.Id,
+
                 SectionName=s.SectionName,
                 ExamId=s.ExamId,
                 Percentage=s.Percentage
