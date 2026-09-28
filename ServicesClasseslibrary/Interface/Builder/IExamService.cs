@@ -10,6 +10,9 @@ namespace ServicesClasseslibrary
         ExamDataModel GetById(int id);
         void Add(ExamDataModel model);
         void Edit(ExamDataModel model);
+        List<ExamSectionRulesDataModel> GetSectionRules(int sectionId);
+        void AddSectionRule(ExamSectionRulesDataModel model);
+        ExamSectionsDataModel GetSectionById(int sectionId);
     }
 }
 

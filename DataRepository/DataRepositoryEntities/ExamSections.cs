@@ -1,4 +1,5 @@
 ﻿using DataRepository.ModelMapper.Interface;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses
@@ -13,7 +14,9 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
 
         public Exams Exam { get; set; }
 
-      
+        public List<ExamSectionRules> examSectionRules { get; set; }
+
+
     }
 
 }

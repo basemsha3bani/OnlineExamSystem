@@ -1,6 +1,7 @@
 ﻿using DataModel;
 using DataRepository.DataRepositoryEntities;
 using DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses;
+using DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses.DataRepository.DataRepositoryEntities;
 using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
 using ServicesClasseslibrary.Interface.DataModel;
 using System;
@@ -16,10 +17,12 @@ namespace ServicesClasseslibrary
     {
         private readonly IStudySubjectsService _subjectService;
         private readonly IExamOprations _examsOperations;
-        public ExamService(IStudySubjectsService subjectService, IExamOprations examsOperations)
+        private readonly IExamSectionRuleOperations _rulesOps;
+        public ExamService(IStudySubjectsService subjectService, IExamOprations examsOperations,IExamSectionRuleOperations rulesOps)
         {
             _subjectService = subjectService;
             _examsOperations = examsOperations;
+            _rulesOps= rulesOps;
         }
         public List<ExamDataModel> List() => _examsOperations.list();
         public ExamDataModel GetById(int id)
@@ -48,5 +51,38 @@ namespace ServicesClasseslibrary
            
         }
 
+        public List<ExamSectionRulesDataModel> GetSectionRules(int sectionId)
+        {
+            // Service -> Operations -> Gateway
+                var entities = _rulesOps.GetBySectionId(sectionId);
+
+            return entities.Select(e => new ExamSectionRulesDataModel
+            {
+                Id = e.Id,
+                SectionId = e.SectionId,
+                DifficultyLevelId = e.DifficultyLevelId,
+                DifficultyLevel = e.difficultyLevel.DifficultyLevelName,
+                subjectName = e.section.Exam.StudySubject.SubjectName,
+                NoOfQuestions = e.NoOfQuestions,
+               
+            }).ToList();
+        }
+        
+
+        public void AddSectionRule(ExamSectionRulesDataModel model)
+        {
+           _rulesOps.Add(new ExamSectionRules
+            {
+                SectionId = model.SectionId,
+                DifficultyLevelId = model.DifficultyLevelId,
+                NoOfQuestions = model.NoOfQuestions
+            });
+          
+        }
+
+        public ExamSectionsDataModel GetSectionById(int sectionId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

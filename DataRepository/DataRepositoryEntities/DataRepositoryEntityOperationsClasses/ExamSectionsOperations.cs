@@ -44,7 +44,15 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
                 return examSections;
 
             }
+        public ExamSectionsDataModel GeById(int id)
+        {
+            var examSection = ContextGateway<ExamSections>.GetById(g => g.Id == id, g => g.examSectionRules);
+            
+           return this.Map(examSection);
+           
         }
-    
-    
+    }
+   
+
+
 }

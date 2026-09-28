@@ -52,6 +52,7 @@ namespace OnlineExamSystem
             services.AddScoped<IExamService, ExamService>();
             services.AddScoped<IExamSectionService, ExamSectionService>();
             services.AddScoped<IUserService, UserService>();
+          
             services.AddServicesOnWhichServiceClassLibaryDepend();
         }
 

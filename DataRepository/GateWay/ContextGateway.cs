@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 
 namespace DataRepository.GateWay
 {
@@ -101,32 +100,58 @@ namespace DataRepository.GateWay
             dbConext.SaveChanges();
         }
 
-        internal static TModelRepository GetById(Expression<Func<TModelRepository, bool>> predicate, params Expression<Func<TModelRepository, object>>[] includeProperties)
+        // Helper: verify the include expression is a simple member access (or boxed member)
+        private static bool IsMemberAccess(Expression expression)
         {
-          
-            if (predicate == null)
-            {
-                return (includeProperties.Aggregate
-             (dbConext.Set<TModelRepository>().AsNoTracking(), (current, includeProperty) => (DbSet<TModelRepository>)current.Include(includeProperty)).FirstOrDefault());
-            }
+            if (expression == null) return false;
 
-            return (includeProperties.Aggregate
-               (dbConext.Set<TModelRepository>().AsNoTracking().Where(predicate), (current, includeProperty) => current.Include(includeProperty)).FirstOrDefault());
+            // Accept MemberExpression or UnaryExpression (boxing) whose operand is MemberExpression
+            if (expression is MemberExpression) return true;
 
+            if (expression is UnaryExpression unary && unary.Operand is MemberExpression) return true;
 
+            return false;
         }
 
-        internal static List<TModelRepository> List(Expression<Func<TModelRepository, bool>> predicate = null, params Expression<Func<TModelRepository, object>>[] includeProperties)
+        private static IQueryable<TModelRepository> ApplyIncludes(IQueryable<TModelRepository> query, params Expression<Func<TModelRepository, object>>[] includeProperties)
         {
+            if (includeProperties == null || includeProperties.Length == 0) return query;
 
-            if (predicate == null)
+            foreach (var include in includeProperties)
             {
-                return (includeProperties.Aggregate
-             (dbConext.Set<TModelRepository>(), (current, includeProperty) => (DbSet<TModelRepository>)current.Include(includeProperty)).ToList());
+                if (include == null) continue;
+
+                if (!IsMemberAccess(include.Body))
+                    throw new InvalidOperationException($"Invalid Include expression: '{include}'. Include must be a property access (e.g. 't => t.Navigation'). Projections (new {{ ... }}) are not supported.");
+
+                query = query.Include(include);
             }
 
-            return (includeProperties.Aggregate
-               (dbConext.Set<TModelRepository>().AsNoTracking().Where(predicate), (current, includeProperty) => current.Include(includeProperty)).ToList());
+            return query;
+        }
+
+        internal static TModelRepository GetById(Expression<Func<TModelRepository, bool>> predicate, params Expression<Func<TModelRepository, object>>[] includeProperties)
+        {
+            IQueryable<TModelRepository> query = dbConext.Set<TModelRepository>().AsNoTracking();
+
+            if (predicate != null)
+                query = query.Where(predicate);
+
+            query = ApplyIncludes(query, includeProperties);
+
+            return query.FirstOrDefault();
+        }
+
+        internal static List<TModelRepository> List(Expression<Func<TModelRepository, bool>> predicate = null, params Expression<Func<TModelRepository, object>>[] includeProperties)   
+        {
+            IQueryable<TModelRepository> query = dbConext.Set<TModelRepository>().AsNoTracking();
+
+            if (predicate != null)
+                query = query.Where(predicate);
+
+            query = ApplyIncludes(query, includeProperties);
+
+            return query.ToList();
         }
       
 

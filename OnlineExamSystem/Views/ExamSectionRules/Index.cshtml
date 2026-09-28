@@ -1,0 +1,26 @@
+﻿@model List<DataModel.ExamSectionRulesDataModel>
+@{
+    int sectionId = ViewBag.SectionId;
+}
+
+<h3>Section Rules</h3>
+
+<a href="/ExamSectionRules/Create?sectionId=@sectionId" class="btn btn-primary">+ Add New Rule</a>
+
+<hr />
+
+@foreach (var r in Model)
+{
+    <div>@r.subjectName - @r.DifficultyLevel - @r.NoOfQuestions questions</div>
+}
+<div style="margin-top:10px">
+    <b>Total: @Model.Sum(x => x.NoOfQuestions) / 5</b>
+    @if (Model.Sum(x => x.NoOfQuestions) >= 5)
+    {
+        <span style="color:green"> - Complete</span>
+    }
+</div>
+
+<div style="margin-top:15px">
+    <a href="/Exams/Index?examId=@ViewBag.ExamId">Back to exams</a>
+</div>

@@ -1,0 +1,17 @@
+﻿
+@model DataModel.ExamSectionRulesDataModel
+
+<form asp-action="Create" method="post">
+    
+
+    <label>DifficultyLevel</label>
+    <select asp-for="DifficultyLevelId" asp-items="@ViewBag.difficultyLevels"></select>
+
+   
+
+    <label>Count</label>
+    <input asp-for="NoOfQuestions" type="number" min="1" max="5" value="2" />
+    <input asp-for="SectionId" type="text"/>
+
+    <button type="submit">Save Rule</button>
+</form>

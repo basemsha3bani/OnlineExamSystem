@@ -2,6 +2,7 @@
 //using DataRepository.ModelMappers.Interface;
 using DataRepository;
 using DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses;
+using DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses.DataRepository.DataRepositoryEntities;
 using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
 using DataRepository.GateWay;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,6 +25,7 @@ namespace ServicesClasseslibrary
             services.AddScoped<IExamOprations, ExamsOperations>();
             services.AddScoped<IExamSectionsOperations, ExamSectionsOperations>();
             services.AddScoped<IUserOperations, UserOperations>();
+            services.AddScoped<IExamSectionRuleOperations, ExamSectionRulesOperations>();
 
 
 

@@ -8,11 +8,11 @@ using System.Linq;
 
 namespace OnlineExamSystem.Controllers
 {
-    public class ExamSections : Controller
+    public class ExamSectionsContoller : Controller
     {
         private readonly IExamService _examService;
 
-        public ExamSections(IExamService examService)
+        public ExamSectionsContoller(IExamService examService)
         {
             _examService = examService;
         }
@@ -48,7 +48,6 @@ namespace OnlineExamSystem.Controllers
         }
 
 
-        // GET: ExamSections/Edit/5
 
     }
 }
