@@ -19,5 +19,7 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterfac
 
         List<QuestionsDataModel> list();
 
+        List<QuestionsDataModel> GetRandomQuestions(int studySubjectId, ExamSectionRulesDataModel rule);
+
     }
 }

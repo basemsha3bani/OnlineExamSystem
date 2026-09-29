@@ -12,7 +12,7 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
         public string SectionName { get; set; }
         public decimal Percentage { get; set; }
 
-        public Exams Exam { get; set; }
+        public virtual Exams Exam { get; set; }
 
         public List<ExamSectionRules> examSectionRules { get; set; }
 

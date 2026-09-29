@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using ServicesClasseslibrary;
+using ServicesClasseslibrary.Interface.Builder;
 using System.Linq;
 
 namespace OnlineExamSystem.Controllers
@@ -11,16 +12,20 @@ namespace OnlineExamSystem.Controllers
     public class ExamSectionsContoller : Controller
     {
         private readonly IExamService _examService;
+        private readonly IExamQuestionsService _examSectionService;
+        
 
         public ExamSectionsContoller(IExamService examService)
         {
             _examService = examService;
+           
         }
 
         // GET: ExamSections
 
         public ActionResult Create(int examId)
         {
+         
             return View(new ExamSectionsDataModel { ExamId=examId});
         }
 

@@ -16,8 +16,9 @@
         $(document).ready(function(){
 
           // 1. Add Section - load Create form via AJAX
+          var action="@Url.Action("Create", "ExamSections")";
           $("#btnAddSection").click(function(){
-            $.get("/ExamSections/Create?examId=@Model.Id", function(data){
+            $.get(action + "?examId=@Model.Id", function(data){
               $("#section-form-container").html(data);
             });
           });

@@ -7,7 +7,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ServicesClasseslibrary;
+using ServicesClasseslibrary.Implmentation.Builder;
 using ServicesClasseslibrary.Interface;
+using ServicesClasseslibrary.Interface.Builder;
 using ServicesClasseslibrary.Interface.DataModel;
 using System;
 using System.Collections.Generic;
@@ -52,7 +54,9 @@ namespace OnlineExamSystem
             services.AddScoped<IExamService, ExamService>();
             services.AddScoped<IExamSectionService, ExamSectionService>();
             services.AddScoped<IUserService, UserService>();
-          
+            services.AddScoped<IExamBuilder, ExamBuilder>();
+            services.AddScoped<IExamAttemptQuestionBuilder, ExamAttemptQuestionBuilder>();
+
             services.AddServicesOnWhichServiceClassLibaryDepend();
         }
 

@@ -26,7 +26,7 @@ namespace OnlineExamSystem.Controllers
             ViewBag.Subjects = new SelectList(_subjectService.list(), "Id", "SubjectName");
             var model = new ExamDataModel
             {
-                Sections = new List<ExamSectionsDataModel> { new ExamSectionsDataModel(), new ExamSectionsDataModel() }
+                Sections = new List<ExamSectionsDataModel> { new    ExamSectionsDataModel(), new ExamSectionsDataModel() }
             }; // 2 empty rows
             return View(model);
         }

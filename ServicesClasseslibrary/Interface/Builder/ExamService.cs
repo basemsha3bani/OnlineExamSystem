@@ -80,9 +80,6 @@ namespace ServicesClasseslibrary
           
         }
 
-        public ExamSectionsDataModel GetSectionById(int sectionId)
-        {
-            throw new NotImplementedException();
-        }
+        
     }
 }

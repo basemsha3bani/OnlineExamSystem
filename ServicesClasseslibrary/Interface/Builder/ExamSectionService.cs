@@ -15,6 +15,7 @@ namespace ServicesClasseslibrary
 
         public List<ExamSectionsDataModel> List(int examId) => _examSectionsOperations.List(examId);
         public void Add(ExamSectionsDataModel m) => _examSectionsOperations.Add(new ExamSectionsDataModel { ExamId = m.ExamId, SectionName = m.SectionName, Percentage = m.Percentage });
-    }
+
+    } 
 }
 

@@ -12,7 +12,7 @@ namespace ServicesClasseslibrary
         void Edit(ExamDataModel model);
         List<ExamSectionRulesDataModel> GetSectionRules(int sectionId);
         void AddSectionRule(ExamSectionRulesDataModel model);
-        ExamSectionsDataModel GetSectionById(int sectionId);
+       
     }
 }
 

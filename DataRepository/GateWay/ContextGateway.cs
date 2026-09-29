@@ -153,10 +153,19 @@ namespace DataRepository.GateWay
 
             return query.ToList();
         }
-      
 
 
+        internal static List<TModelRepository> FromSqlRaw(
+    string sql,
+    params object[] parameters)
+        {
+            GetContextInstance();
+            return dbConext.Set<TModelRepository>()
+                .FromSqlRaw(sql, parameters)
+                .AsNoTracking()
+                .ToList();
+        }
 
-      
+
     }
 }

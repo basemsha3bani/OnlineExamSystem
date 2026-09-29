@@ -12,14 +12,27 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
 
         public class ExamSectionsOperations: IExamSectionsOperations, IModelMapper<ExamSectionsDataModel,ExamSections>
         {
-            public ExamSectionsDataModel Map(ExamSections repository)
+            public ExamSectionsDataModel    Map(ExamSections repository)
             {
                 return new ExamSectionsDataModel
                 {
                     ExamId = repository.ExamId,
                     Id = repository.Id,
                     Percentage = repository.Percentage,
-                    SectionName = repository.SectionName
+                    SectionName = repository.SectionName,
+                    ExamSectionRulesDataModel=repository.examSectionRules?.Select(s=>new ExamSectionRulesDataModel
+                    {
+                        Id=s.Id,
+                        SectionId=s.SectionId,
+                        DifficultyLevelId=s.DifficultyLevelId,
+                        NoOfQuestions   =s.NoOfQuestions,
+                    }).ToList(),
+                    exam=new ExamDataModel
+                    {
+                        Id=repository.Exam.Id,
+                        StudySubjectId=repository.Exam.StudySubjectId,  
+                      
+                    }
                 };
             }
 
@@ -40,10 +53,11 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
 
             public List<ExamSectionsDataModel> List(int examId)
             {
-                List<ExamSectionsDataModel> examSections=                ContextGateway<ExamSections>.List(l => l.ExamId == examId).Select(s=>this.Map(s)).ToList();
+                List<ExamSectionsDataModel> examSections=                ContextGateway<ExamSections>.List(l => l.ExamId == examId,l=>l.examSectionRules,l2=>l2.Exam).Select(s=>this.Map(s)).ToList();
                 return examSections;
 
             }
+
         public ExamSectionsDataModel GeById(int id)
         {
             var examSection = ContextGateway<ExamSections>.GetById(g => g.Id == id, g => g.examSectionRules);
