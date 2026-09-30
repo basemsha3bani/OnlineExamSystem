@@ -1,4 +1,4 @@
-﻿@model DataModel.ExamSectionsDataModel
+@model DataModel.ExamSectionsDataModel
 
 @{
     ViewData["Title"] = "View";
@@ -11,10 +11,10 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form method="post" id="createSectionForm" action="@Url.Action("Create","ExamSections")">
+        <form method="post" id="createSectionForm" asp-action="Create" asp-controller="ExamSections">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            <input asp-for="ExamId"type="hidden" />
+            <input asp-for="ExamId" type="hidden" />
             <div class="form-group">
                 <label asp-for="SectionName" class="control-label"></label>
                 <input asp-for="SectionName" class="form-control" />
@@ -36,7 +36,3 @@
 <div>
     <a asp-action="Index" asp-controller="Exams">Back to List</a>
 </div>
-
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}

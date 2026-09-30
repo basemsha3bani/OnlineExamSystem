@@ -1,4 +1,4 @@
-﻿@using DataModel
+@using DataModel
 @model ExamDataModel
 
 <h2>@Model.Title</h2>
@@ -6,33 +6,11 @@
 <div id="sections-container">
     @await Html.PartialAsync("~/Views/ExamSections/_List.cshtml", Model.Sections)
 </div>
-
-<button id="btnAddSection" class="btn btn-secondary">Add Section</button>
-
+<button type="button" id="btnAddSection" class="btn btn-secondary"
+        data-url="@Url.Action("Create", "ExamSections", new { examId = Model.Id })">Add Section</button>
+<div id="section-error" class="text-danger" role="alert"></div>
 <div id="section-form-container"></div>
 
 @section Scripts {
-    <script>
-        $(document).ready(function(){
-
-          // 1. Add Section - load Create form via AJAX
-          var action="@Url.Action("Create", "ExamSections")";
-          $("#btnAddSection").click(function(){
-            $.get(action + "?examId=@Model.Id", function(data){
-              $("#section-form-container").html(data);
-            });
-          });
-
-          // 2. After saving section (form inside _Create.cshtml must have id="createSectionForm")
-          // $(document).on("submit", "#createSectionForm", function(e){
-          //   e.preventDefault();
-          //   $.post($(this).attr("action"), $(this).serialize(), function(newSectionHtml){
-          //     // Append new section to list without reload
-          //     $("#sections-container").append(newSectionHtml);
-          //     $("#section-form-container").html(""); // clear form
-          //   });
-          // });
-
-        });
-    </script>
+    <script src="~/js/exam-details.js" asp-append-version="true"></script>
 }

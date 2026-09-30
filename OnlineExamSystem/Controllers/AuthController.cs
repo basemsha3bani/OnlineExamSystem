@@ -28,7 +28,7 @@ namespace OnlineExamSystem.Controllers
             {
                 HttpContext.Session.SetString("Role", userValid.Role);
                 HttpContext.Session.SetInt32("UserId", userValid.Id);
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Index", userValid.Role == "Examiner" ? "Examiner" : "Home");
             }
             ModelState.AddModelError("", "Invalid"); return View(m);
         }

@@ -1,0 +1,20 @@
+@model List<DataModel.ExamDataModel>
+@{ ViewData["Title"] = "Take an exam"; }
+<h1>Take an exam</h1>
+<p>Select an exam to begin.</p>
+<div asp-validation-summary="All" class="text-danger"></div>
+@if (Model.Count == 0) { <p>No exams are available yet.</p> }
+else
+{
+    <form asp-action="Start" method="post">
+        <div class="form-group">
+            <label for="examId">Exam</label>
+            <select id="examId" name="examId" class="form-control" required>
+                <option value="">Select an exam</option>
+                @foreach (var exam in Model) { <option value="@exam.Id">@exam.Title — @exam.StudySubjectName</option> }
+            </select>
+        </div>
+        <button class="btn btn-primary" type="submit">Start exam</button>
+    </form>
+}
+<p class="mt-3"><a asp-action="Attempts">Attempt status</a></p>

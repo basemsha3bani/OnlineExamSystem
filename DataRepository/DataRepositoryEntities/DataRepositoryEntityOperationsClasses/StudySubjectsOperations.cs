@@ -1,55 +1,36 @@
-﻿using DataModel;
+using AutoMapper;
+using DataModel;
 using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
 using DataRepository.GateWay;
-using DataRepository.ModelMapper.Interface;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses
 {
-    public class StudySubjectsOperations : IStudySubjectsOperations, IModelMapper<StudySubjectDataModel, StudySubject>
+    public class StudySubjectsOperations : IStudySubjectsOperations
     {
-        public StudySubjectsOperations()
-        {
-            ContextGateway<StudySubject>.GetContextInstance();
-        }
-
+        private readonly ContextGateway<StudySubject> gateway;
+        private readonly IMapper mapper;
+        public StudySubjectsOperations(ContextGateway<StudySubject> gateway, IMapper mapper)
+        { this.gateway = gateway; this.mapper = mapper; }
         public void Add(StudySubjectDataModel model)
         {
-            var entity = new StudySubject { SubjectName = model.SubjectName };
-            ContextGateway<StudySubject>.Add(entity);
+            var entity = mapper.Map<StudySubject>(model);
+            entity.Id = 0;
+            gateway.Add(entity); gateway.SaveChanges();
         }
-
-        public void Delete(int id)
-        {
-            var entity = ContextGateway<StudySubject>.GetById(g => g.Id == id);
-            ContextGateway<StudySubject>.Delete(entity);
-        }
-
         public void Edit(StudySubjectDataModel model)
         {
-            var old = ContextGateway<StudySubject>.GetById(g => g.Id == model.Id);
-            var @new = new StudySubject { Id = model.Id, SubjectName = model.SubjectName };
-            ContextGateway<StudySubject>.Edit(old, @new);
+            var entity = gateway.GetById(e => e.Id == model.Id) ?? throw new InvalidOperationException("Subject not found.");
+            mapper.Map(model, entity); gateway.SaveChanges();
         }
-
-        public StudySubjectDataModel GetById(int id)
+        public void Delete(int id)
         {
-            var entity = ContextGateway<StudySubject>.GetById(g => g.Id == id);
-            return Map(entity);
+            var entity = gateway.GetById(e => e.Id == id);
+            if (entity == null) return;
+            gateway.Delete(entity); gateway.SaveChanges();
         }
-
-        public List<StudySubjectDataModel> list()
-        {
-            return ContextGateway<StudySubject>.List()
-               .Select(s => new StudySubjectDataModel { Id = s.Id, SubjectName = s.SubjectName }).ToList();
-        }
-
- 
-
-        public StudySubjectDataModel Map(StudySubject subject)
-        {
-            return new StudySubjectDataModel { Id = subject.Id, SubjectName = subject.SubjectName };
-        }
+        public StudySubjectDataModel GetById(int id) => mapper.Map<StudySubjectDataModel>(gateway.GetById(e => e.Id == id));
+        public List<StudySubjectDataModel> list() => mapper.Map<List<StudySubjectDataModel>>(gateway.List());
     }
 }

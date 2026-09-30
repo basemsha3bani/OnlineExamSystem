@@ -1,0 +1,36 @@
+@model AttemptSectionViewModel
+@{ ViewData["Title"] = Model.ExamTitle; }
+<h1>@Model.ExamTitle</h1>
+<h2>@Model.SectionName</h2>
+<p>Section @(Model.SectionIndex + 1) of @Model.SectionCount</p>
+@if (TempData["Message"] != null) { <p class="alert alert-warning">@TempData["Message"]</p> }
+<form asp-action="Save" method="post">
+    <input type="hidden" name="id" value="@Model.AttemptId" />
+    <input type="hidden" name="sectionIndex" value="@Model.SectionIndex" />
+    @foreach (var question in Model.Questions)
+    {
+        <fieldset class="card card-body mb-3">
+            <legend class="h5">@question.Text</legend>
+            @foreach (var option in question.Options)
+            {
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="q@(question.Id)_@(option.Key)" name="answers[@question.Id]" value="@option.Key" checked="@(question.SelectedOptionId == option.Key)" />
+                    <label class="form-check-label" for="q@(question.Id)_@(option.Key)">@option.Value</label>
+                </div>
+            }
+            <div class="form-check">
+                <input class="form-check-input" type="radio" id="q@(question.Id)_blank" name="answers[@question.Id]" value="" checked="@(!question.SelectedOptionId.HasValue)" />
+                <label class="form-check-label" for="q@(question.Id)_blank">Leave unanswered</label>
+            </div>
+        </fieldset>
+    }
+    @if (Model.SectionIndex > 0) { <button class="btn btn-secondary" name="command" value="previous">Previous section</button> }
+    <button class="btn btn-outline-primary" name="command" value="save">Save answers</button>
+    @if (Model.SectionIndex + 1 < Model.SectionCount) { <button class="btn btn-primary" name="command" value="next">Next section</button> }
+    else
+    {
+        <p class="mt-3">Submitting finishes your attempt. Unanswered questions count as incorrect, and answers cannot be changed afterward.</p>
+        <button class="btn btn-success" name="command" value="submit">Submit exam</button>
+    }
+</form>
+<p class="mt-3"><a asp-action="Attempts">Attempt status</a> — save your answers before leaving this page.</p>

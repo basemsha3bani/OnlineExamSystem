@@ -17,8 +17,11 @@ namespace DataRepository.GateWay
 
             
         }
+        public DbConext(DbContextOptions<DbConext> options) : base(options) { }
+
         protected  override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            if (optionsBuilder.IsConfigured) return;
            
             AppConfiguration configuration = new AppConfiguration();
 
@@ -31,6 +34,10 @@ namespace DataRepository.GateWay
         protected override void OnModelCreating(ModelBuilder modelBuilder)
 
         {
+            modelBuilder.Entity<ExaminerAttempt>().Property(a => a.Score).HasPrecision(18, 10);
+            modelBuilder.Entity<ExaminerAttempt>().Property(a => a.Status).HasMaxLength(20);
+            modelBuilder.Entity<ExaminerAttempt>().HasIndex(a => new { a.UserId, a.StartedAt });
+            modelBuilder.Entity<ExaminerAttempt>().HasIndex(a => a.Status);
 
             modelBuilder.Entity<QuestionAnswers>().HasKey(o => o.Id);
             modelBuilder.Entity<ExamTypesDetails>().HasKey(o => o.Id);
@@ -58,6 +65,7 @@ namespace DataRepository.GateWay
         public DbSet<StudySubject> StudySubjects { get; set; }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<ExaminerAttempt> ExaminerAttempts { get; set; }
     }
 
 }

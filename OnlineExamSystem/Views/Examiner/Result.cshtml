@@ -1,0 +1,12 @@
+@model DataRepository.DataRepositoryEntities.ExaminerAttempt
+@{ ViewData["Title"] = "Exam result"; }
+<h1>Exam result</h1>
+<h2>@Model.ExamTitle</h2>
+<dl class="row">
+    <dt class="col-sm-4">Submitted (UTC)</dt><dd class="col-sm-8">@(Model.SubmittedAt?.ToString("yyyy-MM-dd HH:mm"))</dd>
+    <dt class="col-sm-4">Evaluated (UTC)</dt><dd class="col-sm-8">@(Model.EvaluatedAt?.ToString("yyyy-MM-dd HH:mm"))</dd>
+    <dt class="col-sm-4">Correct answers</dt><dd class="col-sm-8">@Model.CorrectQuestions / @Model.TotalQuestions</dd>
+    <dt class="col-sm-4">Score</dt><dd class="col-sm-8">@(Model.Score?.ToString("P2"))</dd>
+</dl>
+<p>Every question has equal weight. Unanswered questions count as incorrect.</p>
+<a asp-action="Attempts">Back to attempt status</a>

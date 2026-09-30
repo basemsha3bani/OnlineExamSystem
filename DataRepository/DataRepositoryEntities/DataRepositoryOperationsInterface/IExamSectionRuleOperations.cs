@@ -6,8 +6,8 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
     {
         public interface IExamSectionRuleOperations
         {
-            List<ExamSectionRules> GetBySectionId(int sectionId);
-            void Add(ExamSectionRules entity);
+            List<DataModel.ExamSectionRulesDataModel> GetBySectionId(int sectionId);
+            void Add(DataModel.ExamSectionRulesDataModel model);
         }
     }
 

@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.EntityFrameworkCore;
+using DataRepository.GateWay;
 using ServicesClasseslibrary;
 using ServicesClasseslibrary.Implmentation.Builder;
 using ServicesClasseslibrary.Interface;
@@ -30,6 +32,8 @@ namespace OnlineExamSystem
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<DbConext>(options => options.UseSqlServer(Configuration.GetConnectionString("DbCoreConnectionString")));
+            services.AddDbContextFactory<DbConext>(options => options.UseSqlServer(Configuration.GetConnectionString("DbCoreConnectionString")), ServiceLifetime.Scoped);
             services.AddDistributedMemoryCache();
 
             services.AddControllersWithViews();
@@ -42,6 +46,8 @@ namespace OnlineExamSystem
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
             });
+            services.AddScoped<ServicesClasseslibrary.Examiner.ExaminerAttemptService>();
+            services.AddHostedService<OnlineExamSystem.Services.AttemptEvaluationWorker>();
             services.AddScoped<IDifficultyLevelsService, DifficultyLevelsService>();
             
             services.AddScoped<IExamQuestionsService, ExamQuestionsService>();

@@ -1,76 +1,36 @@
-﻿using DataModel;
+using AutoMapper;
+using DataModel;
 using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
 using DataRepository.GateWay;
-using DataRepository.ModelMapper.Interface;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses
 {
-    public class DifficultyLevelsOperations : IDifficultyLevelsOperations, IModelMapper<DifficultyLevelsDataModel,DifficultyLevels>
+    public class DifficultyLevelsOperations : IDifficultyLevelsOperations
     {
-
-        //RepositoryGateWay<DifficultyLevels> DifficultyLevelsRepositoryGateWay = new RepositoryGateWay<DifficultyLevels>();
-        ContextGateway<DifficultyLevels> DifficultyLevelsRepositoryGateWay;
-        public DifficultyLevelsOperations()
+        private readonly ContextGateway<DifficultyLevels> gateway;
+        private readonly IMapper mapper;
+        public DifficultyLevelsOperations(ContextGateway<DifficultyLevels> gateway, IMapper mapper)
+        { this.gateway = gateway; this.mapper = mapper; }
+        public void Add(DifficultyLevelsDataModel model)
         {
-            ContextGateway<DifficultyLevels>.GetContextInstance();
+            var entity = mapper.Map<DifficultyLevels>(model);
+            entity.Id = 0;
+            gateway.Add(entity); gateway.SaveChanges();
         }
-        public void Add(DifficultyLevelsDataModel difficultyLevels)
+        public void Edit(DifficultyLevelsDataModel model)
         {
-            DifficultyLevels difficultyLevelsInstance = new DifficultyLevels();
-            difficultyLevelsInstance.DifficultyLevelName = difficultyLevels.DifficultyLevelName;
-            
-
-            ContextGateway<DifficultyLevels>.Add(difficultyLevelsInstance);
-
-
+            var entity = gateway.GetById(e => e.Id == model.Id) ?? throw new InvalidOperationException("Difficulty level not found.");
+            mapper.Map(model, entity); gateway.SaveChanges();
         }
-
         public void Delete(int id)
         {
-            //DifficultyLevels difficultyLevelsInstance = new DifficultyLevels();
-            //difficultyLevelsInstance = DifficultyLevelsRepositoryGateWay.GetById(g => g.Id == id);
-            //DifficultyLevelsRepositoryGateWay.Delete(difficultyLevelsInstance);
+            var entity = gateway.GetById(e => e.Id == id);
+            if (entity == null) return;
+            gateway.Delete(entity); gateway.SaveChanges();
         }
-
-        public void Edit(DifficultyLevelsDataModel difficultyLevels)
-        {
-            
-        }
-
-        public DifficultyLevelsDataModel GetById(int id)
-        {
-            //DifficultyLevels difficultyLevelsInstance = new DifficultyLevels();
-            //difficultyLevelsInstance = new DifficultyLevels();
-            //difficultyLevelsInstance = DifficultyLevelsRepositoryGateWay.GetById(g => g.Id == id);
-            //return (DifficultyLevelsDataModel) this.Map(difficultyLevelsInstance);
-
-            //return new DataModel.DifficultyLevelsDataModel { Id = difficultyLevelsInstance.Id, DifficultyLevelName = difficultyLevelsInstance.DifficultyLevelName };
-            return null;
-        }
-
-        public List<DifficultyLevelsDataModel> list()
-        {
-            //List<DifficultyLevelsDataModel> listOfDifficultyLevels = DifficultyLevelsRepositoryGateWay.List().Select
-            //     (s=>new DifficultyLevelsDataModel  { Id = s.Id, DifficultyLevelName = s.DifficultyLevelName }).ToList();
-            // return listOfDifficultyLevels;
-            List<DifficultyLevelsDataModel> listOfDifficultyLevels = ContextGateway<DifficultyLevels>.List().Select
-                 (s => this.Map(s)).ToList();
-            return listOfDifficultyLevels;
-           
-           // return null;
-
-        }
-
-      
-
-        public DifficultyLevelsDataModel Map(DifficultyLevels difficultyLevelsInstance)
-        {
-          return new DataModel.DifficultyLevelsDataModel { Id = difficultyLevelsInstance.Id, DifficultyLevelName = difficultyLevelsInstance.DifficultyLevelName };
-        }
+        public DifficultyLevelsDataModel GetById(int id) => mapper.Map<DifficultyLevelsDataModel>(gateway.GetById(e => e.Id == id));
+        public List<DifficultyLevelsDataModel> list() => mapper.Map<List<DifficultyLevelsDataModel>>(gateway.List());
     }
-    
 }

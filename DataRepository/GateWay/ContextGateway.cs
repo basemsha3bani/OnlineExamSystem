@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
@@ -7,165 +7,29 @@ using System.Linq.Expressions;
 
 namespace DataRepository.GateWay
 {
-    internal class ContextGateway
+    // All gateways in a request share the injected, scoped DbContext.
+    // Writes are staged until the coordinating operation calls SaveChanges.
+    public class ContextGateway<T> where T : class
     {
-        internal static DbConext dbConext;
-        internal static IDbContextTransaction _transaction;
-        public static void CreateDatabaseTransaction()
+        private readonly DbConext context;
+        public ContextGateway(DbConext context) { this.context = context; }
+        public IQueryable<T> Query => context.Set<T>();
+        public void Add(T entity) => context.Set<T>().Add(entity);
+        public void Delete(T entity) => context.Set<T>().Remove(entity);
+        public int SaveChanges() => context.SaveChanges();
+        public IDbContextTransaction BeginTransaction() => context.Database.BeginTransaction();
+        public T GetById(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes)
+            => Include(Query, includes).FirstOrDefault(predicate);
+        public List<T> List(Expression<Func<T, bool>> predicate = null, params Expression<Func<T, object>>[] includes)
         {
-            GetContextInstance();
-            _transaction = dbConext.Database.BeginTransaction();
+            var query = Include(Query.AsNoTracking(), includes);
+            return (predicate == null ? query : query.Where(predicate)).ToList();
         }
-
-        internal static void GetContextInstance()
+        private IQueryable<T> Include(IQueryable<T> query, Expression<Func<T, object>>[] includes)
         {
-            if (dbConext == null)
-            {
-                dbConext = new DbConext();
-            }
-            //return dbConext;
-        }
-
-        public static void Rollback()
-        {
-            _transaction.Rollback();
-        }
-
-        public static void Dispose()
-        {
-            _transaction.Dispose();
-        }
-
-        public static void Commit()
-        {
-            _transaction.Commit();
-        }
-    }
-   internal class ContextGateway<TModelRepository>: ContextGateway where TModelRepository : class
-    {
-       
-
-      
-
-        private ContextGateway() { }
-
-        internal static void Add(IRepository repository) 
-        {
-            dbConext.Entry(repository).State = EntityState.Added;
-
-            dbConext.SaveChanges();
-        }
-        internal static void Add(IEnumerable<IRepository> repository)
-        {
-            dbConext.AddRange(repository);
-
-            dbConext.SaveChanges();
-        }
-        internal static void Edit(IRepository repository)
-        {
-
-            dbConext.Entry(repository).State = EntityState.Modified;
-
-            dbConext.SaveChanges();
-
-
-
-        }
-
-        internal static void Edit(IEnumerable<IRepository> repository)
-        {
-
-            dbConext.UpdateRange(repository);
-
-            dbConext.SaveChanges();
-
-
-
-        }
-
-
-        internal static void Edit(IRepository repository, IRepository withnewvalues)
-        {
-            dbConext.Entry(repository).State = EntityState.Detached;
-
-            dbConext.Entry(withnewvalues).State = EntityState.Modified;
-            dbConext.SaveChanges();
-
-        }
-
-        internal static void Delete(IRepository repository)
-        {
-            dbConext.Entry(repository).State = EntityState.Deleted;
-
-            dbConext.SaveChanges();
-        }
-
-        // Helper: verify the include expression is a simple member access (or boxed member)
-        private static bool IsMemberAccess(Expression expression)
-        {
-            if (expression == null) return false;
-
-            // Accept MemberExpression or UnaryExpression (boxing) whose operand is MemberExpression
-            if (expression is MemberExpression) return true;
-
-            if (expression is UnaryExpression unary && unary.Operand is MemberExpression) return true;
-
-            return false;
-        }
-
-        private static IQueryable<TModelRepository> ApplyIncludes(IQueryable<TModelRepository> query, params Expression<Func<TModelRepository, object>>[] includeProperties)
-        {
-            if (includeProperties == null || includeProperties.Length == 0) return query;
-
-            foreach (var include in includeProperties)
-            {
-                if (include == null) continue;
-
-                if (!IsMemberAccess(include.Body))
-                    throw new InvalidOperationException($"Invalid Include expression: '{include}'. Include must be a property access (e.g. 't => t.Navigation'). Projections (new {{ ... }}) are not supported.");
-
+            foreach (var include in includes ?? Array.Empty<Expression<Func<T, object>>>())
                 query = query.Include(include);
-            }
-
             return query;
         }
-
-        internal static TModelRepository GetById(Expression<Func<TModelRepository, bool>> predicate, params Expression<Func<TModelRepository, object>>[] includeProperties)
-        {
-            IQueryable<TModelRepository> query = dbConext.Set<TModelRepository>().AsNoTracking();
-
-            if (predicate != null)
-                query = query.Where(predicate);
-
-            query = ApplyIncludes(query, includeProperties);
-
-            return query.FirstOrDefault();
-        }
-
-        internal static List<TModelRepository> List(Expression<Func<TModelRepository, bool>> predicate = null, params Expression<Func<TModelRepository, object>>[] includeProperties)   
-        {
-            IQueryable<TModelRepository> query = dbConext.Set<TModelRepository>().AsNoTracking();
-
-            if (predicate != null)
-                query = query.Where(predicate);
-
-            query = ApplyIncludes(query, includeProperties);
-
-            return query.ToList();
-        }
-
-
-        internal static List<TModelRepository> FromSqlRaw(
-    string sql,
-    params object[] parameters)
-        {
-            GetContextInstance();
-            return dbConext.Set<TModelRepository>()
-                .FromSqlRaw(sql, parameters)
-                .AsNoTracking()
-                .ToList();
-        }
-
-
     }
 }

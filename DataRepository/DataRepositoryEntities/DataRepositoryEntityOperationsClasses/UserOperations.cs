@@ -1,46 +1,26 @@
-﻿using DataModel;
+using AutoMapper;
+using DataModel;
 using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
 using DataRepository.GateWay;
-using DataRepository.ModelMapper.Interface;
-using System.Linq;
 
 namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses
 {
-    public class UserOperations : IUserOperations,IModelMapper<LoginModel,User>
+    public class UserOperations : IUserOperations
     {
-        public void Add(LoginModel loginModel)
+        private readonly ContextGateway<User> gateway;
+        private readonly IMapper mapper;
+        public UserOperations(ContextGateway<User> gateway, IMapper mapper)
+        { this.gateway = gateway; this.mapper = mapper; }
+        public void Add(LoginModel model)
         {
-            User user = new User { Username = loginModel.Username, PasswordHash = loginModel.Password, Role = loginModel.Role };
-            ContextGateway<User>.GetContextInstance();
-            ContextGateway<User>.Add(user);
+            var user = mapper.Map<User>(model);
+            user.Id = 0;
+            gateway.Add(user); gateway.SaveChanges();
         }
-
-        public LoginModel Map(User user)
+        public LoginModel Validate(LoginModel model)
         {
-            if(user==null)
-            {
-                return null;
-            }
-            return new LoginModel
-            {
-                Id =user.Id,
-                Role=user.Role
-
-            };
-        }
-
-        public LoginModel Validate(LoginModel loginModel)
-        {
-           
-            if (loginModel == null)
-            {
-                return null;
-            }
-            ContextGateway<User>.GetContextInstance();
-            User user = ContextGateway<User>.List(l => l.Username == loginModel.Username && l.PasswordHash == loginModel.Password).FirstOrDefault();
-            return this.Map(user);
-
-
+            if (model == null) return null;
+            return mapper.Map<LoginModel>(gateway.GetById(u => u.Username == model.Username && u.PasswordHash == model.Password));
         }
     }
 }

@@ -1,139 +1,53 @@
-﻿using DataModel;
+using AutoMapper;
+using DataModel;
 using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
 using DataRepository.GateWay;
-using DataRepository.ModelMapper.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses.ExamsOperations;
 
 namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses
 {
-
-    public class ExamsOperations : IExamOprations, IModelMapper<ExamDataModel, Exams>
+    public class ExamsOperations : IExamOprations
     {
-        public ExamsOperations()
+        private readonly ContextGateway<Exams> gateway;
+        private readonly IMapper mapper;
+        public ExamsOperations(ContextGateway<Exams> gateway, IMapper mapper)
+        { this.gateway = gateway; this.mapper = mapper; }
+        public List<ExamDataModel> list() => mapper.Map<List<ExamDataModel>>(gateway.List(null, e => e.StudySubject));
+        public ExamDataModel GetById(int id) => mapper.Map<ExamDataModel>(gateway.GetById(e => e.Id == id, e => e.Sections, e => e.StudySubject));
+        public void Add(ExamDataModel model)
         {
-            ContextGateway<Exams>.GetContextInstance();
+            var exam = mapper.Map<Exams>(model);
+            exam.Id = 0;
+            exam.Sections = mapper.Map<List<ExamSections>>(model.Sections);
+            foreach (var section in exam.Sections) { section.Id = 0; section.ExamId = 0; }
+            gateway.Add(exam);
+            gateway.SaveChanges();
         }
-
-        public List<ExamDataModel> list()
+        public void Edit(ExamDataModel model)
         {
-            var exams = ContextGateway<Exams>.List(l => l.Id == l.Id, l => l.StudySubject);
-
-            return exams.Select(e => new ExamDataModel
+            var exam = gateway.GetById(e => e.Id == model.Id, e => e.Sections)
+                ?? throw new InvalidOperationException("Exam not found.");
+            if (model.Sections.Any(s => s.Id != 0 && exam.Sections.All(e => e.Id != s.Id)))
+                throw new InvalidOperationException("Invalid section identity.");
+            mapper.Map(model, exam);
+            foreach (var incoming in model.Sections)
             {
-                Id = e.Id,
-                Title = e.Title,
-                StudySubjectId = e.StudySubjectId,
-                StudySubjectName = e.StudySubject.SubjectName,
-                TotalMarks = e.TotalMarks
-            }).ToList();
-        }
-        public void Add(ExamDataModel m)
-            {
-            Exams exam = new Exams { Title = m.Title, StudySubjectId = m.StudySubjectId, TotalMarks = m.TotalMarks };
-            List<ExamSections> sections = m.Sections.Select(s=>new ExamSections
-            {
-                
-                Percentage=s.Percentage,
-                SectionName=s.SectionName,
-                Exam=exam
-               
-            }).ToList();
-            ContextGateway<Exams>.CreateDatabaseTransaction();
-            try
-            {
-                
-
-                ContextGateway<Exams>.Add(exam);
-                ContextGateway<Exams>.Add(sections);
-
-                ContextGateway<Exams>.Commit();
-            }
-            catch (Exception ex)
-            {
-                ContextGateway<Exams>.Rollback();
-                throw;
-            }
-
-        }
-            public void Edit(ExamDataModel m)
-        {
-            Exams exam = ContextGateway<Exams>.GetById(g => g.Id == m.Id, g => g.Sections);
-
-            List<ExamSections> NewExamSections= new List<ExamSections>();
-
-            
-            exam.StudySubjectId = m.StudySubjectId;
-            exam.TotalMarks = m.TotalMarks;
-            m.Sections.ForEach(es =>
-            {
-                ExamSections section = exam.Sections.FirstOrDefault(w => w.Id == es.Id);
-
+                var section = incoming.Id == 0 ? null : exam.Sections.Single(s => s.Id == incoming.Id);
                 if (section == null)
                 {
-                    NewExamSections.Add(new ExamSections
-                    {
-                        SectionName = es.SectionName,
-                        Percentage = es.Percentage,
-                        Exam = exam
-                    });
+                    section = mapper.Map<ExamSections>(incoming);
+                    section.ExamId = exam.Id;
+                    exam.Sections.Add(section);
                 }
                 else
                 {
-                    section.SectionName = es.SectionName;
-                    section.Percentage = es.Percentage;
+                    mapper.Map(incoming, section);
+                    section.ExamId = exam.Id;
                 }
-                
-
-            });
-
-            ;
-            ContextGateway<Questions>.CreateDatabaseTransaction();
-            try
-            {
-
-                ContextGateway<Questions>.Edit(exam);
-                ContextGateway<Questions>.Edit(exam.Sections);
-                ContextGateway<Questions>.Add(NewExamSections);
-
-                ContextGateway<Questions>.Commit();
             }
-            catch (Exception ex)
-            {
-                ContextGateway<Questions>.Rollback();
-                throw;
-            }
-        }
-        
-
-            public ExamDataModel GetById(int id)
-            {
-           Exams exam=  ContextGateway<Exams>.GetById(g=>g.Id==id,g=>g.Sections);
-            return this.Map(exam);
-
-        }
-
-        public ExamDataModel Map(Exams repository)
-        {
-            return new ExamDataModel
-            {
-                Id = repository.Id,
-                StudySubjectId = repository.StudySubjectId,
-                Title = repository.Title,
-                TotalMarks = repository.TotalMarks,
-                Sections = repository.Sections.Select(
-                    s =>
-                    new ExamSectionsDataModel
-                    {
-                        ExamId = s.ExamId,
-                        SectionName = s.SectionName,
-                        Id = s.Id,
-                        Percentage = s.Percentage
-                    }).ToList()
-            };
+            gateway.SaveChanges();
         }
     }
-    
 }

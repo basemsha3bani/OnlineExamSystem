@@ -18,6 +18,18 @@ namespace ServicesClasseslibrary
     {
         public static IServiceCollection AddServicesOnWhichServiceClassLibaryDepend(this IServiceCollection services)
         {
+            services.AddScoped(typeof(ContextGateway<>));
+            services.AddSingleton<AutoMapper.MapperConfiguration>(provider =>
+            {
+                var config = new AutoMapper.MapperConfiguration(cfg =>
+                {
+                    cfg.AddProfile<DataRepository.ModelMapper.RepositoryMappingProfile>();
+                    cfg.LicenseKey = Environment.GetEnvironmentVariable("AUTOMAPPER_LICENSE_KEY");
+                }, provider.GetRequiredService<Microsoft.Extensions.Logging.ILoggerFactory>());
+                config.AssertConfigurationIsValid();
+                return config;
+            });
+            services.AddScoped<AutoMapper.IMapper>(provider => provider.GetRequiredService<AutoMapper.MapperConfiguration>().CreateMapper());
 
             services.AddScoped<IDifficultyLevelsOperations, DifficultyLevelsOperations>();
             services.AddScoped<IQuestionsOperations, QuestionsOperations>();

@@ -9,15 +9,16 @@ using System.Linq;
 
 namespace OnlineExamSystem.Controllers
 {
-    public class ExamSectionsContoller : Controller
+    public class ExamSectionsController : Controller
     {
         private readonly IExamService _examService;
-        private readonly IExamQuestionsService _examSectionService;
+        private readonly IExamSectionService _examSectionService;
         
 
-        public ExamSectionsContoller(IExamService examService)
+        public ExamSectionsController(IExamService examService, IExamSectionService examSectionService)
         {
             _examService = examService;
+            _examSectionService = examSectionService;
            
         }
 
@@ -26,30 +27,36 @@ namespace OnlineExamSystem.Controllers
         public ActionResult Create(int examId)
         {
          
-            return View(new ExamSectionsDataModel { ExamId=examId});
+            if (_examService.GetById(examId) == null) return NotFound();
+            return PartialView("Create", new ExamSectionsDataModel { ExamId=examId});
         }
 
         // POST: ExamSections/Create
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Create(ExamSectionsDataModel model)
         {
 
 
            var exam= _examService.GetById(model.ExamId);
-            exam.Sections.Add(model);
-            var total = exam.Sections.Sum(s => s.Percentage);
+            if (exam == null) return NotFound();
+            if (string.IsNullOrWhiteSpace(model.SectionName)) ModelState.AddModelError("SectionName", "Section name is required.");
+            if (model.Percentage < 0 || model.Percentage > 100) ModelState.AddModelError("Percentage", "Percentage must be between 0 and 100.");
            
 
             // 4. Save if valid
             if (ModelState.IsValid)
             {
                 // Set CreatedBy / Id if you need
-                _examService.Edit(exam); // your method that saves Exam + Sections
-                return RedirectToAction("Index","Exams");
+                _examSectionService.Add(model);
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                    return PartialView("_List", _examSectionService.List(model.ExamId));
+                return RedirectToAction("Details", "Exams", new { id = model.ExamId });
             }
 
-            return View(model);
+            Response.StatusCode = 422;
+            return PartialView("Create", model);
         }
 
 

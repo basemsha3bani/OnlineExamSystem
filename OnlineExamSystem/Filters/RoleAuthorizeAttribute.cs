@@ -10,7 +10,7 @@ namespace OnlineExamSystem.Models
         public override void OnActionExecuting(ActionExecutingContext ctx)
         {
          
-            if (ctx.HttpContext.Session.GetString("Role") != _role)
+            if (ctx.HttpContext.Session.GetString("Role") != _role || !ctx.HttpContext.Session.GetInt32("UserId").HasValue)
                 ctx.Result = new RedirectToActionResult("Login", "Auth", null);
         }
     }

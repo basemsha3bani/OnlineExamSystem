@@ -1,184 +1,76 @@
-﻿using DataModel;
+using AutoMapper;
+using DataModel;
 using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
 using DataRepository.GateWay;
-using DataRepository.ModelMapper.Interface;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.ServiceModel.Channels;
-using System.Text;
 
 namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses
 {
-    public class QuestionsOperations : IQuestionsOperations, IModelMapper<QuestionsDataModel, Questions>
+    public class QuestionsOperations : IQuestionsOperations
     {
-        public QuestionsOperations()
+        private readonly ContextGateway<Questions> gateway;
+        private readonly IMapper mapper;
+        public QuestionsOperations(ContextGateway<Questions> gateway, IMapper mapper)
+        { this.gateway = gateway; this.mapper = mapper; }
+        public void Add(QuestionsDataModel model)
         {
-            ContextGateway<DifficultyLevels>.GetContextInstance();
+            ValidateAnswers(model);
+            var question = mapper.Map<Questions>(model);
+            question.Id = 0;
+            question.QuestionAnswers = mapper.Map<List<QuestionAnswers>>(model.QuestionAnswersDataModel);
+            foreach (var answer in question.QuestionAnswers) { answer.Id = 0; answer.QuestionId = 0; }
+            gateway.Add(question);
+            gateway.SaveChanges();
         }
-
-        public void Add(QuestionsDataModel questionsDataModel)
+        public void Edit(QuestionsDataModel model)
         {
-            Questions Question = new Questions
+            ValidateAnswers(model);
+            var question = gateway.GetById(q => q.Id == model.Id, q => q.QuestionAnswers)
+                ?? throw new InvalidOperationException("Question not found.");
+            if (model.QuestionAnswersDataModel.Where(a => a.Id != 0).GroupBy(a => a.Id).Any(g => g.Count() > 1)
+                || model.QuestionAnswersDataModel.Any(a => a.Id != 0 && question.QuestionAnswers.All(e => e.Id != a.Id)))
+                throw new InvalidOperationException("Invalid answer identity.");
+            mapper.Map(model, question);
+            foreach (var old in question.QuestionAnswers.ToList())
+                if (model.QuestionAnswersDataModel.All(a => a.Id != old.Id)) question.QuestionAnswers.Remove(old);
+            foreach (var incoming in model.QuestionAnswersDataModel)
             {
-                Id = questionsDataModel.Id,
-                QuestionText = questionsDataModel.QuestionText,
-                DifficultyLevelId = questionsDataModel.DifficultyLevelId,
-                StudySubjectId = questionsDataModel.StudySubjectId,
-
-
-            };
-
-            ContextGateway<Questions>.CreateDatabaseTransaction();
-            ;
-            List<QuestionAnswers> answers = questionsDataModel.QuestionAnswersDataModel.Select(s => new QuestionAnswers
-            {
-
-                AnswerText = s.AnswerText,
-                IsCorrect = s.IsCorrect,
-                Question = Question
-            }).ToList();
-            ContextGateway<Questions>.Add(Question);
-            ContextGateway<Questions>.Add(answers);
-            ContextGateway<Questions>.Commit();
-
-
-
+                var answer = incoming.Id == 0 ? null : question.QuestionAnswers.Single(a => a.Id == incoming.Id);
+                if (answer == null)
+                {
+                    answer = mapper.Map<QuestionAnswers>(incoming);
+                    answer.QuestionId = question.Id;
+                    question.QuestionAnswers.Add(answer);
+                }
+                else
+                {
+                    mapper.Map(incoming, answer);
+                    answer.QuestionId = question.Id;
+                }
+            }
+            gateway.SaveChanges();
         }
-
+        private void ValidateAnswers(QuestionsDataModel model)
+        {
+            if (model.QuestionAnswersDataModel == null || model.QuestionAnswersDataModel.Count(a => a.IsCorrect) != 1)
+                throw new InvalidOperationException("Each question must have exactly one correct answer.");
+        }
         public void Delete(int id)
         {
-
+            var question = gateway.GetById(q => q.Id == id);
+            if (question == null) return;
+            gateway.Delete(question); gateway.SaveChanges();
         }
-
-        public void Edit(QuestionsDataModel questionsDataModel)
+        public QuestionsDataModel GetById(int id) => mapper.Map<QuestionsDataModel>(gateway.GetById(q => q.Id == id, q => q.QuestionAnswers));
+        public List<QuestionsDataModel> list() => mapper.Map<List<QuestionsDataModel>>(gateway.List(null, q => q.QuestionAnswers));
+        public List<QuestionsDataModel> GetRandomQuestions(int studySubjectId, ExamSectionRulesDataModel rule)
         {
-            Questions Question = ContextGateway<Questions>.GetById(g => g.Id == questionsDataModel.Id, g => g.QuestionAnswers);
-
-
-
-            Question.QuestionText = questionsDataModel.QuestionText;
-            Question.DifficultyLevelId = questionsDataModel.DifficultyLevelId;
-            Question.StudySubjectId = questionsDataModel.StudySubjectId;
-            questionsDataModel.QuestionAnswersDataModel.ForEach(qa =>
-                {
-                    QuestionAnswers answer = Question.QuestionAnswers.First(w => w.Id == qa.Id);
-
-                    answer.QuestionId = qa.QuestionId;
-                    answer.AnswerText = qa.AnswerText;
-                    answer.IsCorrect = qa.IsCorrect;
-
-                }
-                );
-
-            ;
-            ContextGateway<Questions>.CreateDatabaseTransaction();
-            try
-            {
-
-                ContextGateway<Questions>.Edit(Question);
-                ContextGateway<Questions>.Edit(Question.QuestionAnswers);
-
-                ContextGateway<Questions>.Commit();
-            }
-            catch (Exception ex)
-            {
-                ContextGateway<Questions>.Rollback();
-                throw;
-            }
-
-
-        }
-
-        public QuestionsDataModel GetById(int id)
-        {
-            //repositoryGateWay = new RepositoryGateWay<Questions>();
-            //RepositoryGateWay<QuestionAnswers> QuestionAnswersRepositoryGateWay;
-            ContextGateway<Questions>.GetContextInstance();
-            Questions questions = ContextGateway<Questions>.GetById(e => e.Id == id, qa => qa.QuestionAnswers);
-            //QuestionAnswersRepositoryGateWay = new RepositoryGateWay<QuestionAnswers>();
-            //ContextGateway<QuestionAnswers>.GetContextInstance();
-            //questions.QuestionAnswers = ContextGateway<QuestionAnswers>.List(e => e.QuestionId == id);
-            return this.Map(questions);
-        }
-
-        public List<QuestionsDataModel> list()
-        {
-            //repositoryGateWay = new RepositoryGateWay<Questions>();
-            //RepositoryGateWay<QuestionAnswers> QuestionAnswersRepositoryGateWay = new RepositoryGateWay<QuestionAnswers>();
-            ContextGateway<Questions>.GetContextInstance();
-            return ContextGateway<Questions>.List(l => l.Id == l.Id, i => i.QuestionAnswers).Select
-                (s => this.Map(s)).ToList();
-
-
-
-        }
-
-
-
-
-
-
-        public QuestionsDataModel Map(Questions questions)
-        {
-            QuestionsDataModel questionsDataModel =
-               new QuestionsDataModel
-               {
-                   Id = questions.Id,
-                   DifficultyLevelId = questions.DifficultyLevelId,
-                   StudySubjectId = questions.StudySubjectId,
-                   QuestionText = questions.QuestionText,
-                   QuestionAnswersDataModel
-                   = (from qa in questions.QuestionAnswers
-                      select qa.Map(qa)
-
-                      ).ToList()
-
-               };
-            return questionsDataModel;
-        }
-        public List<QuestionsDataModel> GetRandomQuestions(
-
-     int studySubjectId,ExamSectionRulesDataModel sectionRule
-   )
-        {
-
-
-            string sql = @"
-    SELECT top ({3}) Q.Id, Q.QuestionText, Q.DifficultyLevelId, Q.StudySubjectId
-FROM (
-    SELECT questions.*, esr.Id as RuleId,
-           ROW_NUMBER() OVER (
-             PARTITION BY questions.DifficultyLevelId, questions.studySubjectId 
-             ORDER BY NEWID()
-           ) as rn
-    FROM Questions 
-    JOIN ExamSectionRules esr 
-      ON esr.DifficultyLevelId = Questions.DifficultyLevelId
-     
-      
-      WHERE esr.SectionId = {1}
-     
-  
- and esr.DifficultyLevelId = {2}
- AND  Questions.StudySubjectId ={0}
-      
-) Q
-JOIN ExamSectionRules esr ON esr.Id = Q.RuleId
-WHERE Q.rn <= esr.NoOfQuestions;";
-            var baba = sql;
-            // NOTE: Using FromSqlRaw with parameters to avoid injection
-            return ContextGateway<Questions>.FromSqlRaw(sql, studySubjectId, sectionRule.SectionId, sectionRule.DifficultyLevelId, sectionRule.NoOfQuestions    )
-                   .Select(q => new QuestionsDataModel
-                    {
-                       Id= q.Id,
-                          QuestionText = q.QuestionText,
-                            DifficultyLevelId = q.DifficultyLevelId,
-                            StudySubjectId=q.StudySubjectId
-
-                   })
-                   .ToList();
+            return mapper.Map<List<QuestionsDataModel>>(gateway.Query.AsNoTracking().Include(q => q.QuestionAnswers)
+                .Where(q => q.StudySubjectId == studySubjectId && q.DifficultyLevelId == rule.DifficultyLevelId)
+                .OrderBy(q => Guid.NewGuid()).Take(rule.NoOfQuestions).ToList());
         }
     }
 }
