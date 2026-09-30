@@ -26,23 +26,24 @@
         </tr>
     </thead>
     <tbody>
+@{int i=0;}
 @foreach (var item in Model) {
-        <tr>
-            <td style="visibility:hidden">
-                @Html.DisplayFor(modelItem => item.Id)
-            </td>
-            <td style="visibility:hidden">
-                @Html.DisplayFor(modelItem => item.QuestionId)
-            </td>
-            <td>
-                @Html.TextBoxFor(modelItem => item.AnswerText)
-                @Html.ValidationMessageFor(modelItem => item.AnswerText)
-            </td>
-            <td>
-                    @Html.RadioButtonFor(modelItem => item.IsCorrect,item.IsCorrect,new {name=item.radioButtonDisplay})
-            </td>
-
-        </tr>
+            {
+                <tr>
+                    <td class="text-center">
+                    <!-- Same name = only one can be checked -->
+                    <input type="radio" name="CorrectAnswerIndex" value="@i"
+                           @(item.IsCorrect ? "checked" : "") required />
+                    @Html.HiddenFor(m => item.Id)
+                    @Html.HiddenFor(m => item.QuestionId)
+                </td>
+                <td>
+                    <input asp-for="@item.AnswerText" class="form-control" placeholder="Answer @(i + 1)" />
+                    <span asp-validation-for="@item.AnswerText" class="text-danger"></span>
+                </td>
+            </tr>
+                i++;
+            }
 }
     </tbody>
 </table>
