@@ -16,9 +16,9 @@ namespace ServicesClasseslibrary
             _questionsOperations = questionsOperations;
            
         }
-        public void Add(QuestionsDataModel questionAnswers)
+        public void Add(QuestionsDataModel question)
         {
-            _questionsOperations.Add(questionAnswers);
+            _questionsOperations.Add(question);
         }
 
         public void Delete(int id)

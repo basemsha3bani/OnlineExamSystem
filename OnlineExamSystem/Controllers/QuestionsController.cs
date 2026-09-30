@@ -42,8 +42,8 @@ namespace OnlineExamSystem.Controllers
         // GET: Questions/Create
         public IActionResult Create()
         {
-            var x = new List<QuestionAnswersDataModel>(5) {
-            new QuestionAnswersDataModel(),new QuestionAnswersDataModel(),new QuestionAnswersDataModel(),new QuestionAnswersDataModel(),new QuestionAnswersDataModel(), };
+            var x = new List<QuestionAnswersDataModel>(4) {
+            new QuestionAnswersDataModel(),new QuestionAnswersDataModel(),new QuestionAnswersDataModel(),new QuestionAnswersDataModel() };
 
             ViewData["DifficultyLevelId"] = new SelectList(_difficultyLevelsService.list(), "Id", "DifficultyLevelName");
             ViewData["StudySubjectsId"] = new SelectList(_studySubjectsService.list(), "Id", "SubjectName");
@@ -55,10 +55,14 @@ namespace OnlineExamSystem.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(QuestionsDataModel questions)
+        public IActionResult Create(QuestionsDataModel questions,int  CorrectAnswerIndex)
         {
             if (ModelState.IsValid)
             {
+                for (int i = 0; i < questions.QuestionAnswersDataModel.Count; i++)
+                {
+                    questions.QuestionAnswersDataModel[i].IsCorrect = (i == CorrectAnswerIndex);
+                }
                 _questionsService.Add(questions);
                 return RedirectToAction(nameof(Index));
             }

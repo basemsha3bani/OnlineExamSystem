@@ -14,7 +14,7 @@ namespace DataRepository.ModelMapper
             CreateMap<StudySubject, StudySubjectDataModel>();
             CreateMap<StudySubjectDataModel, StudySubject>();
             CreateMap<QuestionAnswers, QuestionAnswersDataModel>()
-                .ForMember(d => d.radioButtonDisplay, o => o.MapFrom(s => s.Id + "rbIsCorrect"));
+                .ForMember(d => d.radioButtonDisplay, o => o.MapFrom(s =>"rbIsCorrect"));
             CreateMap<QuestionAnswersDataModel, QuestionAnswers>()
                 .ForMember(d => d.Question, o => o.Ignore());
             CreateMap<Questions, QuestionsDataModel>()

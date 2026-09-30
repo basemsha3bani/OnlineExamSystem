@@ -34,6 +34,8 @@ namespace DataRepository.GateWay
         protected override void OnModelCreating(ModelBuilder modelBuilder)
 
         {
+            modelBuilder.Entity<ExamSections>().Property(s => s.Percentage).HasPrecision(18, 2);
+            modelBuilder.Entity<Exams>().Property(e => e.TotalMarks).HasPrecision(18, 2);
             modelBuilder.Entity<ExaminerAttempt>().Property(a => a.Score).HasPrecision(18, 10);
             modelBuilder.Entity<ExaminerAttempt>().Property(a => a.Status).HasMaxLength(20);
             modelBuilder.Entity<ExaminerAttempt>().HasIndex(a => new { a.UserId, a.StartedAt });
