@@ -12,14 +12,14 @@ namespace OnlineExamSystem.Controllers
     {
         private readonly IExamService _examService;
         private readonly IDifficultyLevelsService _difficultyLevelsService;
-        private readonly IExamBuilder _examBuilder;
+       
 
         public ExamSectionRulesController(IExamService examService, IStudySubjectsService subjectService, IDifficultyLevelsService difficultyLevelsService,IExamBuilder examBuilder)
         {
             _examService = examService;
             
             _difficultyLevelsService = difficultyLevelsService;
-            _examBuilder = examBuilder;
+            
         }
 
         public ActionResult Index(int sectionId, int examId)

@@ -1,11 +1,12 @@
 using AutoMapper;
 using DataModel;
+using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
 using DataRepository.GateWay;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses.DataRepository.DataRepositoryEntities
+namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses
 {
     public class ExamSectionRulesOperations : IExamSectionRuleOperations
     {

@@ -46,24 +46,7 @@ namespace OnlineExamSystem
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
             });
-            services.AddScoped<ServicesClasseslibrary.Examiner.ExaminerAttemptService>();
-            services.AddHostedService<OnlineExamSystem.Services.AttemptEvaluationWorker>();
-            services.AddScoped<IDifficultyLevelsService, DifficultyLevelsService>();
-            
-            services.AddScoped<IExamQuestionsService, ExamQuestionsService>();
-            services.AddScoped<IExamTypesDetailsService, ExamTypesDetailsService>();
-          
-            services.AddScoped<IQuestionAnswersService, QuestionAnswersService>();
-            services.AddScoped<IQuestionsService, QuestionsService>();
-            services.AddScoped<IStudySubjectsOperations, StudySubjectsOperations>();
-            services.AddScoped<IStudySubjectsService, StudySubjectsService>();
-            services.AddScoped<IExamService, ExamService>();
-            services.AddScoped<IExamSectionService, ExamSectionService>();
-            services.AddScoped<IUserService, UserService>();
-            services.AddScoped<IExamBuilder, ExamBuilder>();
-            services.AddScoped<IExamAttemptQuestionBuilder, ExamAttemptQuestionBuilder>();
-
-            services.AddServicesOnWhichServiceClassLibaryDepend();
+            services.AddServiceClasses();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

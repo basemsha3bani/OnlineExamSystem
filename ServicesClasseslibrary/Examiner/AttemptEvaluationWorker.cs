@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ServicesClasseslibrary.Examiner;
 using Microsoft.Extensions.DependencyInjection;
+using ServicesClasseslibrary.Logging.Sevices;
 
 namespace OnlineExamSystem.Services
 {
@@ -24,8 +25,13 @@ namespace OnlineExamSystem.Services
                     using var scope = scopes.CreateScope();
                     scope.ServiceProvider.GetRequiredService<ExaminerAttemptService>().EvaluatePending((id, ex) => logger.LogError(ex, "Evaluation failed for attempt {AttemptId}; it will be retried.", id));
                 }
-                catch (Exception ex) { logger.LogError(ex, "Attempt evaluation failed; pending attempts will be retried."); }
+                catch (Exception ex)
+                {
+                    logger.Log(LogLevel.Error,ex.Message);
+                    //.LogError(ex, "Attempt evaluation failed; pending attempts will be retried."); }
+                }
             }
         }
     }
+   
 }

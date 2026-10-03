@@ -6,13 +6,11 @@ using System.Text;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using DataRepository.GateWay;
+using ServicesClasseslibrary.Interface.Builder;
 
 namespace ServicesClasseslibrary.Implmentation.Builder
 {
-  public interface IExamAttemptQuestionBuilder
-    {
-        List <QuestionsDataModel> BuildExamAttemptQuestions(int studySubjectId, ExamSectionRulesDataModel r, IEnumerable<int> excludedIds = null);
-    }
+ 
     public class ExamAttemptQuestionBuilder : IExamAttemptQuestionBuilder
     {
         private readonly IDbContextFactory<DbConext> contexts;

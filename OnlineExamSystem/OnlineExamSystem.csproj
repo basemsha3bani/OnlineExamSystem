@@ -26,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Services\" />
     <Folder Include="Views\Shared\EditorTemplate\" />
   </ItemGroup>
 
