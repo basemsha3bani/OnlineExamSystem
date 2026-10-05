@@ -29,9 +29,9 @@ namespace DataRepository.ModelMapper
                 .ForMember(d => d.StudySubject, o => o.Ignore())
                 .ForMember(d => d.Sections, o => o.Ignore());
             CreateMap<ExamSections, ExamSectionsDataModel>()
-                .ForMember(d => d.ExamSectionRulesDataModel, o => o.MapFrom(s => s.examSectionRules))
+                .ForMember(d => d.ExamSectionRules, o => o.MapFrom(s => s.examSectionRules))
                 .ForMember(d => d.exam, o => o.MapFrom(s => s.Exam == null ? null : new ExamDataModel {
-                    Id = s.Exam.Id, StudySubjectId = s.Exam.StudySubjectId }));
+                    Id = s.Exam.Id, StudySubjectId = s.Exam.StudySubjectId,Title=s.Exam.Title }));
             CreateMap<ExamSectionsDataModel, ExamSections>()
                 .ForMember(d => d.Exam, o => o.Ignore())
                 .ForMember(d => d.examSectionRules, o => o.Ignore());
@@ -45,6 +45,8 @@ namespace DataRepository.ModelMapper
                 .ForMember(d => d.PasswordHash, o => o.MapFrom(s => s.Password));
             CreateMap<User, LoginModel>()
                 .ForMember(d => d.Password, o => o.Ignore());
+            CreateMap<ExamAttemptDataModel, ExaminerAttempt>();
+            CreateMap<ExaminerAttempt, ExamAttemptDataModel>();
         }
     }
 }

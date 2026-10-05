@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Channels;
 
-namespace ServicesClasseslibrary.Logging.Implementation
+namespace ServicesClasseslibrary.Implmentation.Logging
 {
 
     internal class LoggingQueue : ILoggingQueue

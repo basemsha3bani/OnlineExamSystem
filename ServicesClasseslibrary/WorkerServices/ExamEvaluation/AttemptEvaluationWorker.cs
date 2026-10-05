@@ -3,11 +3,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using ServicesClasseslibrary.Examiner;
 using Microsoft.Extensions.DependencyInjection;
-using ServicesClasseslibrary.Logging.Sevices;
+using ServicesClasseslibrary.WorkerServices.Logging ;
+using ServicesClasseslibrary.Implmentation.Examiner;
+using ServicesClasseslibrary.Interface.Examiner;
 
-namespace OnlineExamSystem.Services
+namespace ServicesClasseslibrary.WorkerServices.ExamEvaluation
 {
     public class AttemptEvaluationWorker : BackgroundService
     {
@@ -23,7 +24,7 @@ namespace OnlineExamSystem.Services
                 try
                 {
                     using var scope = scopes.CreateScope();
-                    scope.ServiceProvider.GetRequiredService<ExaminerAttemptService>().EvaluatePending((id, ex) => logger.LogError(ex, "Evaluation failed for attempt {AttemptId}; it will be retried.", id));
+                    scope.ServiceProvider.GetRequiredService<IExaminerAttemptService>().EvaluatePending((id, ex) => logger.LogError(ex, "Evaluation failed for attempt {AttemptId}; it will be retried.", id));
                 }
                 catch (Exception ex)
                 {

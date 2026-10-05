@@ -5,8 +5,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OnlineExamSystem.Models;
-using ServicesClasseslibrary.Examiner;
 using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
+using DataModel;
+using ServicesClasseslibrary.Implmentation.Examiner;
+using ServicesClasseslibrary.Interface.Examiner;
 
 namespace OnlineExamSystem.Controllers
 {
@@ -14,10 +16,10 @@ namespace OnlineExamSystem.Controllers
     [AutoValidateAntiforgeryToken]
     public class ExaminerController : Controller
     {
-        private readonly ExaminerAttemptService attempts;
+        private readonly IExaminerAttemptService attempts;
         private readonly IExamOprations exams;
         private int UserId => HttpContext.Session.GetInt32("UserId").Value;
-        public ExaminerController(ExaminerAttemptService attempts, IExamOprations exams)
+        public ExaminerController(IExaminerAttemptService attempts, IExamOprations exams)
         { this.attempts = attempts; this.exams = exams; }
         public IActionResult Index() => View(exams.list());
         [HttpPost]
@@ -28,7 +30,7 @@ namespace OnlineExamSystem.Controllers
         }
         public IActionResult Take(int id, int sectionIndex = 0)
         {
-            var attempt = attempts.Get(id, UserId);
+            var attempt = attempts.Get(id);
             if (attempt == null) return NotFound();
             if (attempt.Status != "InProgress") return RedirectToAction(nameof(Attempts));
             var snapshot = ExaminerAttemptService.Read(attempt);
@@ -42,9 +44,10 @@ namespace OnlineExamSystem.Controllers
         [HttpPost]
         public IActionResult Save(int id, int sectionIndex, Dictionary<int, int?> answers, string command)
         {
-            if (attempts.Get(id, UserId) == null) return NotFound();
+            if (attempts.Get(id) == null) return NotFound();
             if (!ModelState.IsValid || (command != "previous" && command != "next" && command != "submit" && command != "save")) return BadRequest();
-            try { attempts.Save(id, UserId, sectionIndex, answers ?? new Dictionary<int, int?>(), command == "submit"); }
+           
+            try { attempts.Save(id,  sectionIndex, answers ?? new Dictionary<int, int?>(), command == "submit"); }
             catch (InvalidOperationException ex) { return BadRequest(ex.Message); }
             catch (DbUpdateConcurrencyException) { TempData["Message"] = "This attempt changed in another window. Please review the latest saved answers."; return RedirectToAction(nameof(Take), new { id, sectionIndex }); }
             if (command == "submit") return RedirectToAction(nameof(ThankYou), new { id });
@@ -52,7 +55,7 @@ namespace OnlineExamSystem.Controllers
         }
         public IActionResult ThankYou(int id)
         {
-            var attempt = attempts.Get(id, UserId);
+            var attempt = attempts.Get(id);
             if (attempt == null) return NotFound();
             if (attempt.Status == "InProgress") return RedirectToAction(nameof(Take), new { id });
             return View();
@@ -60,7 +63,7 @@ namespace OnlineExamSystem.Controllers
         public IActionResult Attempts() => View(attempts.List(UserId));
         public IActionResult Result(int id)
         {
-            var attempt = attempts.Get(id, UserId);
+            var attempt = attempts.Get(id);
             if (attempt == null) return NotFound();
             if (attempt.Status != "Scored") return RedirectToAction(nameof(Attempts));
             return View(attempt);

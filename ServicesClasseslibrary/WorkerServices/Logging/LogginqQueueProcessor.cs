@@ -4,7 +4,7 @@ using ServicesClasseslibrary.Interface.Logging;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ServicesClasseslibrary.Logging.Sevices
+namespace ServicesClasseslibrary.WorkerServices.Logging
 {
     public class LogginqQueueProcessor
     {

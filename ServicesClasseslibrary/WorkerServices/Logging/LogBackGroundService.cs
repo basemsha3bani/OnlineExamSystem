@@ -1,12 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using ServicesClasseslibrary.Examiner;
 using System;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ServicesClasseslibrary.Logging.Sevices
+namespace ServicesClasseslibrary.WorkerServices.Logging
 {
     public class LogBackGroundService : BackgroundService
     {

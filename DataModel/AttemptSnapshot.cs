@@ -1,10 +1,12 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
 
-namespace ServicesClasseslibrary.Examiner
+
+namespace DataModel
 {
-    public class AttemptSnapshot
+     public class AttemptSnapshot
     {
         public List<AttemptSection> Sections { get; set; } = new List<AttemptSection>();
         [JsonIgnore]

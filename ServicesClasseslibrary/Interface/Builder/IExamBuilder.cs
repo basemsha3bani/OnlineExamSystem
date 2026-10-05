@@ -38,7 +38,7 @@ namespace ServicesClasseslibrary.Interface.Builder
             //READ FROM DATABASE SECTIONS OF EXAM
              var sections  = _examSectionService.List(ExamId);
              int studySubjectId = sections.First().exam.StudySubjectId; 
-            var rules = sections.SelectMany(s=>s.ExamSectionRulesDataModel).ToList();  
+            var rules = sections.SelectMany(s=>s.ExamSectionRules).ToList();  
             ExamAttempt examAttempt = new ExamAttempt();
             rules.ForEach(rule =>
              {

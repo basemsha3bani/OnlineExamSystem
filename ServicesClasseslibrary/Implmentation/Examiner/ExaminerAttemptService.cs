@@ -1,12 +1,13 @@
 using DataModel;
 using DataRepository.DataRepositoryEntities;
+using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
 using DataRepository.GateWay;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using OnlineExamSystem.Services;
 using ServicesClasseslibrary.Implmentation.Builder;
 using ServicesClasseslibrary.Interface.Builder;
-using ServicesClasseslibrary.Logging;
+using ServicesClasseslibrary.Interface.Examiner;
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -17,30 +18,30 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ServicesClasseslibrary.Examiner
+namespace ServicesClasseslibrary.Implmentation.Examiner
 {
-    public class ExaminerAttemptService
+    public class ExaminerAttemptService: IExaminerAttemptService
     {
         private readonly IExamAttemptQuestionBuilder builder;
-        private readonly IDbContextFactory<DbConext> contexts;
-        public ExaminerAttemptService(IExamAttemptQuestionBuilder builder, IDbContextFactory<DbConext> contexts) { this.builder = builder; this.contexts = contexts; }
+        
+        private readonly IExamAttemptOprations examAttemptOprations;
+        private readonly IExamSectionsOperations  examSectionsOperations;
+        public ExaminerAttemptService(IExamAttemptQuestionBuilder builder, IExamOprations examOprations,IExamAttemptOprations examAttemptOprations,IExamSectionsOperations examSectionsOperations) { this.builder = builder;  this.examAttemptOprations = examAttemptOprations;this.examSectionsOperations = examSectionsOperations; }
 
         public int Start(int examId, int userId)
         {
-            using var db = contexts.CreateDbContext();
-            var exam = db.Exams.AsNoTracking().SingleOrDefault(e => e.Id == examId);
-            if (exam == null) throw new InvalidOperationException("The selected exam does not exist.");
-            var sections = db.ExamSections.AsNoTracking().Include(s => s.examSectionRules)
-                .Where(s => s.ExamId == examId).OrderBy(s => s.Id).ToList();
+            var sections = examSectionsOperations.List(examId);
+            if (sections.Count == 0) throw new InvalidOperationException("The selected exam does not exist.");
+           
             var snapshot = new AttemptSnapshot();
             var used = new HashSet<int>();
             foreach (var section in sections)
             {
                 var savedSection = new AttemptSection { Name = section.SectionName };
-                foreach (var rule in section.examSectionRules.OrderBy(r => r.Id))
+                foreach (var rule in section.ExamSectionRules.OrderBy(r => r.Id))
                 {
                     if (rule.NoOfQuestions <= 0) throw new InvalidOperationException("The exam has an invalid question count.");
-                    var questions = builder.BuildExamAttemptQuestions(exam.StudySubjectId,
+                    var questions = builder.BuildExamAttemptQuestions(section.exam.StudySubjectId,
                         new ExamSectionRulesDataModel { Id = rule.Id, SectionId = section.Id,
                             DifficultyLevelId = rule.DifficultyLevelId, NoOfQuestions = rule.NoOfQuestions }, used);
                     // Exclude questions already used in another section or rule.
@@ -61,30 +62,29 @@ namespace ServicesClasseslibrary.Examiner
                 snapshot.Sections.Add(savedSection);
             }
             if (!snapshot.Questions.Any()) throw new InvalidOperationException("This exam has no configured questions.");
-            var attempt = new ExaminerAttempt { ExamId = examId, UserId = userId, ExamTitle = exam.Title,
+            var attempt = new ExamAttemptDataModel { ExamId = examId, UserId = userId, ExamTitle = sections.First().exam.Title,
                 StartedAt = DateTime.UtcNow, TotalQuestions = snapshot.Questions.Count(), SnapshotJson = JsonSerializer.Serialize(snapshot) };
-            db.ExaminerAttempts.Add(attempt);
-            db.SaveChanges();
-            return attempt.Id;
+           int attemptId= examAttemptOprations.Add(attempt);
+           
+            return attemptId;
         }
 
-        public ExaminerAttempt Get(int id, int userId)
+        public ExamAttemptDataModel Get(int id)
         {
-            using var db = contexts.CreateDbContext();
-            return db.ExaminerAttempts.AsNoTracking().SingleOrDefault(a => a.Id == id && a.UserId == userId);
-        }
-        public List<ExaminerAttempt> List(int userId)
-        {
-            using var db = contexts.CreateDbContext();
-            return db.ExaminerAttempts.AsNoTracking().Where(a => a.UserId == userId)
-                .OrderByDescending(a => a.StartedAt).ToList();
-        }
-        public static AttemptSnapshot Read(ExaminerAttempt attempt) => JsonSerializer.Deserialize<AttemptSnapshot>(attempt.SnapshotJson);
 
-        public void Save(int id, int userId, int sectionIndex, Dictionary<int, int?> answers, bool submit)
+            return examAttemptOprations.GetById(id);
+        }
+        public List<ExamAttemptDataModel> List(int userId)
         {
-            using var db = contexts.CreateDbContext();
-            var attempt = db.ExaminerAttempts.SingleOrDefault(a => a.Id == id && a.UserId == userId);
+
+            return examAttemptOprations.listByUser(userId);
+        }
+        public static AttemptSnapshot Read(ExamAttemptDataModel attempt) => JsonSerializer.Deserialize<AttemptSnapshot>(attempt.SnapshotJson);
+
+        public void Save(int id,  int sectionIndex, Dictionary<int, int?> answers, bool submit)
+        {
+           
+            var attempt = examAttemptOprations.GetById(id);
             if (attempt == null) throw new InvalidOperationException("Attempt not found.");
             if (attempt.Status != "InProgress") return; // Repeated submission cannot change answers.
             var snapshot = Read(attempt);
@@ -100,27 +100,27 @@ namespace ServicesClasseslibrary.Examiner
             attempt.SnapshotJson = JsonSerializer.Serialize(snapshot);
             if (submit) { attempt.Status = "Submitted"; attempt.SubmittedAt = DateTime.UtcNow; }
             // Submitted rows are the durable queue; answers and enqueue are one atomic write.
-            db.SaveChanges();
+            examAttemptOprations.Edit(attempt);
         }
 
         public void EvaluatePending(Action<int, Exception> onFailure = null)
         {
-            using var queue = contexts.CreateDbContext();
-            var pending = queue.ExaminerAttempts.AsNoTracking().Where(a => a.Status == "Submitted")
-                .OrderBy(a => a.SubmittedAt).Select(a => a.Id).ToList();
-            foreach (var id in pending)
+
+            var pending = examAttemptOprations.listSubmitted().Select(s=>s.Id);
+             
+            foreach (int id in pending)
             {
                 try
                 {
-                    using var db = contexts.CreateDbContext();
-                    var attempt = db.ExaminerAttempts.SingleOrDefault(a => a.Id == id && a.Status == "Submitted");
+                  
+                    var attempt = examAttemptOprations.CheckIfAttemptSubmitted(id);
                     if (attempt == null) continue;
                     var snapshot = Read(attempt);
                     attempt.CorrectQuestions = AttemptScoring.CountCorrect(snapshot);
                     attempt.Score = AttemptScoring.Ratio(attempt.CorrectQuestions.Value, attempt.TotalQuestions);
                     attempt.EvaluatedAt = DateTime.UtcNow;
                     attempt.Status = "Scored";
-                    db.SaveChanges();
+                    examAttemptOprations.Edit(attempt);
                 }
                 catch (DbUpdateConcurrencyException) { /* Another worker completed this attempt. */ }
                 catch (Exception ex)
@@ -131,6 +131,7 @@ namespace ServicesClasseslibrary.Examiner
             }
         }
     }
-   
+
+  
 }
    

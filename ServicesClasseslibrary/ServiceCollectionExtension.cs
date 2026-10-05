@@ -6,13 +6,14 @@ using DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasse
 using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
 using DataRepository.GateWay;
 using Microsoft.Extensions.DependencyInjection;
-using OnlineExamSystem.Services;
+
 using Serilog;
-using ServicesClasseslibrary.Examiner;
+using ServicesClasseslibrary.Implmentation.Builder;
 using ServicesClasseslibrary.Implmentation.DataModel;
+using ServicesClasseslibrary.Implmentation.Examiner;
 using ServicesClasseslibrary.Interface;
 using ServicesClasseslibrary.Interface.DataModel;
-using ServicesClasseslibrary.Logging.Sevices;
+using ServicesClasseslibrary.WorkerServices.Logging;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -33,6 +34,7 @@ namespace ServicesClasseslibrary
             services.AddScoped<IExamService, ExamService>();
             services.AddScoped<IExamSectionService, ExamSectionService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddExaminerServices();
 
             return services;
         }
@@ -40,7 +42,7 @@ namespace ServicesClasseslibrary
         {
             services.AddDataModelServices();
             services.AddLoggingService();
-            services.AddExaminerServices();
+            
             services.AddSingleton<AutoMapper.MapperConfiguration>(provider =>
             {
                 var config = new AutoMapper.MapperConfiguration(cfg =>

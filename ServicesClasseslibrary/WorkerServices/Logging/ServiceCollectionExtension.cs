@@ -1,9 +1,10 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using ServicesClasseslibrary.Implmentation.Logging;
 using ServicesClasseslibrary.Interface.Logging;
-using ServicesClasseslibrary.Logging.Implementation;
 
-namespace ServicesClasseslibrary.Logging.Sevices
+
+namespace ServicesClasseslibrary.WorkerServices.Logging
 {
     public static class ServiceCollectionExtension
     {
@@ -13,8 +14,9 @@ namespace ServicesClasseslibrary.Logging.Sevices
            .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day)
 
            .CreateLogger();
-            services.AddSingleton<ILoggingQueue, LoggingQueue>();
+            
             services.AddHostedService<LogBackGroundService>();
+            services.AddScoped<ILoggingQueue, LoggingQueue>();
             services.AddScoped<LogginqQueueProcessor>();
             return services;
         }

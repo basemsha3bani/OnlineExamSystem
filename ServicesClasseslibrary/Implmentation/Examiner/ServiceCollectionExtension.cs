@@ -5,27 +5,28 @@ using DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasse
 using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
 using DataRepository.GateWay;
 using Microsoft.Extensions.DependencyInjection;
-using OnlineExamSystem.Services;
 using Serilog;
 using ServicesClasseslibrary.Implmentation.Builder;
 using ServicesClasseslibrary.Implmentation.DataModel;
 using ServicesClasseslibrary.Interface.Builder;
-using ServicesClasseslibrary.Logging.Sevices;
+using ServicesClasseslibrary.Interface.Examiner;
+
+using ServicesClasseslibrary.WorkerServices.ExamEvaluation;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using static DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses.ExamsOperations;
-using static OnlineExamSystem.Services.AttemptEvaluationWorker;
+using static ServicesClasseslibrary.WorkerServices.ExamEvaluation.AttemptEvaluationWorker;
 
 
-namespace ServicesClasseslibrary.Examiner
+namespace ServicesClasseslibrary.Implmentation.Examiner
 {
     public static class ServiceCollectionExtension
     {
         public static IServiceCollection AddExaminerServices(this IServiceCollection services)
         {
             services.AddHostedService<AttemptEvaluationWorker>();
-            services.AddScoped<ExaminerAttemptService>();
+            services.AddScoped<IExaminerAttemptService,ExaminerAttemptService>();
             services.AddScoped<IExamAttemptQuestionBuilder,ExamAttemptQuestionBuilder>();
             
 

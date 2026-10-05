@@ -3,7 +3,7 @@ using DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasse
 using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
 using System.Collections.Generic;
 
-namespace ServicesClasseslibrary
+namespace ServicesClasseslibrary.Implmentation.Builder
 {
     public class ExamSectionService : IExamSectionService
     {
