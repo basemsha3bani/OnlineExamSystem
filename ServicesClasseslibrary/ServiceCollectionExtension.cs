@@ -13,6 +13,7 @@ using ServicesClasseslibrary.Implmentation.DataModel;
 using ServicesClasseslibrary.Implmentation.Examiner;
 using ServicesClasseslibrary.Interface;
 using ServicesClasseslibrary.Interface.DataModel;
+using ServicesClasseslibrary.WorkerServices.Analytics;
 using ServicesClasseslibrary.WorkerServices.Logging;
 using System;
 using System.Collections.Generic;
@@ -42,7 +43,8 @@ namespace ServicesClasseslibrary
         {
             services.AddDataModelServices();
             services.AddLoggingService();
-            
+            services.AddAnalyticsService();
+
             services.AddSingleton<AutoMapper.MapperConfiguration>(provider =>
             {
                 var config = new AutoMapper.MapperConfiguration(cfg =>

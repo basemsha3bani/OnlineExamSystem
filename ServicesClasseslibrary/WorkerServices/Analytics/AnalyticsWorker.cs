@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using DataModel;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ServicesClasseslibrary.Interface.Analytics;
@@ -24,13 +25,13 @@ namespace ServicesClasseslibrary.WorkerServices.Analytics
         {
             while (!ct.IsCancellationRequested)
             {
-                if (_queue.TryDequeue(out var job))
+                if (_queue.TryDequeue(out AnalyticsJob job))
                 {
                     try
                     {
                         using var scope = _scopes.CreateScope();
                         var analyticsService = scope.ServiceProvider.GetRequiredService<IAnalyticsService>();
-                        await analyticsService.RecalculateAsync(job.ExaminerId, job.TriggerAttemptId);
+                        await analyticsService.RecalculateAsync(job);
                     }
                     catch (Exception ex)
                     {

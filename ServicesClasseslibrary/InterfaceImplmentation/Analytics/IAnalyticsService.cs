@@ -1,4 +1,6 @@
-﻿using ServicesClasseslibrary.Interface.Analytics;
+﻿using DataModel;
+using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
+using ServicesClasseslibrary.Interface.Analytics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +11,15 @@ namespace ServicesClasseslibrary.Implmentation.Analytics
 {
     internal class AnalyticsService : IAnalyticsService
     {
-        public async Task RecalculateAsync(int UserId, int AttemptId)
+        private IExaminerPerformanceOperations PerformanceOperations { get; set; }
+        public AnalyticsService(IExaminerPerformanceOperations examinerPerformanceOperations)
         {
-            throw new NotImplementedException();
+            PerformanceOperations = examinerPerformanceOperations;
+        }
+
+        public async Task RecalculateAsync(AnalyticsJob job)
+        {
+           await PerformanceOperations.UpdateExaminerPerformance(job);
         }
     }
 }

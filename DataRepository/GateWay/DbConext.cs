@@ -45,6 +45,7 @@ namespace DataRepository.GateWay
             modelBuilder.Entity<ExamTypesDetails>().HasKey(o => o.Id);
             modelBuilder.Entity<ExamTypes>().HasKey(o => o.Id);
             modelBuilder.Entity<DifficultyLevels>().HasKey(o => o.Id);
+            modelBuilder.Entity<ExaminerPerformance>().HasKey(o => o.UserId);
             modelBuilder.Entity<User>().HasKey(o => o.Id);
         }
 
@@ -68,6 +69,10 @@ namespace DataRepository.GateWay
 
         public DbSet<User> Users { get; set; }
         public DbSet<ExaminerAttempt> ExaminerAttempts { get; set; }
+
+        public DbSet<ExaminerPerformance> ExaminerPerformance { get; set; }
+
+        
     }
 
 }

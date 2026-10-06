@@ -25,7 +25,8 @@ namespace ServicesClasseslibrary.Implmentation.DataModel
                 services.AddScoped<IUserOperations, UserOperations>();
             services.AddScoped<IExamAttemptOprations, ExamAttemptOprations>();
             services.AddScoped<IExamSectionRuleOperations, ExamSectionRulesOperations>();
-                services.AddScoped(typeof(ContextGateway<>));
+            services.AddScoped<IExaminerPerformanceOperations, ExaminerPerformanceOperations>();
+            services.AddScoped(typeof(ContextGateway<>));
                 return services;
             }
     }

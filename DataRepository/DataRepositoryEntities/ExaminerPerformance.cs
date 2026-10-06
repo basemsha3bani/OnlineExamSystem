@@ -1,12 +1,13 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DataRepository.DataRepositoryEntities
 {
     public class ExaminerPerformance
     {
-        [Key]
-        public int ExaminerId { get; set; }
+        [ForeignKey("User")]
+        public int UserId { get; set; }
 
         public int TotalAttempts { get; set; }
         public int EvaluatedCount { get; set; }
@@ -20,5 +21,7 @@ namespace DataRepository.DataRepositoryEntities
 
         public DateTime LastCalculatedAt { get; set; }
         public int LastCalculatedAttemptId { get; set; } // for idempotency
+
+        public virtual User User { get; set; }
     }
 }

@@ -18,9 +18,13 @@ namespace OnlineExamSystem.Controllers
     {
         private readonly IExaminerAttemptService attempts;
         private readonly IExamOprations exams;
+        private readonly IExaminerPerformanceOperations examinerPerformanceOperations;
         private int UserId => HttpContext.Session.GetInt32("UserId").Value;
-        public ExaminerController(IExaminerAttemptService attempts, IExamOprations exams)
-        { this.attempts = attempts; this.exams = exams; }
+        public ExaminerController(IExaminerAttemptService attempts, IExamOprations exams, IExaminerPerformanceOperations examinerPerformanceOperations)
+        {
+            this.attempts = attempts; this.exams = exams;
+            this.examinerPerformanceOperations = examinerPerformanceOperations;
+        }
         public IActionResult Index() => View(exams.list());
         [HttpPost]
         public IActionResult Start(int examId)
@@ -67,6 +71,12 @@ namespace OnlineExamSystem.Controllers
             if (attempt == null) return NotFound();
             if (attempt.Status != "Scored") return RedirectToAction(nameof(Attempts));
             return View(attempt);
+        }
+
+        public IActionResult Analytics()
+        {
+         var  beeso= examinerPerformanceOperations.GetPerformance(UserId);
+            return View(beeso);
         }
     }
 }
