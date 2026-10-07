@@ -1,18 +1,19 @@
 using DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses;
 using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
+using DataRepository.GateWay;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.EntityFrameworkCore;
-using DataRepository.GateWay;
 using ServicesClasseslibrary;
 using ServicesClasseslibrary.Implmentation.Builder;
 using ServicesClasseslibrary.Interface;
 using ServicesClasseslibrary.Interface.Builder;
 using ServicesClasseslibrary.Interface.DataModel;
+using ServicesClasseslibrary.WorkerServices.ExamEvaluation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -74,7 +75,10 @@ namespace OnlineExamSystem
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapHub<EvaluationHub>("/evaluationHub");
             });
+           
+            
         }
     }
 }
