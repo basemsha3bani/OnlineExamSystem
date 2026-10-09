@@ -1,0 +1,28 @@
+name: CI - Build and Test
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET 8
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+    - name: Restore
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore -c Release
+    - name: Test
+      run: dotnet test --no-build -c Release --verbosity normal
+    - name: Publish
+      run: dotnet publish OnlineExamSystem/OnlineExamSystem.csproj -c Release -o ./publish
+    - name: Upload
+      uses: actions/upload-artifact@v4
+      with:
+        name: exam-system-build
+        path: ./publish
