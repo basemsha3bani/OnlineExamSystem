@@ -1,0 +1,49 @@
+﻿@using Microsoft.AspNetCore.Http
+<div id="examNotificationBell" style="position:relative; margin-right:15px;">
+    <span class="badge bg-danger" id="notificationCount" style="display:none;">0</span>
+    <i class="bi bi-bell"></i> Evaluations
+    <div id="notificationList" style="position:absolute; background:white; border:1px solid #ddd; display:none; width:300px; z-index:1000;"></div>
+</div>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+<script type="text/javascript">
+
+
+        const candidateId = "@Context.Session.GetInt32("UserId")" // put hidden input in layout
+        const connection = new signalR.HubConnectionBuilder()
+        .withUrl(`/evaluationHub?candidateId=${candidateId}`)
+        .build();
+
+    connection.on("EvaluationCompleted", function (examTitle) {
+        console.log("Exam evaluated:", examTitle);
+
+        // Update badge
+        const badge = document.getElementById("notificationCount");
+        const evaluationUrl = "@Url.Action("Result", "Examiner")";
+        let count = parseInt(badge.textContent || "0") + 1;
+        badge.textContent = count;
+        badge.style.display = "inline";
+
+        // Add to list
+        const list = document.getElementById("notificationList");
+        const item = document.createElement("div");
+        item.className = "p-2 border-bottom";
+        //concat a vriable
+        item.innerHTML = `<a href="${evaluationUrl}?id=${examTitle}" >Evaluation completed</a>`
+       console.log(item.innerHTML)
+        list.prepend(item);
+
+        // Optional: toast
+        // toastr.success(examTitle + " evaluated");
+    });
+
+    connection.start().catch(err => console.error(err));
+
+    // Toggle list
+    document.getElementById("examNotificationBell")?.addEventListener("click", () => {
+        const list = document.getElementById("notificationList");
+        list.style.display = list.style.display === "none" ? "block" : "none";
+    });
+</script>

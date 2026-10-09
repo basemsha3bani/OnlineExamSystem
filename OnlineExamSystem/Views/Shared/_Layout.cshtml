@@ -54,24 +54,11 @@
     @if (Context.Session.GetString("Role") == "Examiner")
 
     {
-        <!-- Exam Notification Bell -->
-        <div id="examNotificationBell" style="position:relative; margin-right:15px;">
-            <span class="badge bg-danger" id="notificationCount" style="display:none;">0</span>
-            <i class="bi bi-bell"></i> Evaluations
-            <div id="notificationList" style="position:absolute; background:white; border:1px solid #ddd; display:none; width:300px; z-index:1000;"></div>
-        </div>
-
-        <input type="hidden" id="candidateId" value="@Context.Session.GetInt32("UserId")" />
-        <input type="text" id="evaluationUrl" value=" @Url.Action("Result", "Examiner")" />
+        await Html.RenderPartialAsync("ExaminerFooter");
        
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
-        <script type="text/javascript">
-           
-            </script>
-        <script src="~/js/evaluationNotifier.js"></script>
     }
 
-           
+      
        
 
     <div class="container">
