@@ -25,20 +25,17 @@ jobs:
           Import-Module WebAdministration
           Stop-WebSite -Name "OnlineExamSystem" -ErrorAction SilentlyContinue
           Stop-WebAppPool -Name "OnlineExamSystem" -ErrorAction SilentlyContinue
-        shell: powershell
+        shell: powershell -ExecutionPolicy Bypass
+
+      - name: Restore
+        run: dotnet restore
 
       - name: Publish to IIS folder
-        run: dotnet publish OnlineExamSystem/OnlineExamSystem.csproj -c Release -o C:/inetpub/OnlineExamSystem --no-restore
-        # If restore missing, use: dotnet publish OnlineExamSystem/OnlineExamSystem.csproj -c Release -o C:/inetpub/OnlineExamSystem
+        run: dotnet publish OnlineExamSystem/OnlineExamSystem.csproj -c Release -o C:/inetpub/OnlineExamSystem
 
       - name: Start IIS Site
         run: |
           Import-Module WebAdministration
           Start-WebAppPool -Name "OnlineExamSystem" -ErrorAction SilentlyContinue
           Start-WebSite -Name "OnlineExamSystem"
-          Write-Host "Deployed!"
-        shell: powershell
-
-      - name: Verify files
-        run: dir C:\inetpub\OnlineExamSystem
-        shell: powershell
+        shell: powershell -ExecutionPolicy Bypass
