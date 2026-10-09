@@ -1,0 +1,44 @@
+name: CD - Deploy to Local IIS
+
+on:
+  workflow_run:
+    workflows: ["CI - Build and Test"]
+    types: [completed]
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup.NET 8
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Stop IIS Site
+        shell: powershell
+        run: |
+          Import-Module WebAdministration
+          try { Stop-WebSite -Name "OnlineExamSystem" -ErrorAction Stop } catch { Write-Host "Site already stopped - ok" }
+          try { Stop-WebAppPool -Name "OnlineExamSystem" -ErrorAction Stop } catch { Write-Host "Pool already stopped - ok" }
+          Start-Sleep -Seconds 2
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Publish to IIS folder
+        run: dotnet publish OnlineExamSystem/OnlineExamSystem.csproj -c Release -o C:/inetpub/OnlineExamSystem
+
+      - name: Start IIS Site
+        shell: powershell
+        run: |
+          Import-Module WebAdministration
+          try { Start-WebAppPool -Name "OnlineExamSystem" -ErrorAction Stop } catch { Write-Host $_.Exception.Message }
+          try { Start-WebSite -Name "OnlineExamSystem" -ErrorAction Stop } catch { Write-Host $_.Exception.Message }
+          Write-Host "Deploy completed - http://localhost"
