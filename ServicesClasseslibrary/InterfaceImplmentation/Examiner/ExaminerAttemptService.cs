@@ -81,7 +81,7 @@ namespace ServicesClasseslibrary.Implmentation.Examiner
         }
         public static AttemptSnapshot Read(ExamAttemptDataModel attempt) => JsonSerializer.Deserialize<AttemptSnapshot>(attempt.SnapshotJson);
 
-        public void Save(int id,  int sectionIndex, Dictionary<int, int?> answers, bool submit)
+        public async Task Save(int id,  int sectionIndex, Dictionary<int, int?> answers, bool submit)
         {
            
             var attempt = examAttemptOprations.GetById(id);
@@ -100,10 +100,10 @@ namespace ServicesClasseslibrary.Implmentation.Examiner
             attempt.SnapshotJson = JsonSerializer.Serialize(snapshot);
             if (submit) { attempt.Status = "Submitted"; attempt.SubmittedAt = DateTime.UtcNow; }
             // Submitted rows are the durable queue; answers and enqueue are one atomic write.
-            examAttemptOprations.Edit(attempt);
+           await examAttemptOprations.Edit(attempt);
         }
 
-        public List<Tuple<int, int>> EvaluatePending(Action<int, Exception> onFailure = null)
+        public async Task<List<Tuple<int, int>>> EvaluatePending(Action<int, Exception> onFailure = null)
         {
             Tuple<int,int> evaluatedTuple = new Tuple<int,int>(0,0);
             var pending = examAttemptOprations.listSubmitted().Select(s=>s.Id);
@@ -124,7 +124,7 @@ namespace ServicesClasseslibrary.Implmentation.Examiner
                     attempt.Score = AttemptScoring.Ratio(attempt.CorrectQuestions.Value, attempt.TotalQuestions);
                     attempt.EvaluatedAt = DateTime.UtcNow;
                     attempt.Status = "Scored";
-                    examAttemptOprations.Edit(attempt);
+                   await examAttemptOprations.Edit(attempt);
                     evaluatedTuple = new Tuple<int,int>(id,attempt.UserId);
                     evaluatedTuples.Add(evaluatedTuple);
                 }

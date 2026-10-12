@@ -1,5 +1,6 @@
 ﻿using DataModel;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface
 {
@@ -7,7 +8,7 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterfac
     {
         int Add(ExamAttemptDataModel model);
         ExamAttemptDataModel CheckIfAttemptSubmitted(int id);
-        void Edit(ExamAttemptDataModel model);
+        Task Edit(ExamAttemptDataModel model);
         ExamAttemptDataModel GetById(int id);
         List<ExamAttemptDataModel> listByUser(int userId);
         List<ExamAttemptDataModel> listSubmitted();

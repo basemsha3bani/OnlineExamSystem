@@ -4,6 +4,7 @@ using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
 using DataRepository.GateWay;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses
 {
@@ -24,10 +25,10 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
             gateway.SaveChanges();
             return entity.Id;
         }
-        public void Edit(ExamAttemptDataModel model)
+        public async Task Edit(ExamAttemptDataModel model)
         {
             var entity = gateway.GetById(e => e.Id == model.Id) ?? throw new InvalidOperationException("Difficulty level not found.");
-            mapper.Map(model, entity); gateway.SaveChanges();
+            mapper.Map(model, entity); await gateway.SaveChangesAsync();
         }
         public void Delete(int id)
         {

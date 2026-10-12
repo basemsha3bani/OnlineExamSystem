@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace DataRepository.GateWay
 {
@@ -17,6 +18,7 @@ namespace DataRepository.GateWay
         public void Add(T entity) => context.Set<T>().Add(entity);
         public void Delete(T entity) => context.Set<T>().Remove(entity);
         public int SaveChanges() => context.SaveChanges();
+        public async Task <int> SaveChangesAsync() => await context.SaveChangesAsync();
         public IDbContextTransaction BeginTransaction() => context.Database.BeginTransaction();
         public T GetById(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes)
             => Include(Query, includes).FirstOrDefault(predicate);

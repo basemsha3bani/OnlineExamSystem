@@ -12,13 +12,8 @@ using ServicesClasseslibrary.Implmentation.Builder;
 using ServicesClasseslibrary.Implmentation.DataModel;
 using ServicesClasseslibrary.Interface.Builder;
 using ServicesClasseslibrary.Interface.Examiner;
+using ServicesClasseslibrary.InterfaceImplmentation.Examiner;
 using ServicesClasseslibrary.WorkerServices.ExamEvaluation;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Text;
-using static DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses.ExamsOperations;
-using static ServicesClasseslibrary.WorkerServices.ExamEvaluation.AttemptEvaluationWorker;
 
 namespace ServicesClasseslibrary.Implmentation.Examiner
 {
@@ -27,10 +22,13 @@ namespace ServicesClasseslibrary.Implmentation.Examiner
         public static IServiceCollection AddExaminerServices(this IServiceCollection services)
         {
             services.AddHostedService<AttemptEvaluationWorker>();
+            services.AddHostedService<AttemptEvaluationCompletionChecker>(); 
             services.AddSignalR();
-
             services.AddScoped<IExaminerAttemptService, ExaminerAttemptService>();
             services.AddScoped<IExamAttemptQuestionBuilder, ExamAttemptQuestionBuilder>();
+            services.AddSingleton<IEvaluationResultQueue, EvaluationResultQueue>();
+            services.AddScoped<IEvaluationPublisher, AttemptEvaluationOrchestrator>();
+            services.AddScoped<IEvaluationNotifier, AttemptEvaluationOrchestrator>();
 
 
             return services;

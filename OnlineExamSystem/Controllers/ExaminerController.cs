@@ -9,6 +9,7 @@ using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
 using DataModel;
 using ServicesClasseslibrary.Implmentation.Examiner;
 using ServicesClasseslibrary.Interface.Examiner;
+using System.Threading.Tasks;
 
 namespace OnlineExamSystem.Controllers
 {
@@ -46,12 +47,12 @@ namespace OnlineExamSystem.Controllers
                     SelectedOptionId = q.SelectedOptionId, Options = q.Options.ToDictionary(o => o.Id, o => o.Text) }).ToList() });
         }
         [HttpPost]
-        public IActionResult Save(int id, int sectionIndex, Dictionary<int, int?> answers, string command)
+        public async Task<IActionResult> Save(int id, int sectionIndex, Dictionary<int, int?> answers, string command)
         {
             if (attempts.Get(id) == null) return NotFound();
             if (!ModelState.IsValid || (command != "previous" && command != "next" && command != "submit" && command != "save")) return BadRequest();
            
-            try { attempts.Save(id,  sectionIndex, answers ?? new Dictionary<int, int?>(), command == "submit"); }
+            try { await attempts.Save(id,  sectionIndex, answers ?? new Dictionary<int, int?>(), command == "submit"); }
             catch (InvalidOperationException ex) { return BadRequest(ex.Message); }
             catch (DbUpdateConcurrencyException) { TempData["Message"] = "This attempt changed in another window. Please review the latest saved answers."; return RedirectToAction(nameof(Take), new { id, sectionIndex }); }
             if (command == "submit") return RedirectToAction(nameof(ThankYou), new { id });
