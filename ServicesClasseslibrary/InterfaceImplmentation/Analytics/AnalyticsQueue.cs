@@ -1,11 +1,9 @@
 ﻿using DataModel;
 using ServicesClasseslibrary.Interface.Analytics;
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace ServicesClasseslibrary.Implmentation.Analytics
 {
@@ -34,4 +32,5 @@ namespace ServicesClasseslibrary.Implmentation.Analytics
             return false;
         }
     }
+   
 }

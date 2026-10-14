@@ -1,5 +1,6 @@
 ﻿using DataModel;
 using DataRepository.DataRepositoryEntities;
+using Microsoft.AspNetCore.DataProtection.KeyManagement.Internal;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -21,6 +22,7 @@ namespace OnlineExamSystem.Controllers
         [HttpPost]
         public IActionResult Login(LoginModel m)
         {
+            
             m.Password = Hash(m.Password);
             var userValid =///call userSerivces
                 _userService.Validate(m);
@@ -51,4 +53,5 @@ namespace OnlineExamSystem.Controllers
             }
         }
     }
+   
   }

@@ -4,29 +4,25 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading.Tasks;
 
+
 namespace DataRepository.GateWay
 {
     public class DbConext:DbContext
     {
-        
-       public DbConext()
-        {
-           
-
-           
-
-            
+        DataBaseConnectionConfiguration _connectionConfiguration;
+     
+        public DbConext(DbContextOptions<DbConext> options, DataBaseConnectionConfiguration connectionConfiguration) : base(options) {
+            _connectionConfiguration = connectionConfiguration;
         }
-        public DbConext(DbContextOptions<DbConext> options) : base(options) { }
 
         protected  override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            if (optionsBuilder.IsConfigured) return;
            
-            AppConfiguration configuration = new AppConfiguration();
+           
+         
 
           
-            string conn = configuration.ConnectionString;
+            string conn = _connectionConfiguration.GetConnectionString();
 
             optionsBuilder.UseSqlServer(conn);
          

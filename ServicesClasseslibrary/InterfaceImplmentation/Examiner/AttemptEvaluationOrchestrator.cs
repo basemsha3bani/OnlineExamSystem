@@ -8,6 +8,7 @@ using ServicesClasseslibrary.Interface.Analytics;
 using ServicesClasseslibrary.Interface.Examiner;
 using ServicesClasseslibrary.WorkerServices.ExamEvaluation;
 using System;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -47,7 +48,7 @@ namespace ServicesClasseslibrary.InterfaceImplmentation.Examiner
                 // Senior fix: DistinctBy instead of GroupBy
                 foreach (var attempt in evaluatedAttempts.DistinctBy(x => x.Item1))
                 {
-                    _evaluationResultQueue.Enqueue(attempt);
+                   await _evaluationResultQueue.Enqueue(attempt);
                     _analyticsQueue.Enqueue(new AnalyticsJob
                     {
                         ExaminerId = attempt.Item2,
@@ -81,7 +82,7 @@ namespace ServicesClasseslibrary.InterfaceImplmentation.Examiner
             }
         }
     }
-
+  
 
 }
 

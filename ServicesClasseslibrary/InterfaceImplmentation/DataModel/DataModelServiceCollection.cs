@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace ServicesClasseslibrary.Implmentation.DataModel
 {
     internal static class DataModelServiceCollection
@@ -27,6 +28,7 @@ namespace ServicesClasseslibrary.Implmentation.DataModel
             services.AddScoped<IExamSectionRuleOperations, ExamSectionRulesOperations>();
             services.AddScoped<IExaminerPerformanceOperations, ExaminerPerformanceOperations>();
             services.AddScoped(typeof(ContextGateway<>));
+            services.AddConnectionStringConfiguration();
                 return services;
             }
     }

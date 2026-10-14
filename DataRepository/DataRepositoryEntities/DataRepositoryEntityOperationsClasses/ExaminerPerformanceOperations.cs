@@ -11,9 +11,12 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
     public class ExaminerPerformanceOperations: IExaminerPerformanceOperations
     {
         private readonly ContextGateway<ExaminerPerformance> gateway;
-        public ExaminerPerformanceOperations(ContextGateway<ExaminerPerformance> gateway    )
+        private readonly ContextGateway<ExaminerAttempt> attemptGateWay;
+        public ExaminerPerformanceOperations(ContextGateway<ExaminerPerformance> gateway,
+          ContextGateway<ExaminerAttempt> attemptGateWay)
         {
             this.gateway = gateway;
+            this.attemptGateWay = attemptGateWay;
         }
 
         public ExaminerPerformance GetPerformance(int id)
@@ -24,12 +27,11 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
 
         public async Task UpdateExaminerPerformance(AnalyticsJob job)
         {
-            using (var context = new DbConext())
-            {
+          
                 bool AddNewPerformance = false;
-                var attempts = await context.ExaminerAttempts.Where(w=>w.UserId==job.ExaminerId).ToListAsync();   
+                var attempts = await attemptGateWay.ListAsync(w=>w.UserId==job.ExaminerId);   
                 var evaluatedAttempts = attempts.Where(x => x.Status == "Submitted" && x.Score != null).ToList();   
-                var performance = context.Set<ExaminerPerformance>().Find(job.ExaminerId);
+                var performance = gateway.GetById(g=>g.UserId==job.ExaminerId);
                 if (performance == null)
                 {
                     performance = new ExaminerPerformance();
@@ -47,16 +49,16 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
                      performance.PassRate = evaluatedAttempts.Count > 0 ? (double)evaluatedAttempts.Count(x => x.Score*100>=50) / performance.EvaluatedCount * 100 : 0;
                 if (AddNewPerformance)
                 {
-                await   context.ExaminerPerformance.AddAsync(performance);    
+                   gateway.Add(performance);
+                
                 }
-                else
-                {
-                 context.ExaminerPerformance.Update(performance);
-                }
-                await context.SaveChangesAsync();
+                
+               
+                
+                await gateway.SaveChangesAsync();
             }
             
             }
 
-        }
+        
 }

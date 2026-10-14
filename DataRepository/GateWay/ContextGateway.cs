@@ -18,7 +18,7 @@ namespace DataRepository.GateWay
         public void Add(T entity) => context.Set<T>().Add(entity);
         public void Delete(T entity) => context.Set<T>().Remove(entity);
         public int SaveChanges() => context.SaveChanges();
-        public async Task <int> SaveChangesAsync() => await context.SaveChangesAsync();
+        public async Task<int> SaveChangesAsync() => await context.SaveChangesAsync();
         public IDbContextTransaction BeginTransaction() => context.Database.BeginTransaction();
         public T GetById(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes)
             => Include(Query, includes).FirstOrDefault(predicate);
@@ -26,6 +26,11 @@ namespace DataRepository.GateWay
         {
             var query = Include(Query.AsNoTracking(), includes);
             return (predicate == null ? query : query.Where(predicate)).ToList();
+        }
+        public async Task <List<T>> ListAsync(Expression<Func<T, bool>> predicate = null, params Expression<Func<T, object>>[] includes)
+        {
+            var query = Include(Query.AsNoTracking(), includes);
+            return await (predicate == null ? query : query.Where(predicate)).ToListAsync();
         }
         private IQueryable<T> Include(IQueryable<T> query, Expression<Func<T, object>>[] includes)
         {

@@ -16,7 +16,10 @@ namespace ServicesClasseslibrary.InterfaceImplmentation.Examiner
     public class EvaluationResultQueue : IEvaluationResultQueue
     {
         private readonly ConcurrentQueue<Tuple<int, int>> _queue = new();
-        public void Enqueue(Tuple<int, int> item) => _queue.Enqueue(item);
+        public async Task Enqueue(Tuple<int, int> item)
+        {
+            await Task.Run(() => _queue.Enqueue(item));
+        }
         public bool TryDequeue(Tuple<int, int> item)
         {
             _queue.TryDequeue(out item);

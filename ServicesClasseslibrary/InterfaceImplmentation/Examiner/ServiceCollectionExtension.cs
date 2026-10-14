@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Builder;
 
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using ServicesClasseslibrary.Implmentation.Analytics;
 using ServicesClasseslibrary.Implmentation.Builder;
 using ServicesClasseslibrary.Implmentation.DataModel;
 using ServicesClasseslibrary.Interface.Builder;
@@ -26,7 +27,7 @@ namespace ServicesClasseslibrary.Implmentation.Examiner
             services.AddSignalR();
             services.AddScoped<IExaminerAttemptService, ExaminerAttemptService>();
             services.AddScoped<IExamAttemptQuestionBuilder, ExamAttemptQuestionBuilder>();
-            services.AddSingleton<IEvaluationResultQueue, EvaluationResultQueue>();
+            services.AddSingleton<IEvaluationResultQueue, RabbitMqEvaluationResultQueue>();
             services.AddScoped<IEvaluationPublisher, AttemptEvaluationOrchestrator>();
             services.AddScoped<IEvaluationNotifier, AttemptEvaluationOrchestrator>();
 
