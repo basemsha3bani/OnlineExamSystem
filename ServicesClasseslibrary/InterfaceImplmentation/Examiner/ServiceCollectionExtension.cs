@@ -7,8 +7,8 @@ using DataRepository.GateWay;
 using Microsoft.AspNetCore.Builder;
 
 using Microsoft.Extensions.DependencyInjection;
+using RabbitMQ.Client;
 using Serilog;
-using ServicesClasseslibrary.Implmentation.Analytics;
 using ServicesClasseslibrary.Implmentation.Builder;
 using ServicesClasseslibrary.Implmentation.DataModel;
 using ServicesClasseslibrary.Interface.Builder;
@@ -27,11 +27,22 @@ namespace ServicesClasseslibrary.Implmentation.Examiner
             services.AddSignalR();
             services.AddScoped<IExaminerAttemptService, ExaminerAttemptService>();
             services.AddScoped<IExamAttemptQuestionBuilder, ExamAttemptQuestionBuilder>();
+            services.AddSingleton<IConnection>(sp => {
+                var factory = new ConnectionFactory
+                {
+                    HostName = "localhost",
+                    AutomaticRecoveryEnabled = true
+                };
+                return factory.CreateConnectionAsync().GetAwaiter().GetResult();
+            });
+            services.AddSingleton<IChannel>(sp => {
+                return sp.GetRequiredService<IConnection>().CreateChannelAsync().GetAwaiter().GetResult();
+            });
+
             services.AddSingleton<IEvaluationResultQueue, RabbitMqEvaluationResultQueue>();
             services.AddScoped<IEvaluationPublisher, AttemptEvaluationOrchestrator>();
             services.AddScoped<IEvaluationNotifier, AttemptEvaluationOrchestrator>();
-
-
+          
             return services;
         }
     }

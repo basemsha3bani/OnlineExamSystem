@@ -1,7 +1,11 @@
 using DataModel;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 using Serilog.Core;
 using ServicesClasseslibrary.Implmentation.Analytics;
 using ServicesClasseslibrary.Interface.Analytics;
@@ -11,6 +15,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 
 namespace ServicesClasseslibrary.InterfaceImplmentation.Examiner
@@ -22,8 +27,9 @@ namespace ServicesClasseslibrary.InterfaceImplmentation.Examiner
         private readonly IAnalyticsQueue _analyticsQueue;
         private readonly IEvaluationResultQueue _evaluationResultQueue;
         private readonly IHubContext<EvaluationHub> _hubContext;
-
+        private readonly IChannel _channel;
         public AttemptEvaluationOrchestrator(
+            IChannel channel,
             ILogger<AttemptEvaluationOrchestrator> logger,
             IAnalyticsQueue analyticsQueue,
             IEvaluationResultQueue evaluationResultQueue,
@@ -33,6 +39,7 @@ namespace ServicesClasseslibrary.InterfaceImplmentation.Examiner
             _logger = logger; _analyticsQueue = analyticsQueue;
             _evaluationResultQueue = evaluationResultQueue;
             _scopes = scopes; _hubContext = hubContext;
+            _channel = channel;
         }
 
         public async Task EvaluateExamAttemptsAsync()
@@ -64,25 +71,30 @@ namespace ServicesClasseslibrary.InterfaceImplmentation.Examiner
 
         public async Task SendOneBatchAsync(CancellationToken ct)
         {
-            foreach (var attempt in _evaluationResultQueue.QueueItems())
+            var consumer = new AsyncEventingBasicConsumer(_channel);
+            consumer.ReceivedAsync += async (s, ea) =>
             {
                 try
                 {
-                    await _hubContext.Clients.Group($"candidate_{attempt.Item2}")
-                        .SendAsync("EvaluationCompleted", attempt.Item1, ct);
-                    _evaluationResultQueue.TryDequeue(attempt);
-                    _logger.LogInformation("Notified candidate for attempt {Id}", attempt.Item1);
+                    var json = System.Text.Encoding.UTF8.GetString(ea.Body.Span);
+                    var evaluatedExam = JsonConvert.DeserializeObject<Tuple<int, int>>(json);
+
+                     await _hubContext.Clients.Group($"candidate_{evaluatedExam.Item2}")
+                        .SendAsync("EvaluationCompleted", evaluatedExam.Item1, ct);
+                    await _channel.BasicAckAsync(ea.DeliveryTag, false, ct);
                 }
-                catch (Exception ex)
+                catch
                 {
-                    _logger.LogError(ex, "Notify failed for {Id}, re-queuing", attempt.Item1);
-                    _evaluationResultQueue.Enqueue(attempt); // retry
-                    await Task.Delay(1000, ct);
+                    await _channel.BasicNackAsync(ea.DeliveryTag, false, true, ct);
                 }
-            }
+            };
+            await _channel.BasicQosAsync(0, 20, false, ct);
+            await _channel.BasicConsumeAsync("exam-results", false, consumer, ct);
+            await Task.Delay(Timeout.Infinite, ct);
         }
     }
   
+
 
 }
 
