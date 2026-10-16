@@ -10,7 +10,7 @@ namespace ServicesClasseslibrary.Interface.Logging
 {
     public interface ILoggingQueue
     {
-        void Enqueue(LogEntry entry);
-        ChannelReader<LogEntry> Reader { get; }
+        Task Enqueue(LogEntry entry);
+       
     }
 }

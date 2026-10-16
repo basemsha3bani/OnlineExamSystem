@@ -79,8 +79,8 @@ namespace ServicesClasseslibrary.InterfaceImplmentation.Examiner
                     var json = System.Text.Encoding.UTF8.GetString(ea.Body.Span);
                     var evaluatedExam = JsonConvert.DeserializeObject<Tuple<int, int>>(json);
 
-                     await _hubContext.Clients.Group($"candidate_{evaluatedExam.Item2}")
-                        .SendAsync("EvaluationCompleted", evaluatedExam.Item1, ct);
+                    await _hubContext.Clients.Group($"candidate_{evaluatedExam.Item2}")
+                       .SendAsync("EvaluationCompleted", evaluatedExam.Item1, ct);
                     await _channel.BasicAckAsync(ea.DeliveryTag, false, ct);
                 }
                 catch

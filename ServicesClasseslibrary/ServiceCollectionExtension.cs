@@ -36,13 +36,13 @@ namespace ServicesClasseslibrary
             services.AddScoped<IExamSectionService, ExamSectionService>();
             services.AddScoped<IUserService, UserService>();
             services.AddExaminerServices();
-
+            services.AddLoggingService();
             return services;
         }
         private static IServiceCollection AddServicesOnWhichServiceClassLibaryDepend(this IServiceCollection services)
         {
             services.AddDataModelServices();
-            services.AddLoggingService();
+           
             services.AddAnalyticsService();
 
             services.AddSingleton<AutoMapper.MapperConfiguration>(provider =>

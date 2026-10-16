@@ -9,24 +9,36 @@ using DataRepository.DataRepositoryEntities;
 using DataRepository.GateWay;
 using DataModel;
 using ServicesClasseslibrary.Interface;
+using Microsoft.Extensions.Caching.Distributed;
+using System.Text.Json;
 
 namespace OnlineExamSystem.Controllers
 {
     public class DifficultyLevelsController : Controller
     {
-        private readonly DbConext _context;
+       
         private readonly IDifficultyLevelsService _difficultyLevelsService;
+        IDistributedCache _cache;
 
-        public DifficultyLevelsController(IDifficultyLevelsService difficultyLevelsService)
+        public DifficultyLevelsController(IDifficultyLevelsService difficultyLevelsService,
+            IDistributedCache cache)
         {
 
             _difficultyLevelsService = difficultyLevelsService;
+            _cache = cache;
         }
 
         // GET: DifficultyLevels
-        public  IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View(_difficultyLevelsService.list());
+            const string key = "lookup:subjects";
+            var cached = await _cache.GetStringAsync(key);
+            if (cached != null) return 
+                    View( JsonSerializer.Deserialize<List<DifficultyLevelsDataModel>>(cached));
+            var data= _difficultyLevelsService.list();
+            await _cache.SetStringAsync(key, JsonSerializer.Serialize(data),
+           new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(24) });
+            return View(data);
         }
 
         // GET: DifficultyLevels/Details/5

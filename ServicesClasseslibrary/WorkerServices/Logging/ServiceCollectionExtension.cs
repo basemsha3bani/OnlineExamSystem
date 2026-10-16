@@ -14,10 +14,10 @@ namespace ServicesClasseslibrary.WorkerServices.Logging
            .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day)
 
            .CreateLogger();
-            
-            services.AddHostedService<LogBackGroundService>();
             services.AddScoped<ILoggingQueue, LoggingQueue>();
             services.AddScoped<LogginqQueueProcessor>();
+            services.AddHostedService<LogBackGroundService>();
+           
             return services;
         }
     }

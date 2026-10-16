@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using DataRepository.DataRepositoryEntities;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Abstractions;
 using ServicesClasseslibrary.Interface.Logging;
 using System.Threading;
@@ -17,17 +18,15 @@ namespace ServicesClasseslibrary.WorkerServices.Logging
 
         }
 
-        public async Task Process(CancellationToken token)
+        public void  QueueLogMessage(string Message,EventLogLevel eventLogLevel)
         {
-            // FIFO loop - waits when empty, no CPU burn
-            await foreach (LogEntry entry in _loggingQueue.Reader.ReadAllAsync(token))
-            {
-                // This is your actual logging - file, console, anything
-                _logger.Log((LogLevel)entry.EventLogLevel, default, entry.Message, null, (state, ex) => state ?? string.Empty);
-
-                // Or file for Dunderly case:
-                // await File.AppendAllTextAsync("Logs/log.txt", $"{entry.Time}: {entry.Message}\n");
-            }
+            Task.Run(async () =>
+                await _loggingQueue.Enqueue(new LogEntry
+                {
+                    Message = Message,
+                    EventLogLevel = EventLogLevel.Informational,
+                })
+             );
         }
     }
 }

@@ -19,7 +19,11 @@ namespace ServicesClasseslibrary.InterfaceImplmentation.Examiner
         private readonly IConnection _conn;
         private readonly IChannel _channel;
         private readonly ConcurrentQueue<Tuple<int, int>> _buffer = new(); // local prefetch buffer
-        public RabbitMqEvaluationResultQueue(IChannel channel) => _channel = channel;
+        public RabbitMqEvaluationResultQueue(IChannel channel, IConnection connection)
+        {
+            _conn = connection;
+            _channel = channel;
+        }
         
         
 
