@@ -22,6 +22,7 @@ namespace ServicesClasseslibrary.Implmentation.Examiner
     {
         public static IServiceCollection AddExaminerServices(this IServiceCollection services)
         {
+            QueueConfiguration queueConfiguration= new QueueConfiguration();    
             services.AddHostedService<AttemptEvaluationWorker>();
             services.AddHostedService<AttemptEvaluationCompletionChecker>(); 
             services.AddSignalR();
@@ -30,7 +31,7 @@ namespace ServicesClasseslibrary.Implmentation.Examiner
             services.AddSingleton<IConnection>(sp => {
                 var factory = new ConnectionFactory
                 {
-                    HostName = "localhost",
+                    HostName = queueConfiguration.GetQueueHostConfiguration(),
                     AutomaticRecoveryEnabled = true
                 };
                 return factory.CreateConnectionAsync().GetAwaiter().GetResult();

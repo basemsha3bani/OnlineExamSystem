@@ -3,7 +3,7 @@
     public string GetQueueHostConfiguration()
     {
         AppConfiguration appConfiguration = new AppConfiguration();
-        return appConfiguration.QueueConfiguration;
+        return appConfiguration.QueueHost;
     }
 
 }

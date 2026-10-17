@@ -14,38 +14,50 @@ using static DevExpress.Xpo.Helpers.AssociatedCollectionCriteriaHelper;
 
 namespace ServicesClasseslibrary.InterfaceImplmentation.Examiner
 {
-    public sealed class RabbitMqEvaluationResultQueue : IEvaluationResultQueue, IAsyncDisposable
+    public sealed class RabbitMqEvaluationResultQueue : IEvaluationResultQueue
     {
         private readonly IConnection _conn;
         private readonly IChannel _channel;
         private readonly ConcurrentQueue<Tuple<int, int>> _buffer = new(); // local prefetch buffer
-        public RabbitMqEvaluationResultQueue(IChannel channel, IConnection connection)
-        {
-            _conn = connection;
-            _channel = channel;
-        }
-        
+      
         
 
-       
-
-       
-
-        public int Count => _buffer.Count;
-
-        public async ValueTask DisposeAsync()
+        public RabbitMqEvaluationResultQueue(IConnection connection)
         {
-            await _channel.CloseAsync();
-            await _conn.CloseAsync();
+            _channel = connection.CreateChannelAsync().GetAwaiter().GetResult();
+            // DECLARE HERE - creates queue if not exists
+            _channel.QueueDeclareAsync(
+                queue: "exam-results",
+                durable: true,
+                exclusive: false,
+                autoDelete: false,
+                arguments: null
+            ).GetAwaiter().GetResult();
         }
 
         public async Task Enqueue(Tuple<int, int> item)
         {
             var body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(item));
-            var props = new BasicProperties { Persistent = true };
-            await _channel.BasicPublishAsync("", "exam-results", false, props, body);
+
+            // New client 7.x properties
+            var props = new BasicProperties
+            {
+                Persistent = true,
+                DeliveryMode = DeliveryModes.Persistent
+            };
+
+            await _channel.BasicPublishAsync(
+                exchange: "",
+                routingKey: "exam-results",
+                mandatory: false,
+                basicProperties: props,
+                body: body
+            );
+
+            Console.WriteLine($"Sent to exam-results: {item.Item1}");
         }
-        
+
+
 
         public bool TryDequeue(Tuple<int, int> item)
         {
