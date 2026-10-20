@@ -13,6 +13,6 @@ namespace ServicesClasseslibrary.Interface.Examiner
         ExamAttemptDataModel Get(int id);
         List<ExamAttemptDataModel> List(int userId);
         Task  Save(int id, int sectionIndex, Dictionary<int, int?> answers, bool submit);
-        Task<List<Tuple<int, int>>> EvaluatePending(Action<int, Exception> onFailure = null);
+        Task<List<Tuple<int, int,decimal>>> EvaluatePending(Action<int, Exception> onFailure = null);
     }
 }

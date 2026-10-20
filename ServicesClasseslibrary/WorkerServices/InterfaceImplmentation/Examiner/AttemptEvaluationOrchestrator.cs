@@ -11,14 +11,16 @@ using ServicesClasseslibrary.Implmentation.Analytics;
 using ServicesClasseslibrary.Interface.Analytics;
 using ServicesClasseslibrary.Interface.Examiner;
 using ServicesClasseslibrary.WorkerServices.ExamEvaluation;
+using ServicesClasseslibrary.WorkerServices.Interface.Examiner;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
-namespace ServicesClasseslibrary.InterfaceImplmentation.Examiner
+namespace ServicesClasseslibrary.WorkerServices.InterfaceImplementation.Examiner
 {
     public class AttemptEvaluationOrchestrator : IEvaluationPublisher, IEvaluationNotifier
     {
@@ -28,7 +30,9 @@ namespace ServicesClasseslibrary.InterfaceImplmentation.Examiner
         private readonly IEvaluationResultQueue _evaluationResultQueue;
         private readonly IHubContext<EvaluationHub> _hubContext;
         private readonly IChannel _channel;
+        private AsyncEventingBasicConsumer consumer; 
         public AttemptEvaluationOrchestrator(
+            IConnection connection,
             IChannel channel,
             ILogger<AttemptEvaluationOrchestrator> logger,
             IAnalyticsQueue analyticsQueue,
@@ -39,7 +43,17 @@ namespace ServicesClasseslibrary.InterfaceImplmentation.Examiner
             _logger = logger; _analyticsQueue = analyticsQueue;
             _evaluationResultQueue = evaluationResultQueue;
             _scopes = scopes; _hubContext = hubContext;
-            _channel = channel;
+            _channel = connection.CreateChannelAsync().GetAwaiter().GetResult();
+
+            _channel.QueueDeclareAsync(queue: "exam.results.passed.queue", durable: true, exclusive: false, autoDelete: false, arguments: null);
+            _channel.QueueDeclareAsync(queue: "exam.results.failed.queue", durable: true, exclusive: false, autoDelete: false, arguments: null);
+
+            _channel.QueueBindAsync("exam.results.passed.queue", "exam.results.exchange", "result.passed");
+            _channel.QueueBindAsync("exam.results.failed.queue", "exam.results.exchange", "result.failed");
+            consumer = new AsyncEventingBasicConsumer(_channel);
+            _channel.BasicConsumeAsync(queue: "exam.results.passed.queue", autoAck: false, consumer: consumer);
+            _channel.BasicConsumeAsync(queue: "exam.results.failed.queue", autoAck: false, consumer: consumer);
+
         }
 
         public async Task EvaluateExamAttemptsAsync()
@@ -71,17 +85,21 @@ namespace ServicesClasseslibrary.InterfaceImplmentation.Examiner
 
         public async Task SendOneBatchAsync(CancellationToken ct)
         {
-            var consumer = new AsyncEventingBasicConsumer(_channel);
+            
             consumer.ReceivedAsync += async (s, ea) =>
             {
                 try
                 {
+                    var routingKey = ea.RoutingKey; // result.passed or result.failed
                     var json = System.Text.Encoding.UTF8.GetString(ea.Body.Span);
-                    var evaluatedExam = JsonConvert.DeserializeObject<Tuple<int, int>>(json);
-
-                    await _hubContext.Clients.Group($"candidate_{evaluatedExam.Item2}")
-                       .SendAsync("EvaluationCompleted", evaluatedExam.Item1, ct);
-                    await _channel.BasicAckAsync(ea.DeliveryTag, false, ct);
+                    var evaluatedExam = JsonConvert.DeserializeObject<Tuple<int, int,decimal>>(json);
+                    string resultMessage = "EvaluationCompleted"; 
+                   
+                        await _hubContext.Clients.Group($"candidate_{evaluatedExam.Item2}")
+                       .SendAsync($"{resultMessage}", evaluatedExam.Item1, ct);
+                 
+                    
+                        await _channel.BasicAckAsync(ea.DeliveryTag, false, ct);
                 }
                 catch
                 {
@@ -90,7 +108,7 @@ namespace ServicesClasseslibrary.InterfaceImplmentation.Examiner
             };
             await _channel.BasicQosAsync(0, 20, false, ct);
             await _channel.BasicConsumeAsync("exam-results", false, consumer, ct);
-            await Task.Delay(Timeout.Infinite, ct);
+           
         }
     }
   

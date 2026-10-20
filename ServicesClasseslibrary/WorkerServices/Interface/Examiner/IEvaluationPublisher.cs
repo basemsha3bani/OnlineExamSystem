@@ -8,7 +8,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ServicesClasseslibrary.Interface.Examiner
+namespace ServicesClasseslibrary.WorkerServices.Interface.Examiner
 {
     public interface IEvaluationPublisher { Task EvaluateExamAttemptsAsync(); }
    

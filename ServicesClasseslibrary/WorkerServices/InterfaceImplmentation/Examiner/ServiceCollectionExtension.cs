@@ -15,8 +15,9 @@ using ServicesClasseslibrary.Interface.Builder;
 using ServicesClasseslibrary.Interface.Examiner;
 using ServicesClasseslibrary.InterfaceImplmentation.Examiner;
 using ServicesClasseslibrary.WorkerServices.ExamEvaluation;
+using ServicesClasseslibrary.WorkerServices.Interface.Examiner;
 
-namespace ServicesClasseslibrary.Implmentation.Examiner
+namespace ServicesClasseslibrary.WorkerServices.InterfaceImplementation.Examiner
 {
     public static class ServiceCollectionExtension
     {

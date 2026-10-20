@@ -5,10 +5,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ServicesClasseslibrary.Implmentation.Analytics;
-using ServicesClasseslibrary.Implmentation.Examiner;
+
 using ServicesClasseslibrary.Interface.Analytics;
 using ServicesClasseslibrary.Interface.Examiner;
-using ServicesClasseslibrary.InterfaceImplmentation.Examiner;
+using ServicesClasseslibrary.WorkerServices.Interface.Examiner;
+using ServicesClasseslibrary.WorkerServices.InterfaceImplementation.Examiner;
 using ServicesClasseslibrary.WorkerServices.Logging;
 using System;
 using System.Linq;

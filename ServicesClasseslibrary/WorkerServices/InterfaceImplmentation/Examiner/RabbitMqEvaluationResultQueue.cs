@@ -1,4 +1,5 @@
 ﻿using DataRepository;
+using DevExpress.Utils.Filtering;
 using DevExpress.Utils.Url;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -6,39 +7,35 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using ServicesClasseslibrary.Interface.Builder;
 using ServicesClasseslibrary.Interface.Examiner;
+using ServicesClasseslibrary.WorkerServices.Interface.Examiner;
 using System;
 using System.Collections.Concurrent;
 using System.Text;
 using System.Threading.Tasks;
 using static DevExpress.Xpo.Helpers.AssociatedCollectionCriteriaHelper;
 
-namespace ServicesClasseslibrary.InterfaceImplmentation.Examiner
+namespace ServicesClasseslibrary.WorkerServices.InterfaceImplementation.Examiner
 {
     public sealed class RabbitMqEvaluationResultQueue : IEvaluationResultQueue
     {
         private readonly IConnection _conn;
         private readonly IChannel _channel;
-        private readonly ConcurrentQueue<Tuple<int, int>> _buffer = new(); // local prefetch buffer
+        private readonly ConcurrentQueue<Tuple<int, int,decimal>> _buffer = new(); // local prefetch buffer
       
         
 
-        public RabbitMqEvaluationResultQueue(IConnection connection)
+        public RabbitMqEvaluationResultQueue(IChannel channel)
         {
-            _channel = connection.CreateChannelAsync().GetAwaiter().GetResult();
-            // DECLARE HERE - creates queue if not exists
-            _channel.QueueDeclareAsync(
-                queue: "exam-results",
-                durable: true,
-                exclusive: false,
-                autoDelete: false,
-                arguments: null
-            ).GetAwaiter().GetResult();
+           
+            _channel= channel;
+
         }
 
-        public async Task Enqueue(Tuple<int, int> item)
+        public async Task Enqueue(Tuple<int, int, decimal> item)
         {
             var body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(item));
-
+            decimal passedThreshold = 0.5m; // Define the passing threshold
+            var routingKey = item.Item3 >= passedThreshold ? "result.passed" : "result.failed";
             // New client 7.x properties
             var props = new BasicProperties
             {
@@ -47,8 +44,9 @@ namespace ServicesClasseslibrary.InterfaceImplmentation.Examiner
             };
 
             await _channel.BasicPublishAsync(
-                exchange: "",
-                routingKey: "exam-results",
+               exchange: "exam.results.exchange",
+               
+                routingKey: routingKey,
                 mandatory: false,
                 basicProperties: props,
                 body: body
@@ -59,13 +57,13 @@ namespace ServicesClasseslibrary.InterfaceImplmentation.Examiner
 
 
 
-        public bool TryDequeue(Tuple<int, int> item)
+        public bool TryDequeue(Tuple<int, int, decimal> item)
         {
             _buffer.TryDequeue(out item);
             return true;
         }
 
-        public ConcurrentQueue<Tuple<int, int>> QueueItems()
+        public ConcurrentQueue<Tuple<int, int, decimal>> QueueItems()
         {
            
             return _buffer;

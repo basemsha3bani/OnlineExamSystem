@@ -10,10 +10,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using ServicesClasseslibrary.Implmentation.Builder;
 using ServicesClasseslibrary.Implmentation.DataModel;
-using ServicesClasseslibrary.Implmentation.Examiner;
+
 using ServicesClasseslibrary.Interface;
 using ServicesClasseslibrary.Interface.DataModel;
 using ServicesClasseslibrary.WorkerServices.Analytics;
+using ServicesClasseslibrary.WorkerServices.InterfaceImplementation.Examiner;
 using ServicesClasseslibrary.WorkerServices.Logging;
 using System;
 using System.Collections.Generic;

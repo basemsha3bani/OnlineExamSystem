@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using ServicesClasseslibrary.Implmentation.Builder;
 using ServicesClasseslibrary.Interface.Builder;
 using ServicesClasseslibrary.Interface.Examiner;
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -18,7 +17,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ServicesClasseslibrary.Implmentation.Examiner
+namespace ServicesClasseslibrary.InterfaceImplmentation.Examiner
 {
     public class ExaminerAttemptService: IExaminerAttemptService
     {
@@ -103,14 +102,14 @@ namespace ServicesClasseslibrary.Implmentation.Examiner
            await examAttemptOprations.Edit(attempt);
         }
 
-        public async Task<List<Tuple<int, int>>> EvaluatePending(Action<int, Exception> onFailure = null)
+        public async Task<List<Tuple<int, int,decimal>>> EvaluatePending(Action<int, Exception> onFailure = null)
         {
-            Tuple<int,int> evaluatedTuple = new Tuple<int,int>(0,0);
+            Tuple<int, int, decimal > evaluatedTuple = new Tuple<int,int,decimal>(0,0,0);
             var pending = examAttemptOprations.listSubmitted().Select(s=>s.Id);
             ///define evaluated as a list of tuples to store the evaluated attempts
             ///each tuple will contain the attempt id and the userId
             
-            List< Tuple<int, int> > evaluatedTuples = new List<Tuple<int, int>>();
+            List< Tuple<int, int,decimal> > evaluatedTuples = new List<Tuple<int, int, decimal>>();
 
             foreach (int id in pending)
             {
@@ -125,7 +124,7 @@ namespace ServicesClasseslibrary.Implmentation.Examiner
                     attempt.EvaluatedAt = DateTime.UtcNow;
                     attempt.Status = "Scored";
                    await examAttemptOprations.Edit(attempt);
-                    evaluatedTuple = new Tuple<int,int>(id,attempt.UserId);
+                    evaluatedTuple = new Tuple<int,int,decimal>(id,attempt.UserId,attempt.Score.Value);
                     evaluatedTuples.Add(evaluatedTuple);
                 }
                 catch (DbUpdateConcurrencyException) { /* Another worker completed this attempt. */ }

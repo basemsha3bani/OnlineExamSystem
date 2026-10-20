@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ServicesClasseslibrary.Interface.Examiner;
+using ServicesClasseslibrary.WorkerServices.Interface.Examiner;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -24,6 +25,7 @@ namespace ServicesClasseslibrary.WorkerServices.ExamEvaluation
                 using var scope = scopes.CreateScope();
                 var orchestrator = scope.ServiceProvider.GetRequiredService<IEvaluationNotifier>();
                 await orchestrator.SendOneBatchAsync(ct);
+                
             }
         }
     }

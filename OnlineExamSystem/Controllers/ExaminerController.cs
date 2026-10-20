@@ -7,9 +7,10 @@ using Microsoft.EntityFrameworkCore;
 using OnlineExamSystem.Models;
 using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
 using DataModel;
-using ServicesClasseslibrary.Implmentation.Examiner;
+
 using ServicesClasseslibrary.Interface.Examiner;
 using System.Threading.Tasks;
+using ServicesClasseslibrary.InterfaceImplmentation.Examiner;
 
 namespace OnlineExamSystem.Controllers
 {
