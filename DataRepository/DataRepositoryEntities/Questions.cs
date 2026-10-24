@@ -8,6 +8,7 @@ namespace DataRepository.DataRepositoryEntities
     public class Questions:IRepository
     {
         public int Id { get; set; }
+        public int ChapterNumber { get; set; } = 1;
 
         public String QuestionText{ get; set; }
         

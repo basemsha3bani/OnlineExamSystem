@@ -65,6 +65,18 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
             gateway.Delete(question); gateway.SaveChanges();
         }
         public QuestionsDataModel GetById(int id) => mapper.Map<QuestionsDataModel>(gateway.GetById(q => q.Id == id, q => q.QuestionAnswers));
+        public QuestionPage Search(QuestionSearch search)
+        {
+            var query = QuestionSearchQuery.Filter(gateway.Query.AsNoTracking(), search);
+            var total = query.Count();
+            var actual = new QuestionSearch(search.StudySubjectId, search.ChapterNumber, search.PageFor(total), search.PageSize);
+            return new QuestionPage {
+                Search = actual, TotalCount = total,
+                Items = QuestionSearchQuery.Page(query, actual).Select(q => new QuestionsDataModel {
+                    Id = q.Id, QuestionText = q.QuestionText, StudySubjectId = q.StudySubjectId,
+                    ChapterNumber = q.ChapterNumber, DifficultyLevelId = q.DifficultyLevelId }).ToList()
+            };
+        }
         public List<QuestionsDataModel> list() => mapper.Map<List<QuestionsDataModel>>(gateway.List(null, q => q.QuestionAnswers));
         public List<QuestionsDataModel> GetRandomQuestions(int studySubjectId, ExamSectionRulesDataModel rule)
         {

@@ -8,6 +8,8 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterfac
 {
     public interface IExamSectionsOperations
     {
+        ExamSectionsDataModel GeById(int id);
+        void Edit(ExamSectionsDataModel model);
         public void Add(ExamSectionsDataModel examSectionsDataModel);
        
 

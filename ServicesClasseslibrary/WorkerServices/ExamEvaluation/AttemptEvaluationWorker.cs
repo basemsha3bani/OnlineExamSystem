@@ -1,41 +1,23 @@
-using DataModel;
-using DataRepository.DataRepositoryEntities;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using ServicesClasseslibrary.Implmentation.Analytics;
-
-using ServicesClasseslibrary.Interface.Analytics;
-using ServicesClasseslibrary.Interface.Examiner;
 using ServicesClasseslibrary.WorkerServices.Interface.Examiner;
-using ServicesClasseslibrary.WorkerServices.InterfaceImplementation.Examiner;
-using ServicesClasseslibrary.WorkerServices.Logging;
-using System;
-using System.Linq;
+using ServicesClasseslibrary.WorkerServices.Messaging;
 using System.Threading;
 using System.Threading.Tasks;
-using static System.Formats.Asn1.AsnWriter;
-
 namespace ServicesClasseslibrary.WorkerServices.ExamEvaluation
 {
     public class AttemptEvaluationWorker : BackgroundService
     {
-        
         private readonly IServiceScopeFactory scopes;
-        public AttemptEvaluationWorker( IServiceScopeFactory scopes)
-            
-        { this.scopes = scopes; }
-        protected override async Task ExecuteAsync(CancellationToken ct)
+        private readonly ILogger<AttemptEvaluationWorker> logger;
+        private readonly BrokerWorkerOptions options;
+        public AttemptEvaluationWorker(IServiceScopeFactory scopes, ILogger<AttemptEvaluationWorker> logger, BrokerWorkerOptions options)
+        { this.scopes = scopes; this.logger = logger; this.options = options; }
+        protected override Task ExecuteAsync(CancellationToken ct) => BackgroundWorkerLoop.RunAsync(async token =>
         {
-            while (!ct.IsCancellationRequested)
-            {
-                using var scope = scopes.CreateScope();
-                var orchestrator = scope.ServiceProvider.GetRequiredService<IEvaluationPublisher>();
-                await orchestrator.EvaluateExamAttemptsAsync();
-                await Task.Delay(5000, ct);
-            }
-        }
+            using var scope = scopes.CreateScope();
+            await scope.ServiceProvider.GetRequiredService<IEvaluationPublisher>().EvaluateExamAttemptsAsync();
+        }, logger, options.EvaluationInterval, options.RetryDelay, ct);
     }
-
 }

@@ -50,6 +50,8 @@ namespace DataRepository.Migrations
 
             modelBuilder.Entity("DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses.ExamSections", b =>
                 {
+                    b.Property<int>("NumberOfQuestions").HasColumnType("int");
+                    b.PrimitiveCollection<System.Collections.Generic.List<int>>("ChapterNumbers").IsRequired().HasColumnType("nvarchar(max)");
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
@@ -59,9 +61,7 @@ namespace DataRepository.Migrations
                     b.Property<int>("ExamId")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("Percentage")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+
 
                     b.Property<string>("SectionName")
                         .HasColumnType("nvarchar(max)");
@@ -282,6 +282,7 @@ namespace DataRepository.Migrations
 
             modelBuilder.Entity("DataRepository.DataRepositoryEntities.Questions", b =>
                 {
+                    b.Property<int>("ChapterNumber").HasColumnType("int");
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
@@ -306,6 +307,7 @@ namespace DataRepository.Migrations
 
             modelBuilder.Entity("DataRepository.DataRepositoryEntities.StudySubject", b =>
                 {
+                    b.Property<int>("NumberOfChapters").HasColumnType("int");
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");

@@ -1,26 +1,16 @@
-﻿@model List<DataModel.ExamSectionRulesDataModel>
-@{
-    int sectionId = ViewBag.SectionId;
-}
-
-<h3>Section Rules</h3>
-
-<a href="/ExamSectionRules/Create?sectionId=@sectionId" class="btn btn-primary">+ Add New Rule</a>
-
-<hr />
-
-@foreach (var r in Model)
+@model List<DataModel.ExamSectionRulesDataModel>
+@{ var definition = (DataModel.ExamSectionsDataModel)ViewBag.Section; var total = Model.Sum(r => r.NoOfQuestions); }
+<h3>@definition.SectionName - Rules</h3>
+<a asp-action="Create" asp-route-sectionId="@definition.Id" class="btn btn-primary">Add rule</a>
+<table class="table"><thead><tr><th>Difficulty</th><th>Number of questions</th><th></th></tr></thead><tbody>
+@foreach (var rule in Model)
 {
-    <div>@r.subjectName - @r.DifficultyLevel - @r.NoOfQuestions questions</div>
+    <tr><td>@rule.DifficultyLevel</td><td>@rule.NoOfQuestions</td><td><a asp-action="Edit" asp-route-id="@rule.Id">Edit</a></td></tr>
 }
-<div style="margin-top:10px">
-    <b>Total: @Model.Sum(x => x.NoOfQuestions) / 5</b>
-    @if (Model.Sum(x => x.NoOfQuestions) >= 5)
-    {
-        <span style="color:green"> - Complete</span>
-    }
-</div>
-
-<div style="margin-top:15px">
-    <a href="/Exams/Index?examId=@ViewBag.ExamId">Back to exams</a>
-</div>
+</tbody></table>
+<p>Total: @total / @definition.NumberOfQuestions questions.
+@if (definition.NumberOfQuestions > 0 && total == definition.NumberOfQuestions) { <span>Complete</span> }
+else { <span class="text-danger">Incomplete: rule counts must equal the section total before the exam can start.</span> }
+</p>
+<a asp-controller="ExamSections" asp-action="Edit" asp-route-id="@definition.Id">Edit section</a> |
+<a asp-controller="ExamSections" asp-action="Index" asp-route-examId="@definition.ExamId">Back to sections</a>

@@ -17,6 +17,7 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterfac
 
         QuestionsDataModel GetById(int id);
 
+        QuestionPage Search(QuestionSearch search);
         List<QuestionsDataModel> list();
 
         List<QuestionsDataModel> GetRandomQuestions(int studySubjectId, ExamSectionRulesDataModel rule);

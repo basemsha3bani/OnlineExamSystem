@@ -17,6 +17,7 @@ namespace ServicesClasseslibrary.Interface
 
         QuestionsDataModel GetById(int id);
 
+        QuestionPage Search(QuestionSearch search);
         List<QuestionsDataModel> list();
     }
 }

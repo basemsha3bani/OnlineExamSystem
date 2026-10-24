@@ -1,63 +1,27 @@
-﻿using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Abstractions;
 using Newtonsoft.Json;
-using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
-using ServicesClasseslibrary.Interface.Logging;
-using System;
-using System.Linq.Expressions;
-using System.Text.Json;
+using ServicesClasseslibrary.WorkerServices.Messaging;
+using System.Text;
 using System.Threading;
-using System.Threading.Channels;
 using System.Threading.Tasks;
-
 namespace ServicesClasseslibrary.WorkerServices.Logging
 {
     public class LogBackGroundService : BackgroundService
     {
-        
-        private readonly IChannel _channel;
-        
-        ILogger<LogginqQueueProcessor> _logger;
-        public LogBackGroundService(IChannel channel, ILogger<LogginqQueueProcessor> logger)
-        {
-            _channel = channel;
-            _logger= logger;
-
-        }
-
-        protected override async Task ExecuteAsync(CancellationToken ct)
-        {
-           await _channel.QueueDeclareAsync(
-        queue: "exam-logs",
-        durable: true,
-        exclusive: false,
-        autoDelete: false,
-        arguments: null
-    );
-            var consumer = new AsyncEventingBasicConsumer(_channel);
-            consumer.ReceivedAsync += async (s, ea) =>
+        private readonly RabbitMqConsumer consumer;
+        private readonly ILogger<LogBackGroundService> logger;
+        private readonly BrokerWorkerOptions options;
+        public LogBackGroundService(RabbitMqConsumer consumer, ILogger<LogBackGroundService> logger, BrokerWorkerOptions options)
+        { this.consumer = consumer; this.logger = logger; this.options = options; }
+        protected override Task ExecuteAsync(CancellationToken ct) => BackgroundWorkerLoop.RunAsync(
+            token => consumer.RunAsync(new[] { RabbitMqTopology.LogsQueue }, body =>
             {
-                try
-                {
-                    var json = System.Text.Encoding.UTF8.GetString(ea.Body.Span);
-                    var logEntry = JsonConvert.DeserializeObject<LogEntry>(json);
-
-                    _logger.Log((LogLevel)logEntry.EventLogLevel, default, logEntry.Message, null, (state, ex) => state ?? string.Empty);
-                    await _channel.BasicAckAsync(ea.DeliveryTag, false, ct);
-                }
-                catch
-                {
-                    await _channel.BasicNackAsync(ea.DeliveryTag, false, true, ct);
-                }
-            };
-            await _channel.BasicQosAsync(0, 20, false, ct);
-            await _channel.BasicConsumeAsync("exam-logs", false, consumer, ct);
-            await Task.Delay(Timeout.Infinite, ct);
-        }
+                var entry = JsonConvert.DeserializeObject<LogEntry>(Encoding.UTF8.GetString(body.Span))
+                    ?? throw new JsonSerializationException("Empty log entry.");
+                logger.Log((LogLevel)entry.EventLogLevel, "{Message}", entry.Message);
+                return Task.CompletedTask;
+            }, token), logger, options.EvaluationInterval, options.RetryDelay, ct);
     }
-
 }

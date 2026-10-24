@@ -1,0 +1,22 @@
+@model DataModel.ExamSectionsDataModel
+<h3>Edit Section</h3>
+@if (TempData["SectionSuccess"] is string success)
+{
+    <div class="alert alert-success" role="status">@success</div>
+}
+@if (ViewData["SectionFailure"] is string failure)
+{
+    <div class="alert alert-danger" role="alert">@failure</div>
+}
+<form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <input asp-for="Id" type="hidden" /><input asp-for="ExamId" type="hidden" />
+    <div class="mb-3"><label asp-for="SectionName" class="form-label">Section name</label><input asp-for="SectionName" class="form-control" /></div>
+    <div class="mb-3"><label asp-for="NumberOfQuestions" class="form-label">Total number of questions</label><input asp-for="NumberOfQuestions" type="number" min="1" class="form-control" /></div>
+    <div class="mb-3"><label asp-for="ChapterNumbers" class="form-label">Chapters</label><select asp-for="ChapterNumbers" multiple asp-items="ViewBag.Chapters" class="form-control"></select></div>
+    <button type="submit" class="btn btn-primary">Save configuration</button>
+</form>
+<p class="mt-3">Save the question count and chapters, then add difficulty rules. Rule counts must equal the section total before the exam can start.</p>
+<a asp-controller="ExamSectionRules" asp-action="Index" asp-route-sectionId="@Model.Id">Section rules</a> |
+<a asp-controller="ExamSectionRules" asp-action="Create" asp-route-sectionId="@Model.Id">Add rule</a> |
+<a asp-action="Index" asp-route-examId="@Model.ExamId">Back to sections</a>

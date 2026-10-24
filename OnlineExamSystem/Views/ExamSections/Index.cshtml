@@ -1,0 +1,14 @@
+@model List<DataModel.ExamSectionsDataModel>
+@{ var exam = (DataModel.ExamDataModel)ViewBag.Exam; }
+<h3>@exam.Title - Sections</h3>
+<a asp-action="Create" asp-route-examId="@exam.Id" class="btn btn-primary">Add section</a>
+<table class="table"><thead><tr><th>Section name</th><th>Questions</th><th>Actions</th></tr></thead><tbody>
+@foreach (var definition in Model)
+{
+    <tr><td>@definition.SectionName</td><td>@definition.NumberOfQuestions</td><td>
+        <a asp-action="Edit" asp-route-id="@definition.Id">Edit section</a> |
+        <a asp-controller="ExamSectionRules" asp-action="Index" asp-route-sectionId="@definition.Id">Rules</a>
+    </td></tr>
+}
+</tbody></table>
+<a asp-controller="Exams" asp-action="Index">Back to exams</a>

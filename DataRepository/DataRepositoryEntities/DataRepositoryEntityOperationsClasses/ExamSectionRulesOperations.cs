@@ -16,17 +16,19 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
         { this.gateway = gateway; this.mapper = mapper; }
         public List<ExamSectionRulesDataModel> GetBySectionId(int sectionId) => mapper.Map<List<ExamSectionRulesDataModel>>(
             gateway.List(r => r.SectionId == sectionId, r => r.difficultyLevel, r => r.section.Exam.StudySubject));
+        public ExamSectionRulesDataModel GetById(int id) => mapper.Map<ExamSectionRulesDataModel>(gateway.GetById(r => r.Id == id, r => r.difficultyLevel));
         public void Add(ExamSectionRulesDataModel model)
         {
-            if (model.NoOfQuestions <= 0) throw new InvalidOperationException("Question count must be positive.");
-            using var transaction = gateway.BeginTransaction();
-            if (gateway.List(r => r.SectionId == model.SectionId).Sum(r => r.NoOfQuestions) + model.NoOfQuestions > 5)
-                throw new InvalidOperationException("Max 5 questions per section");
             var entity = mapper.Map<ExamSectionRules>(model);
             entity.Id = 0;
-            gateway.Add(entity);
+            gateway.Add(entity); gateway.SaveChanges();
+        }
+        public void Edit(ExamSectionRulesDataModel model)
+        {
+            var entity = gateway.GetById(r => r.Id == model.Id) ?? throw new InvalidOperationException("Rule not found.");
+            entity.DifficultyLevelId = model.DifficultyLevelId;
+            entity.NoOfQuestions = model.NoOfQuestions;
             gateway.SaveChanges();
-            transaction.Commit();
         }
     }
 }

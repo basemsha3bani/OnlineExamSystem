@@ -1,38 +1,9 @@
 @model DataModel.ExamSectionsDataModel
-
-@{
-    ViewData["Title"] = "View";
-    Layout = null;
-}
-
-<h1>Create Section</h1>
-
-<h4>ExamSectionsDataModel</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form method="post" id="createSectionForm" asp-action="Create" asp-controller="ExamSections">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-            <input asp-for="ExamId" type="hidden" />
-            <div class="form-group">
-                <label asp-for="SectionName" class="control-label"></label>
-                <input asp-for="SectionName" class="form-control" />
-                <span asp-validation-for="SectionName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Percentage" class="control-label"></label>
-                <input asp-for="Percentage" class="form-control" />
-                <span asp-validation-for="Percentage" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Add section" class="btn btn-primary" />
-            </div>
-            
-        </form>
-    </div>
-</div>
-
-<div>
-    <a asp-action="Index" asp-controller="Exams">Back to List</a>
-</div>
+<h3>Create Section</h3>
+<form asp-action="Create" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <input asp-for="ExamId" type="hidden" />
+    <div class="mb-3"><label asp-for="SectionName" class="form-label">Section name</label><input asp-for="SectionName" class="form-control" /></div>
+    <button type="submit" class="btn btn-primary">Save section</button>
+</form>
+<a asp-action="Index" asp-route-examId="@Model.ExamId">Back to sections</a>

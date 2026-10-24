@@ -30,10 +30,17 @@ namespace OnlineExamSystem.Controllers
         }
 
         // GET: Questions
-        public IActionResult Index()
+        public IActionResult Index(int? studySubjectId, int? chapterNumber, int page = 1, int pageSize = 20)
         {
-           
-            return View(_questionsService.list());
+            var result = _questionsService.Search(new QuestionSearch(studySubjectId, chapterNumber, page, pageSize));
+            ModelState.Clear(); // Render the normalized filter and page-size values.
+            var subjects = _studySubjectsService.list();
+            var chapterCount = result.Search.StudySubjectId.HasValue
+                ? subjects.FirstOrDefault(s => s.Id == result.Search.StudySubjectId)?.NumberOfChapters ?? 0
+                : subjects.Select(s => s.NumberOfChapters).DefaultIfEmpty(0).Max();
+            return View(new OnlineExamSystem.Models.QuestionListViewModel {
+                Results = result, Subjects = subjects, Chapters = Enumerable.Range(1, chapterCount).Union(result.Search.ChapterNumber.HasValue ? new[] { result.Search.ChapterNumber.Value } : System.Array.Empty<int>()).OrderBy(c => c)
+            });
         }
 
         // GET: Questions/Details/5
@@ -63,8 +70,8 @@ namespace OnlineExamSystem.Controllers
                 {
                     questions.QuestionAnswersDataModel[i].IsCorrect = (i == CorrectAnswerIndex);
                 }
-                _questionsService.Add(questions);
-                return RedirectToAction(nameof(Index));
+                try { _questionsService.Add(questions); return RedirectToAction(nameof(Index)); }
+                catch (Domain.Exceptions.DomainException ex) { ModelState.AddModelError("", ex.Message); }
             }
             ViewData["DifficultyLevelId"] = new SelectList(_difficultyLevelsService.list(), "Id", "DifficultyLevelName");
             ViewData["StudySubjectsId"] = new SelectList(_studySubjectsService.list(), "Id", "SubjectName");
@@ -111,6 +118,13 @@ namespace OnlineExamSystem.Controllers
                     }
                     _questionsService.Edit(questions);
                   
+                }
+                catch (Domain.Exceptions.DomainException ex)
+                {
+                    ModelState.AddModelError("", ex.Message);
+                    ViewData["StudySubjectsId"] = new SelectList(_studySubjectsService.list(), "Id", "SubjectName", questions.StudySubjectId);
+                    ViewData["DifficultyLevelId"] = new SelectList(_difficultyLevelsService.list(), "Id", "DifficultyLevelName", questions.DifficultyLevelId);
+                    return View(questions);
                 }
                 catch (DbUpdateConcurrencyException)
                 {

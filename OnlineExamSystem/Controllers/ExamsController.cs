@@ -24,55 +24,19 @@ namespace OnlineExamSystem.Controllers
         public IActionResult Create()
         {
             ViewBag.Subjects = new SelectList(_subjectService.list(), "Id", "SubjectName");
-            var model = new ExamDataModel
-            {
-                Sections = new List<ExamSectionsDataModel> { new    ExamSectionsDataModel(), new ExamSectionsDataModel() }
-            }; // 2 empty rows
-            return View(model);
+            return View(new ExamDataModel());
         }
-       
-        [HttpPost]
+        [HttpPost, ValidateAntiForgeryToken]
         public IActionResult Create(ExamDataModel model)
         {
-            ViewBag.Subjects = new SelectList(_subjectService.list(), "Id", "SubjectName");
-
-            // 1. Validate sections exist
-            if (model.Sections == null || model.Sections.Count == 0)
-            {
-                ModelState.AddModelError("", "At least one section is required");
-                return View(model);
-            }
-
-            // 2. Remove empty sections (user left blank row)
-            model.Sections = model.Sections
-               .Where(s => !string.IsNullOrWhiteSpace(s.SectionName))
-               .ToList();
-
-            
-
-            // 3. Save if valid
             if (ModelState.IsValid)
             {
-                // Set CreatedBy / Id if you need
-                _examService.Add(model); // your method that saves Exam + Sections
-                return RedirectToAction("Index");
+                try { _examService.Add(model); return RedirectToAction("Index", "ExamSections", new { examId = model.Id }); }
+                catch (Domain.Exceptions.DomainException ex) { ModelState.AddModelError("", ex.Message); }
             }
-
+            ViewBag.Subjects = new SelectList(_subjectService.list(), "Id", "SubjectName");
             return View(model);
         }
-
-        public IActionResult Details(int id)
-        {
-            var exam = _examService.GetById(id);
-            if (exam == null) return NotFound();
-
-           
-           
-
-           
-            return View(exam);
-        }
+        public IActionResult Details(int id) => RedirectToAction("Index", "ExamSections", new { examId = id });
     }
-
-    
 }

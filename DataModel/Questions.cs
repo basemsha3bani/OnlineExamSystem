@@ -8,6 +8,7 @@ namespace DataModel
     public class QuestionsDataModel
     {
         public int Id { get; set; }
+        public int ChapterNumber { get; set; } = 1;
         [Required]
         public String QuestionText{ get; set; }
 

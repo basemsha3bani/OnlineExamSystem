@@ -27,7 +27,7 @@ namespace ServicesClasseslibrary
 {
     public static class ServiceCollectionExtension
     {
-        public static IServiceCollection AddServiceClasses(this IServiceCollection services)
+        public static IServiceCollection  AddServiceClasses(this IServiceCollection services)
         {
             services.AddServicesOnWhichServiceClassLibaryDepend();
             services.AddScoped<IDifficultyLevelsService, DifficultyLevelsService>();

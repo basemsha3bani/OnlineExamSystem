@@ -32,30 +32,19 @@ namespace ServicesClasseslibrary.InterfaceImplmentation.Examiner
             var sections = examSectionsOperations.List(examId);
             if (sections.Count == 0) throw new InvalidOperationException("The selected exam does not exist.");
            
+            var selectedBySection = builder.BuildExamAttemptQuestions(examId, sections);
             var snapshot = new AttemptSnapshot();
-            var used = new HashSet<int>();
             foreach (var section in sections)
             {
                 var savedSection = new AttemptSection { Name = section.SectionName };
-                foreach (var rule in section.ExamSectionRules.OrderBy(r => r.Id))
+                var selected = selectedBySection[section.Id];
+                foreach (var question in selected)
                 {
-                    if (rule.NoOfQuestions <= 0) throw new InvalidOperationException("The exam has an invalid question count.");
-                    var questions = builder.BuildExamAttemptQuestions(section.exam.StudySubjectId,
-                        new ExamSectionRulesDataModel { Id = rule.Id, SectionId = section.Id,
-                            DifficultyLevelId = rule.DifficultyLevelId, NoOfQuestions = rule.NoOfQuestions }, used);
-                    // Exclude questions already used in another section or rule.
-                    var selected = questions.Where(q => !used.Contains(q.Id)).Take(rule.NoOfQuestions).ToList();
-                    if (selected.Count != rule.NoOfQuestions)
-                        throw new InvalidOperationException("There are not enough unique questions for this exam configuration.");
-                    foreach (var question in selected)
-                    {
-                        if (question.QuestionAnswersDataModel == null || question.QuestionAnswersDataModel.Count(a => a.IsCorrect) != 1)
-                            throw new InvalidOperationException("Each question must have exactly one correct answer.");
-                        used.Add(question.Id);
-                        savedSection.Questions.Add(new AttemptQuestion { Id = question.Id, Text = question.QuestionText,
-                            Options = question.QuestionAnswersDataModel.Select(a => new AttemptOption {
-                                Id = a.Id, Text = a.AnswerText, IsCorrect = a.IsCorrect }).ToList() });
-                    }
+                    if (question.QuestionAnswersDataModel == null || question.QuestionAnswersDataModel.Count(a => a.IsCorrect) != 1)
+                        throw new InvalidOperationException("Each question must have exactly one correct answer.");
+                    savedSection.Questions.Add(new AttemptQuestion { Id = question.Id, Text = question.QuestionText,
+                        Options = question.QuestionAnswersDataModel.Select(a => new AttemptOption {
+                            Id = a.Id, Text = a.AnswerText, IsCorrect = a.IsCorrect }).ToList() });
                 }
                 if (savedSection.Questions.Count == 0) throw new InvalidOperationException("Each exam section must contain configured questions.");
                 snapshot.Sections.Add(savedSection);

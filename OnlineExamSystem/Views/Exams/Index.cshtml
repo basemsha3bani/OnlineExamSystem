@@ -6,11 +6,10 @@
     @foreach (var e in Model)
     {
         <tr>
-            <td>@e.Title</td>
+            <td>@e.Title <a asp-controller="ExamSections" asp-action="Index" asp-route-examId="@e.Id">Sections</a></td>
             <td>@e.StudySubjectName</td>
             <td>
-                <a asp-action="Details" asp-route-id="@e.Id">Sections</a> |
-                <a asp-action="Edit" asp-route-id="@e.Id">Edit</a>
+                <a asp-controller="ExamSections" asp-action="Create" asp-route-examId="@e.Id">Add section</a>
             </td>
         </tr>
     }

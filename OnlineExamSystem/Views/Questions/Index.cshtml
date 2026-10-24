@@ -1,38 +1,80 @@
-﻿@model IEnumerable<DataModel.QuestionsDataModel>
-
+@model OnlineExamSystem.Models.QuestionListViewModel
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Questions";
+    var result = Model.Results;
+    var search = result.Search;
+    var subjects = Model.Subjects.ToDictionary(s => s.Id, s => s.SubjectName);
 }
-
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.QuestionText)
-            </th>
-           
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.QuestionText)
-            </td>
-            <td>
-           
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
+<h1>Questions</h1>
+<p><a asp-action="Create" class="btn btn-primary">Create question</a></p>
+<form asp-action="Index" method="get" class="row mb-3">
+    <div class="col-md-4">
+        <label asp-for="StudySubjectId" class="form-label">Study subject</label>
+        <select asp-for="StudySubjectId" asp-items="@(new Microsoft.AspNetCore.Mvc.Rendering.SelectList(Model.Subjects, "Id", "SubjectName"))" class="form-control" onchange="document.getElementById('ChapterNumber').value = ''; this.form.requestSubmit();">
+            <option value="">All subjects</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="ChapterNumber" class="form-label">Chapter</label>
+        <select asp-for="ChapterNumber" class="form-control">
+            <option value="">All chapters</option>
+            @foreach (var chapter in Model.Chapters) { <option value="@chapter">Chapter @chapter</option> }
+        </select>
+    </div>
+    <div class="col-md-2">
+        <label asp-for="PageSize" class="form-label">Questions per page</label>
+        <select asp-for="PageSize" class="form-control"><option value="10">10</option><option value="20">20</option><option value="50">50</option></select>
+    </div>
+    <div class="col-md-3 align-self-end mt-2">
+        <button type="submit" class="btn btn-primary">Filter</button>
+        <a asp-action="Index" class="btn btn-secondary">Clear filters</a>
+    </div>
+</form>
+@if (result.TotalCount == 0)
+{
+    <p role="status">No questions match the selected filters.</p>
 }
-    </tbody>
-</table>
+else
+{
+    <p>Showing @((search.PageNumber - 1) * search.PageSize + 1)-@((search.PageNumber - 1) * search.PageSize + result.Items.Count) of @result.TotalCount questions.</p>
+    <table class="table">
+        <thead><tr><th>Question</th><th>Study subject</th><th>Chapter</th><th>Actions</th></tr></thead>
+        <tbody>
+        @foreach (var item in result.Items)
+        {
+            <tr>
+                <td>@item.QuestionText</td>
+                <td>@(item.StudySubjectId.HasValue && subjects.TryGetValue(item.StudySubjectId.Value, out var subjectName) ? subjectName : "Unassigned")</td>
+                <td>@item.ChapterNumber</td>
+                <td><a asp-action="Edit" asp-route-id="@item.Id">Edit</a> | <a asp-action="Delete" asp-route-id="@item.Id">Delete</a></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    <nav aria-label="Question pages">
+        <ul class="pagination">
+            @if (search.PageNumber > 1)
+            {
+                <li class="page-item"><a class="page-link" asp-action="Index" asp-route-page="1" asp-route-pageSize="@search.PageSize" asp-route-studySubjectId="@search.StudySubjectId" asp-route-chapterNumber="@search.ChapterNumber">First</a></li>
+                <li class="page-item"><a class="page-link" asp-action="Index" asp-route-page="@(search.PageNumber - 1)" asp-route-pageSize="@search.PageSize" asp-route-studySubjectId="@search.StudySubjectId" asp-route-chapterNumber="@search.ChapterNumber">Previous</a></li>
+            }
+            @for (var number = Math.Max(1, search.PageNumber - 2); number <= Math.Min(result.TotalPages, search.PageNumber + 2); number++)
+            {
+                if (number == search.PageNumber)
+                {
+                    <li class="page-item active"><span class="page-link" aria-current="page">@number</span></li>
+                }
+                else
+                {
+                    <li class="page-item"><a class="page-link" asp-action="Index" asp-route-page="@number" asp-route-pageSize="@search.PageSize" asp-route-studySubjectId="@search.StudySubjectId" asp-route-chapterNumber="@search.ChapterNumber">@number</a></li>
+                }
+            }
+            @if (search.PageNumber < result.TotalPages)
+            {
+                <li class="page-item"><a class="page-link" asp-action="Index" asp-route-page="@(search.PageNumber + 1)" asp-route-pageSize="@search.PageSize" asp-route-studySubjectId="@search.StudySubjectId" asp-route-chapterNumber="@search.ChapterNumber">Next</a></li>
+                <li class="page-item"><a class="page-link" asp-action="Index" asp-route-page="@result.TotalPages" asp-route-pageSize="@search.PageSize" asp-route-studySubjectId="@search.StudySubjectId" asp-route-chapterNumber="@search.ChapterNumber">Last</a></li>
+            }
+        </ul>
+    </nav>
+    <p>Page @search.PageNumber of @result.TotalPages</p>
+}

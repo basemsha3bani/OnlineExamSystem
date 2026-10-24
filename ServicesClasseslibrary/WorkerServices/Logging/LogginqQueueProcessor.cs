@@ -20,13 +20,8 @@ namespace ServicesClasseslibrary.WorkerServices.Logging
 
         public void  QueueLogMessage(string Message,EventLogLevel eventLogLevel)
         {
-            Task.Run(async () =>
-                await _loggingQueue.Enqueue(new LogEntry
-                {
-                    Message = Message,
-                    EventLogLevel = EventLogLevel.Informational,
-                })
-             );
+            // Enqueue only buffers locally; observe failures instead of abandoning a Task.
+            _loggingQueue.Enqueue(new LogEntry { Message = Message, EventLogLevel = eventLogLevel }).GetAwaiter().GetResult();
         }
     }
 }

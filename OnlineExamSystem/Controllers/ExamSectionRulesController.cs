@@ -1,50 +1,61 @@
-﻿using DataModel;
+using DataModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using ServicesClasseslibrary;
 using ServicesClasseslibrary.Interface;
-using ServicesClasseslibrary.Interface.Builder;
-using ServicesClasseslibrary.Interface.DataModel;
-
 namespace OnlineExamSystem.Controllers
 {
     public class ExamSectionRulesController : Controller
     {
-        private readonly IExamService _examService;
-        private readonly IDifficultyLevelsService _difficultyLevelsService;
-       
-
-        public ExamSectionRulesController(IExamService examService, IStudySubjectsService subjectService, IDifficultyLevelsService difficultyLevelsService,IExamBuilder examBuilder)
+        private readonly IExamService exams;
+        private readonly IExamSectionService sections;
+        private readonly IDifficultyLevelsService difficulties;
+        public ExamSectionRulesController(IExamService exams, IExamSectionService sections, IDifficultyLevelsService difficulties)
+        { this.exams = exams; this.sections = sections; this.difficulties = difficulties; }
+        public IActionResult Index(int sectionId)
         {
-            _examService = examService;
-            
-            _difficultyLevelsService = difficultyLevelsService;
-            
+            var section = sections.GetById(sectionId);
+            if (section == null) return NotFound();
+            ViewBag.Section = section;
+            return View(exams.GetSectionRules(sectionId));
         }
-
-        public ActionResult Index(int sectionId, int examId)
-        {
-           
-            var rules = _examService.GetSectionRules(sectionId);
-            ViewBag.SectionId = sectionId;
-            ViewBag.ExamId = examId;
-           
-            return View(rules);
-        }
-
-        [HttpGet]
+        private void Options() => ViewBag.difficultyLevels = new SelectList(difficulties.list(), "Id", "DifficultyLevelName");
         public IActionResult Create(int sectionId)
         {
-            ExamSectionRulesDataModel examSectionRules= new ExamSectionRulesDataModel();
-            examSectionRules.SectionId = sectionId;
-            ViewBag.difficultyLevels = new SelectList(_difficultyLevelsService.list(), "Id", "DifficultyLevelName");
-            return View(examSectionRules);
+            if (sections.GetById(sectionId) == null) return NotFound();
+            Options();
+            return View(new ExamSectionRulesDataModel { SectionId = sectionId });
         }
-        [HttpPost]
+        [HttpPost, ValidateAntiForgeryToken]
         public IActionResult Create(ExamSectionRulesDataModel model)
         {
-            _examService.AddSectionRule(model);
-            return RedirectToAction("Index", new { sectionId = model.SectionId });
+            if (sections.GetById(model.SectionId) == null) return NotFound();
+            model.Id = 0;
+            if (ModelState.IsValid)
+            {
+                try { exams.AddSectionRule(model); return RedirectToAction("Index", new { sectionId = model.SectionId }); }
+                catch (Domain.Exceptions.DomainException ex) { ModelState.AddModelError("", ex.Message); }
+            }
+            Options(); return View(model);
+        }
+        public IActionResult Edit(int id)
+        {
+            var model = exams.GetSectionRule(id);
+            if (model == null) return NotFound();
+            Options(); return View(model);
+        }
+        [HttpPost, ValidateAntiForgeryToken]
+        public IActionResult Edit(int id, ExamSectionRulesDataModel model)
+        {
+            var current = exams.GetSectionRule(id);
+            if (current == null || id != model.Id) return NotFound();
+            model.SectionId = current.SectionId;
+            if (ModelState.IsValid)
+            {
+                try { exams.EditSectionRule(model); return RedirectToAction("Index", new { sectionId = model.SectionId }); }
+                catch (Domain.Exceptions.DomainException ex) { ModelState.AddModelError("", ex.Message); }
+            }
+            Options(); return View(model);
         }
     }
 }
