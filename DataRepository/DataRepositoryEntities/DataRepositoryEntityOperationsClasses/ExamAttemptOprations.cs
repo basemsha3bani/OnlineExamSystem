@@ -1,6 +1,8 @@
-﻿using AutoMapper;
-using DataModel;
-using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
+using Domain.Entities;
+using Domain.Aggregates;
+using AutoMapper;
+using Domain.DTOs;
+using ServicesClasseslibrary.Interface.DataRepository;
 using DataRepository.GateWay;
 using System;
 using System.Collections.Generic;
@@ -11,21 +13,21 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
     public class ExamAttemptOprations : IExamAttemptOprations
     {
 
-        private readonly ContextGateway<ExaminerAttempt> gateway;
+        private readonly ContextGateway<ExamAttempt> gateway;
         private readonly IMapper mapper;
-        public ExamAttemptOprations(ContextGateway<ExaminerAttempt> gateway, IMapper mapper)
+        public ExamAttemptOprations(ContextGateway<ExamAttempt> gateway, IMapper mapper)
         { this.gateway = gateway; this.mapper = mapper; }
        
        
-        public int Add(ExamAttemptDataModel model) 
+        public int Add(ExamAttemptDTO model)
         {
-            ExaminerAttempt entity = mapper.Map<ExaminerAttempt>(model);
+            ExamAttempt entity = mapper.Map<ExamAttempt>(model);
 
             gateway.Add(entity);
             gateway.SaveChanges();
             return entity.Id;
         }
-        public async Task Edit(ExamAttemptDataModel model)
+        public async Task Edit(ExamAttemptDTO model)
         {
             var entity = gateway.GetById(e => e.Id == model.Id) ?? throw new InvalidOperationException("Difficulty level not found.");
             mapper.Map(model, entity); await gateway.SaveChangesAsync();
@@ -36,20 +38,20 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
             if (entity == null) return;
             gateway.Delete(entity); gateway.SaveChanges();
         }
-        public ExamAttemptDataModel GetById(int id) => mapper.Map<ExamAttemptDataModel>(gateway.GetById(e => e.Id == id));
-        public List<ExamAttemptDataModel> listByUser(int userId) => mapper.Map<List<ExamAttemptDataModel>>(gateway.List(l=>l.UserId==userId));
+        public ExamAttemptDTO GetById(int id) => mapper.Map<ExamAttemptDTO>(gateway.GetById(e => e.Id == id));
+        public List<ExamAttemptDTO> listByUser(int userId) => mapper.Map<List<ExamAttemptDTO>>(gateway.List(l=>l.UserId==userId));
 
-        public ExamAttemptDataModel CheckIfAttemptSubmitted(int id)
+        public ExamAttemptDTO CheckIfAttemptSubmitted(int id)
         {
-            ExaminerAttempt attempt = gateway.GetById(e => e.Id == id);
-            return attempt.Status == "Submitted" ? mapper.Map<ExamAttemptDataModel>(attempt) : null;
+            ExamAttempt attempt = gateway.GetById(e => e.Id == id);
+            return attempt.Status == "Submitted" ? mapper.Map<ExamAttemptDTO>(attempt) : null;
         }
 
         
 
-        public List<ExamAttemptDataModel> listSubmitted()
+        public List<ExamAttemptDTO> listSubmitted()
         {
-           return mapper.Map<List<ExamAttemptDataModel>>(gateway.List(l=> l.Status == "Submitted"));
+           return mapper.Map<List<ExamAttemptDTO>>(gateway.List(l=> l.Status == "Submitted"));
         }
     }
 }

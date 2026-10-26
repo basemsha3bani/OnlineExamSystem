@@ -1,14 +1,15 @@
+using Domain.Entities;
+using Domain.Aggregates;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
 using DataRepository.GateWay;
-using DataRepository.DataRepositoryEntities;
 using DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses;
 using Microsoft.EntityFrameworkCore;
 using ServicesClasseslibrary.Examiner;
-using ServicesClasseslibrary.Implmentation.Builder;
+using DataRepository.Builders;
 
 // Uses a uniquely named, disposable LocalDB database; never uses the application's database.
 class Program
@@ -32,18 +33,18 @@ class Program
             using (var db = new DbConext())
             {
                 db.Database.EnsureCreated();
-                var subject = new StudySubject { SubjectName = "Flow test" };
-                var level = new DifficultyLevels { DifficultyLevelName = "Easy" };
+                var subject = StudySubject.Define( SubjectName: "Flow test" );
+                var level = DifficultyLevels.Define( DifficultyLevelName: "Easy" );
                 db.Add(subject); db.Add(level); db.SaveChanges();
-                var exam = new Exams { Title = "Flow test", StudySubjectId = subject.Id, TotalMarks = 999 };
+                var exam = Exam.Define( Title: "Flow test", StudySubjectId: subject.Id, TotalMarks: 999 );
                 db.Add(exam); db.SaveChanges();
                 for (int i = 0; i < 2; i++)
                 {
-                    var section = new ExamSections { ExamId = exam.Id, SectionName = "Section " + i, Percentage = 90 };
+                    var section = ExamSections.Define( ExamId: exam.Id, SectionName: "Section " + i, Percentage: 90 );
                     db.Add(section); db.SaveChanges();
-                    db.Add(new ExamSectionRules { SectionId = section.Id, DifficultyLevelId = level.Id, NoOfQuestions = 1 });
-                    db.Add(new Questions { QuestionText = "Question " + i, StudySubjectId = subject.Id, DifficultyLevelId = level.Id,
-                        QuestionAnswers = new List<QuestionAnswers> { new QuestionAnswers { AnswerText = "Yes", IsCorrect = true }, new QuestionAnswers { AnswerText = "No" } } });
+                    db.Add(ExamSectionRules.Define( SectionId: section.Id, DifficultyLevelId: level.Id, NoOfQuestions: 1 ));
+                    db.Add(Questions.Define( QuestionText: "Question " + i, StudySubjectId: subject.Id, DifficultyLevelId: level.Id,
+                        QuestionAnswers: new List<QuestionAnswers> { QuestionAnswers.Define( AnswerText: "Yes", IsCorrect: true ), QuestionAnswers.Define( AnswerText: "No" ) } ));
                 }
                 db.SaveChanges();
             }
@@ -96,10 +97,10 @@ class Program
             int retryId;
             using (var db = new DbConext())
             {
-                db.ExaminerAttempts.Add(new ExaminerAttempt { UserId = 99, ExamId = examId, ExamTitle = "Broken snapshot",
-                    SnapshotJson = "broken", Status = "Submitted", StartedAt = DateTime.UtcNow, SubmittedAt = DateTime.UtcNow.AddMinutes(-1), TotalQuestions = 2 });
-                var retry = new ExaminerAttempt { UserId = 99, ExamId = examId, ExamTitle = "Valid queued attempt",
-                    SnapshotJson = attempt.SnapshotJson, Status = "Submitted", StartedAt = DateTime.UtcNow, SubmittedAt = DateTime.UtcNow, TotalQuestions = 2 };
+                db.ExaminerAttempts.Add(ExamAttempt.Define( UserId: 99, ExamId: examId, ExamTitle: "Broken snapshot",
+                    SnapshotJson: "broken", Status: "Submitted", StartedAt: DateTime.UtcNow, SubmittedAt: DateTime.UtcNow.AddMinutes(-1), TotalQuestions: 2 ));
+                var retry = ExamAttempt.Define( UserId: 99, ExamId: examId, ExamTitle: "Valid queued attempt",
+                    SnapshotJson: attempt.SnapshotJson, Status: "Submitted", StartedAt: DateTime.UtcNow, SubmittedAt: DateTime.UtcNow, TotalQuestions: 2 );
                 db.ExaminerAttempts.Add(retry);
                 db.SaveChanges();
                 retryId = retry.Id;

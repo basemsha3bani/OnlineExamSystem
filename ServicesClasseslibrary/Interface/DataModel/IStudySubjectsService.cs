@@ -1,14 +1,14 @@
-﻿using DataModel;
+﻿using Domain.DTOs;
 using System.Collections.Generic;
 
 namespace ServicesClasseslibrary.Interface.DataModel
 {
     public interface IStudySubjectsService
     {
-        void Add(StudySubjectDataModel model);
-        void Edit(StudySubjectDataModel model);
+        void Add(StudySubjectDTO model);
+        void Edit(StudySubjectDTO model);
         void Delete(int id);
-        StudySubjectDataModel GetById(int id);
-        List<StudySubjectDataModel> list();
+        StudySubjectDTO GetById(int id);
+        List<StudySubjectDTO> list();
     }
 }

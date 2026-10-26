@@ -1,4 +1,4 @@
-﻿using DataModel;
+﻿using Domain.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,16 +7,16 @@ namespace ServicesClasseslibrary
 {
    public interface IExamTypesDetailsService
     {
-        void Add(ExamTypesDetailsDataModel examTypesDetails);
-        void Edit(ExamTypesDetailsDataModel examTypesDetails);
+        void Add(ExamTypesDetailsDTO examTypesDetails);
+        void Edit(ExamTypesDetailsDTO examTypesDetails);
 
 
 
         void Delete(int id);
 
 
-        ExamTypesDetailsDataModel GetById(int id);
+        ExamTypesDetailsDTO GetById(int id);
 
-        List<ExamTypesDetailsDataModel> list();
+        List<ExamTypesDetailsDTO> list();
     }
 }

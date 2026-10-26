@@ -1,7 +1,7 @@
-using DataModel;
-using DataRepository.DataRepositoryEntities;
-using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
-using DataRepository.GateWay;
+using Domain.Entities;
+using Domain.Aggregates;
+using Domain.DTOs;
+using ServicesClasseslibrary.Interface.DataRepository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ServicesClasseslibrary.Implmentation.Builder;
@@ -30,65 +30,33 @@ namespace ServicesClasseslibrary.InterfaceImplmentation.Examiner
         public int Start(int examId, int userId)
         {
             var sections = examSectionsOperations.List(examId);
-            if (sections.Count == 0) throw new InvalidOperationException("The selected exam does not exist.");
            
             var selectedBySection = builder.BuildExamAttemptQuestions(examId, sections);
-            var snapshot = new AttemptSnapshot();
-            foreach (var section in sections)
-            {
-                var savedSection = new AttemptSection { Name = section.SectionName };
-                var selected = selectedBySection[section.Id];
-                foreach (var question in selected)
-                {
-                    if (question.QuestionAnswersDataModel == null || question.QuestionAnswersDataModel.Count(a => a.IsCorrect) != 1)
-                        throw new InvalidOperationException("Each question must have exactly one correct answer.");
-                    savedSection.Questions.Add(new AttemptQuestion { Id = question.Id, Text = question.QuestionText,
-                        Options = question.QuestionAnswersDataModel.Select(a => new AttemptOption {
-                            Id = a.Id, Text = a.AnswerText, IsCorrect = a.IsCorrect }).ToList() });
-                }
-                if (savedSection.Questions.Count == 0) throw new InvalidOperationException("Each exam section must contain configured questions.");
-                snapshot.Sections.Add(savedSection);
-            }
-            if (!snapshot.Questions.Any()) throw new InvalidOperationException("This exam has no configured questions.");
-            var attempt = new ExamAttemptDataModel { ExamId = examId, UserId = userId, ExamTitle = sections.First().exam.Title,
-                StartedAt = DateTime.UtcNow, TotalQuestions = snapshot.Questions.Count(), SnapshotJson = JsonSerializer.Serialize(snapshot) };
-           int attemptId= examAttemptOprations.Add(attempt);
+            var attempt = ExamAttempt.Start(examId, userId, sections, selectedBySection);
+           int attemptId = examAttemptOprations.Add(attempt.ToDTO());
            
             return attemptId;
         }
 
-        public ExamAttemptDataModel Get(int id)
+        public ExamAttemptDTO Get(int id)
         {
 
             return examAttemptOprations.GetById(id);
         }
-        public List<ExamAttemptDataModel> List(int userId)
+        public List<ExamAttemptDTO> List(int userId)
         {
 
             return examAttemptOprations.listByUser(userId);
         }
-        public static AttemptSnapshot Read(ExamAttemptDataModel attempt) => JsonSerializer.Deserialize<AttemptSnapshot>(attempt.SnapshotJson);
+        public static AttemptSnapshotDTO Read(ExamAttemptDTO attempt) => ExamAttempt.Read(attempt);
 
         public async Task Save(int id,  int sectionIndex, Dictionary<int, int?> answers, bool submit)
         {
            
-            var attempt = examAttemptOprations.GetById(id);
-            if (attempt == null) throw new InvalidOperationException("Attempt not found.");
-            if (attempt.Status != "InProgress") return; // Repeated submission cannot change answers.
-            var snapshot = Read(attempt);
-            if (sectionIndex < 0 || sectionIndex >= snapshot.Sections.Count) throw new InvalidOperationException("Invalid section.");
-            var questions = snapshot.Sections[sectionIndex].Questions;
-            if (answers.Keys.Any(idValue => questions.All(q => q.Id != idValue))) throw new InvalidOperationException("Invalid question.");
-            foreach (var question in questions)
-            {
-                answers.TryGetValue(question.Id, out var selected);
-                if (selected.HasValue && question.Options.All(o => o.Id != selected.Value)) throw new InvalidOperationException("Invalid answer.");
-                question.SelectedOptionId = selected;
-            }
-            attempt.SnapshotJson = JsonSerializer.Serialize(snapshot);
-            if (submit) { attempt.Status = "Submitted"; attempt.SubmittedAt = DateTime.UtcNow; }
+            var attempt = ExamAttempt.Restore(examAttemptOprations.GetById(id));
+            if (!attempt.SaveAnswers(sectionIndex, answers, submit)) return;
             // Submitted rows are the durable queue; answers and enqueue are one atomic write.
-           await examAttemptOprations.Edit(attempt);
+           await examAttemptOprations.Edit(attempt.ToDTO());
         }
 
         public async Task<List<Tuple<int, int,decimal>>> EvaluatePending(Action<int, Exception> onFailure = null)
@@ -105,14 +73,11 @@ namespace ServicesClasseslibrary.InterfaceImplmentation.Examiner
                 try
                 {
                   
-                    var attempt = examAttemptOprations.CheckIfAttemptSubmitted(id);
-                    if (attempt == null) continue;
-                    var snapshot = Read(attempt);
-                    attempt.CorrectQuestions = AttemptScoring.CountCorrect(snapshot);
-                    attempt.Score = AttemptScoring.Ratio(attempt.CorrectQuestions.Value, attempt.TotalQuestions);
-                    attempt.EvaluatedAt = DateTime.UtcNow;
-                    attempt.Status = "Scored";
-                   await examAttemptOprations.Edit(attempt);
+                    var pendingAttempt = examAttemptOprations.CheckIfAttemptSubmitted(id);
+                    if (pendingAttempt == null) continue;
+                    var attempt = ExamAttempt.Restore(pendingAttempt);
+                    attempt.Evaluate();
+                   await examAttemptOprations.Edit(attempt.ToDTO());
                     evaluatedTuple = new Tuple<int,int,decimal>(id,attempt.UserId,attempt.Score.Value);
                     evaluatedTuples.Add(evaluatedTuple);
                 }

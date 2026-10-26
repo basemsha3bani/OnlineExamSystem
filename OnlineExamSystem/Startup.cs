@@ -1,6 +1,8 @@
+using DataRepository;
 using DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses;
-using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
 using DataRepository.GateWay;
+using Domain.Aggregates;
+using Domain.Entities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -8,11 +10,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using OnlineExamSystem.Models;
 using ServicesClasseslibrary;
 using ServicesClasseslibrary.Implmentation.Builder;
 using ServicesClasseslibrary.Interface;
 using ServicesClasseslibrary.Interface.Builder;
 using ServicesClasseslibrary.Interface.DataModel;
+using ServicesClasseslibrary.Interface.DataRepository;
 using ServicesClasseslibrary.WorkerServices.ExamEvaluation;
 using System;
 using System.Collections.Generic;
@@ -33,20 +37,22 @@ namespace OnlineExamSystem
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<DbConext>(options => options.UseSqlServer(Configuration.GetConnectionString("DbCoreConnectionString")));
-            services.AddDbContextFactory<DbConext>(options => options.UseSqlServer(Configuration.GetConnectionString("DbCoreConnectionString")), ServiceLifetime.Scoped);
+            services.AddDbContext<DbConext>();
+            services.AddDbContextFactory<DbConext>(options => { },ServiceLifetime.Scoped);
             services.AddDistributedMemoryCache();
 
-            services.AddControllersWithViews();
+            services.AddControllersWithViews(options =>
+            {
+                options.ModelBinderProviders.Insert(0, new OnlineExamSystem.Models.DtoModelBinderProvider());
+                options.Filters.Add<GeneralAthorizationFilter>();
+            });
 
-            // 2. ADD THIS
-         
-            services.AddControllersWithViews();
             services.AddSession(options => {
                 options.IdleTimeout = TimeSpan.FromMinutes(60);
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
             });
+            services.AddDataRepository();
             services.AddServiceClasses();
         }
 

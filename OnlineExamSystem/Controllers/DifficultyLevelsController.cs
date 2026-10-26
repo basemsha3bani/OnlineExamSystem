@@ -1,3 +1,5 @@
+using Domain.Entities;
+using Domain.Aggregates;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,16 +7,15 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using DataRepository.DataRepositoryEntities;
 using DataRepository.GateWay;
-using DataModel;
+using Domain.DTOs;
 using ServicesClasseslibrary.Interface;
 using Microsoft.Extensions.Caching.Distributed;
 using System.Text.Json;
 
 namespace OnlineExamSystem.Controllers
 {
-    public class DifficultyLevelsController : Controller
+    public class DifficultyLevelsController:Controller
     {
        
         private readonly IDifficultyLevelsService _difficultyLevelsService;
@@ -34,7 +35,7 @@ namespace OnlineExamSystem.Controllers
             const string key = "lookup:subjects";
             var cached = await _cache.GetStringAsync(key);
             if (cached != null) return 
-                    View( JsonSerializer.Deserialize<List<DifficultyLevelsDataModel>>(cached));
+                    View( JsonSerializer.Deserialize<List<DifficultyLevelsDTO>>(cached));
             var data= _difficultyLevelsService.list();
             await _cache.SetStringAsync(key, JsonSerializer.Serialize(data),
            new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(24) });
@@ -55,12 +56,18 @@ namespace OnlineExamSystem.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(DifficultyLevelsDataModel difficultyLevels)
+        public async Task<IActionResult> Create(DifficultyLevelsDTO difficultyLevels)
         {
             if (ModelState.IsValid)
             {
-                _difficultyLevelsService.Add(difficultyLevels);
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    _difficultyLevelsService.Add(difficultyLevels);
+                    const string key = "lookup:subjects";
+                    await _cache.RemoveAsync(key);
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Domain.Exceptions.DomainException ex) { ModelState.AddModelError("", ex.Message); }
             }
             return View(difficultyLevels);
         }
@@ -86,7 +93,7 @@ namespace OnlineExamSystem.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id,DifficultyLevelsDataModel difficultyLevels)
+        public async Task<IActionResult> Edit(int id,DifficultyLevelsDTO difficultyLevels)
         {
             if (id != difficultyLevels.Id)
             {
@@ -98,6 +105,13 @@ namespace OnlineExamSystem.Controllers
                 try
                 {
                     _difficultyLevelsService.Edit(difficultyLevels);
+                    const string key = "lookup:subjects";
+                    await _cache.RemoveAsync(key);
+                }
+                catch (Domain.Exceptions.DomainException ex)
+                {
+                    ModelState.AddModelError("", ex.Message);
+                    return View(difficultyLevels);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -135,9 +149,11 @@ namespace OnlineExamSystem.Controllers
         // POST: DifficultyLevels/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
             _difficultyLevelsService.Delete((int)id);
+            const string key = "lookup:subjects";
+            await _cache.RemoveAsync(key);
             return RedirectToAction(nameof(Index));
         }
 

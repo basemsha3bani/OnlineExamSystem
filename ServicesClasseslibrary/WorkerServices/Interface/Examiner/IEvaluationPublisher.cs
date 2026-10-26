@@ -1,4 +1,4 @@
-﻿using DataModel;
+﻿using Domain.DTOs;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

@@ -1,6 +1,8 @@
+using Domain.Entities;
+using Domain.Aggregates;
 using AutoMapper;
-using DataModel;
-using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
+using Domain.DTOs;
+using ServicesClasseslibrary.Interface.DataRepository;
 using DataRepository.GateWay;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -15,48 +17,45 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
         private readonly IMapper mapper;
         public QuestionsOperations(ContextGateway<Questions> gateway, IMapper mapper)
         { this.gateway = gateway; this.mapper = mapper; }
-        public void Add(QuestionsDataModel model)
+        public void Add(QuestionsDTO model)
         {
             ValidateAnswers(model);
             var question = mapper.Map<Questions>(model);
-            question.Id = 0;
-            question.QuestionAnswers = mapper.Map<List<QuestionAnswers>>(model.QuestionAnswersDataModel);
-            foreach (var answer in question.QuestionAnswers) { answer.Id = 0; answer.QuestionId = 0; }
+            question.ChangeId(0);
+            question.ChangeQuestionAnswers(mapper.Map<List<QuestionAnswers>>(model.QuestionAnswersDTO));
+            foreach (var answer in question.QuestionAnswers) { answer.ChangeId(0); answer.ChangeQuestionId(0); }
             gateway.Add(question);
             gateway.SaveChanges();
         }
-        public void Edit(QuestionsDataModel model)
+        public void Edit(QuestionsDTO model)
         {
             ValidateAnswers(model);
             var question = gateway.GetById(q => q.Id == model.Id, q => q.QuestionAnswers)
                 ?? throw new InvalidOperationException("Question not found.");
-            if (model.QuestionAnswersDataModel.Where(a => a.Id != 0).GroupBy(a => a.Id).Any(g => g.Count() > 1)
-                || model.QuestionAnswersDataModel.Any(a => a.Id != 0 && question.QuestionAnswers.All(e => e.Id != a.Id)))
-                throw new InvalidOperationException("Invalid answer identity.");
+            question.CheckAnswerIdentities(model.QuestionAnswersDTO);
             mapper.Map(model, question);
             foreach (var old in question.QuestionAnswers.ToList())
-                if (model.QuestionAnswersDataModel.All(a => a.Id != old.Id)) question.QuestionAnswers.Remove(old);
-            foreach (var incoming in model.QuestionAnswersDataModel)
+                if (model.QuestionAnswersDTO.All(a => a.Id != old.Id)) question.QuestionAnswers.Remove(old);
+            foreach (var incoming in model.QuestionAnswersDTO)
             {
                 var answer = incoming.Id == 0 ? null : question.QuestionAnswers.Single(a => a.Id == incoming.Id);
                 if (answer == null)
                 {
                     answer = mapper.Map<QuestionAnswers>(incoming);
-                    answer.QuestionId = question.Id;
+                    answer.ChangeQuestionId(question.Id);
                     question.QuestionAnswers.Add(answer);
                 }
                 else
                 {
                     mapper.Map(incoming, answer);
-                    answer.QuestionId = question.Id;
+                    answer.ChangeQuestionId(question.Id);
                 }
             }
             gateway.SaveChanges();
         }
-        private void ValidateAnswers(QuestionsDataModel model)
+        private void ValidateAnswers(QuestionsDTO model)
         {
-            if (model.QuestionAnswersDataModel == null || model.QuestionAnswersDataModel.Count(a => a.IsCorrect) != 1)
-                throw new InvalidOperationException("Each question must have exactly one correct answer.");
+            Questions.CheckAnswers(model.QuestionAnswersDTO);
         }
         public void Delete(int id)
         {
@@ -64,23 +63,23 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
             if (question == null) return;
             gateway.Delete(question); gateway.SaveChanges();
         }
-        public QuestionsDataModel GetById(int id) => mapper.Map<QuestionsDataModel>(gateway.GetById(q => q.Id == id, q => q.QuestionAnswers));
-        public QuestionPage Search(QuestionSearch search)
+        public QuestionsDTO GetById(int id) => mapper.Map<QuestionsDTO>(gateway.GetById(q => q.Id == id, q => q.QuestionAnswers));
+        public QuestionPageDTO Search(QuestionSearchDTO search)
         {
             var query = QuestionSearchQuery.Filter(gateway.Query.AsNoTracking(), search);
             var total = query.Count();
-            var actual = new QuestionSearch(search.StudySubjectId, search.ChapterNumber, search.PageFor(total), search.PageSize);
-            return new QuestionPage {
-                Search = actual, TotalCount = total,
-                Items = QuestionSearchQuery.Page(query, actual).Select(q => new QuestionsDataModel {
-                    Id = q.Id, QuestionText = q.QuestionText, StudySubjectId = q.StudySubjectId,
-                    ChapterNumber = q.ChapterNumber, DifficultyLevelId = q.DifficultyLevelId }).ToList()
-            };
+            var actual = QuestionSearchDTO.Define(search.StudySubjectId, search.ChapterNumber, search.PageFor(total), search.PageSize);
+            return QuestionPageDTO.Define(
+                Search: actual, TotalCount: total,
+                Items: QuestionSearchQuery.Page(query, actual).AsEnumerable().Select(q => QuestionsDTO.Define(
+                    Id: q.Id, QuestionText: q.QuestionText, StudySubjectId: q.StudySubjectId,
+                    ChapterNumber: q.ChapterNumber, DifficultyLevelId: q.DifficultyLevelId )).ToList()
+            );
         }
-        public List<QuestionsDataModel> list() => mapper.Map<List<QuestionsDataModel>>(gateway.List(null, q => q.QuestionAnswers));
-        public List<QuestionsDataModel> GetRandomQuestions(int studySubjectId, ExamSectionRulesDataModel rule)
+        public List<QuestionsDTO> list() => mapper.Map<List<QuestionsDTO>>(gateway.List(null, q => q.QuestionAnswers));
+        public List<QuestionsDTO> GetRandomQuestions(int studySubjectId, ExamSectionRulesDTO rule)
         {
-            return mapper.Map<List<QuestionsDataModel>>(gateway.Query.AsNoTracking().Include(q => q.QuestionAnswers)
+            return mapper.Map<List<QuestionsDTO>>(gateway.Query.AsNoTracking().Include(q => q.QuestionAnswers)
                 .Where(q => q.StudySubjectId == studySubjectId && q.DifficultyLevelId == rule.DifficultyLevelId)
                 .OrderBy(q => Guid.NewGuid()).Take(rule.NoOfQuestions).ToList());
         }

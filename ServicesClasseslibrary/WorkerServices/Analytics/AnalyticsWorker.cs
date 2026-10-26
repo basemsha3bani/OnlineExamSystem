@@ -1,4 +1,4 @@
-﻿using DataModel;
+﻿using Domain.DTOs;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -25,7 +25,7 @@ namespace ServicesClasseslibrary.WorkerServices.Analytics
         {
             while (!ct.IsCancellationRequested)
             {
-                if (_queue.TryDequeue(out AnalyticsJob job))
+                if (_queue.TryDequeue(out AnalyticsJobDTO job))
                 {
                     try
                     {

@@ -1,16 +1,20 @@
-﻿using DataModel;
-using DataRepository.DataRepositoryEntities;
+using Domain.Entities;
+using Domain.Aggregates;
+﻿using Domain.DTOs;
 using Microsoft.AspNetCore.DataProtection.KeyManagement.Internal;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using ServicesClasseslibrary.Interface;
 using System;
+using Microsoft.AspNetCore.Authorization;
 
 namespace OnlineExamSystem.Controllers
 {
+    [AllowAnonymous]
     public class AuthController : Controller
     {
+       
         IUserService _userService;
         public AuthController(IUserService userService)
         {
@@ -18,12 +22,13 @@ namespace OnlineExamSystem.Controllers
             _userService = userService;
         }
       
-        public IActionResult Login() => View(new LoginModel());
+        public IActionResult Login() => View(LoginDTO.Define());
+       
         [HttpPost]
-        public IActionResult Login(LoginModel m)
+        public IActionResult Login(LoginDTO m)
         {
             
-            m.Password = Hash(m.Password);
+            m.ChangePassword(Hash(m.Password));
             var userValid =///call userSerivces
                 _userService.Validate(m);
             if (userValid!=null)
@@ -36,11 +41,16 @@ namespace OnlineExamSystem.Controllers
         }
         public IActionResult Register() => View();
         [HttpPost]
-        public IActionResult Register(RegisterModel m)
+        public IActionResult Register(RegisterDTO m)
         {
-            m.Password = Hash(m.Password);
-            m.Role = "Examiner";
+            m.ChangePassword(Hash(m.Password));
+            m.ChangeRole("Examiner");
             _userService.Add(m);
+            return RedirectToAction("Login");
+        }
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear();
             return RedirectToAction("Login");
         }
         private string Hash(string password)

@@ -22,7 +22,7 @@ namespace DataRepository.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses.ExamSectionRules", b =>
+            modelBuilder.Entity("Domain.Entities.ExamSectionRules", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -48,7 +48,7 @@ namespace DataRepository.Migrations
                     b.ToTable("ExamSectionRules");
                 });
 
-            modelBuilder.Entity("DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses.ExamSections", b =>
+            modelBuilder.Entity("Domain.Entities.ExamSections", b =>
                 {
                     b.Property<int>("NumberOfQuestions").HasColumnType("int");
                     b.PrimitiveCollection<System.Collections.Generic.List<int>>("ChapterNumbers").IsRequired().HasColumnType("nvarchar(max)");
@@ -73,7 +73,7 @@ namespace DataRepository.Migrations
                     b.ToTable("ExamSections");
                 });
 
-            modelBuilder.Entity("DataRepository.DataRepositoryEntities.DifficultyLevels", b =>
+            modelBuilder.Entity("Domain.Entities.DifficultyLevels", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -89,7 +89,7 @@ namespace DataRepository.Migrations
                     b.ToTable("DifficultyLevels");
                 });
 
-            modelBuilder.Entity("DataRepository.DataRepositoryEntities.ExamTypes", b =>
+            modelBuilder.Entity("Domain.Entities.ExamTypes", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -113,7 +113,7 @@ namespace DataRepository.Migrations
                     b.ToTable("ExamTypes");
                 });
 
-            modelBuilder.Entity("DataRepository.DataRepositoryEntities.ExamTypesDetails", b =>
+            modelBuilder.Entity("Domain.Entities.ExamTypesDetails", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -137,7 +137,7 @@ namespace DataRepository.Migrations
                     b.ToTable("ExamTypesDetails");
                 });
 
-            modelBuilder.Entity("DataRepository.DataRepositoryEntities.ExaminerAttempt", b =>
+            modelBuilder.Entity("Domain.Aggregates.ExamAttempt", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -194,7 +194,7 @@ namespace DataRepository.Migrations
                     b.ToTable("ExaminerAttempts");
                 });
 
-            modelBuilder.Entity("DataRepository.DataRepositoryEntities.ExaminerPerformance", b =>
+            modelBuilder.Entity("Domain.Entities.ExaminerPerformance", b =>
                 {
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -231,7 +231,7 @@ namespace DataRepository.Migrations
                     b.ToTable("ExaminerPerformance");
                 });
 
-            modelBuilder.Entity("DataRepository.DataRepositoryEntities.Exams", b =>
+            modelBuilder.Entity("Domain.Aggregates.Exam", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -256,7 +256,7 @@ namespace DataRepository.Migrations
                     b.ToTable("Exams");
                 });
 
-            modelBuilder.Entity("DataRepository.DataRepositoryEntities.QuestionAnswers", b =>
+            modelBuilder.Entity("Domain.Entities.QuestionAnswers", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -280,7 +280,7 @@ namespace DataRepository.Migrations
                     b.ToTable("QuestionAnswers");
                 });
 
-            modelBuilder.Entity("DataRepository.DataRepositoryEntities.Questions", b =>
+            modelBuilder.Entity("Domain.Entities.Questions", b =>
                 {
                     b.Property<int>("ChapterNumber").HasColumnType("int");
                     b.Property<int>("Id")
@@ -305,7 +305,7 @@ namespace DataRepository.Migrations
                     b.ToTable("Questions");
                 });
 
-            modelBuilder.Entity("DataRepository.DataRepositoryEntities.StudySubject", b =>
+            modelBuilder.Entity("Domain.Aggregates.StudySubject", b =>
                 {
                     b.Property<int>("NumberOfChapters").HasColumnType("int");
                     b.Property<int>("Id")
@@ -322,7 +322,7 @@ namespace DataRepository.Migrations
                     b.ToTable("StudySubjects");
                 });
 
-            modelBuilder.Entity("DataRepository.DataRepositoryEntities.User", b =>
+            modelBuilder.Entity("Domain.Entities.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -344,15 +344,15 @@ namespace DataRepository.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses.ExamSectionRules", b =>
+            modelBuilder.Entity("Domain.Entities.ExamSectionRules", b =>
                 {
-                    b.HasOne("DataRepository.DataRepositoryEntities.DifficultyLevels", "difficultyLevel")
+                    b.HasOne("Domain.Entities.DifficultyLevels", "difficultyLevel")
                         .WithMany()
                         .HasForeignKey("DifficultyLevelId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses.ExamSections", "section")
+                    b.HasOne("Domain.Entities.ExamSections", "section")
                         .WithMany("examSectionRules")
                         .HasForeignKey("SectionId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -363,9 +363,9 @@ namespace DataRepository.Migrations
                     b.Navigation("section");
                 });
 
-            modelBuilder.Entity("DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses.ExamSections", b =>
+            modelBuilder.Entity("Domain.Entities.ExamSections", b =>
                 {
-                    b.HasOne("DataRepository.DataRepositoryEntities.Exams", "Exam")
+                    b.HasOne("Domain.Aggregates.Exam", "Exam")
                         .WithMany("Sections")
                         .HasForeignKey("ExamId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -374,9 +374,9 @@ namespace DataRepository.Migrations
                     b.Navigation("Exam");
                 });
 
-            modelBuilder.Entity("DataRepository.DataRepositoryEntities.ExamTypes", b =>
+            modelBuilder.Entity("Domain.Entities.ExamTypes", b =>
                 {
-                    b.HasOne("DataRepository.DataRepositoryEntities.DifficultyLevels", "DifficultyLevel")
+                    b.HasOne("Domain.Entities.DifficultyLevels", "DifficultyLevel")
                         .WithMany()
                         .HasForeignKey("DifficultyLevelId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -385,9 +385,9 @@ namespace DataRepository.Migrations
                     b.Navigation("DifficultyLevel");
                 });
 
-            modelBuilder.Entity("DataRepository.DataRepositoryEntities.ExamTypesDetails", b =>
+            modelBuilder.Entity("Domain.Entities.ExamTypesDetails", b =>
                 {
-                    b.HasOne("DataRepository.DataRepositoryEntities.DifficultyLevels", "DifficultyLevel")
+                    b.HasOne("Domain.Entities.DifficultyLevels", "DifficultyLevel")
                         .WithMany()
                         .HasForeignKey("DifficultyLevelId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -396,9 +396,9 @@ namespace DataRepository.Migrations
                     b.Navigation("DifficultyLevel");
                 });
 
-            modelBuilder.Entity("DataRepository.DataRepositoryEntities.ExaminerPerformance", b =>
+            modelBuilder.Entity("Domain.Entities.ExaminerPerformance", b =>
                 {
-                    b.HasOne("DataRepository.DataRepositoryEntities.User", "User")
+                    b.HasOne("Domain.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -407,9 +407,9 @@ namespace DataRepository.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("DataRepository.DataRepositoryEntities.Exams", b =>
+            modelBuilder.Entity("Domain.Aggregates.Exam", b =>
                 {
-                    b.HasOne("DataRepository.DataRepositoryEntities.StudySubject", "StudySubject")
+                    b.HasOne("Domain.Aggregates.StudySubject", "StudySubject")
                         .WithMany()
                         .HasForeignKey("StudySubjectId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -418,9 +418,9 @@ namespace DataRepository.Migrations
                     b.Navigation("StudySubject");
                 });
 
-            modelBuilder.Entity("DataRepository.DataRepositoryEntities.QuestionAnswers", b =>
+            modelBuilder.Entity("Domain.Entities.QuestionAnswers", b =>
                 {
-                    b.HasOne("DataRepository.DataRepositoryEntities.Questions", "Question")
+                    b.HasOne("Domain.Entities.Questions", "Question")
                         .WithMany("QuestionAnswers")
                         .HasForeignKey("QuestionId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -429,9 +429,9 @@ namespace DataRepository.Migrations
                     b.Navigation("Question");
                 });
 
-            modelBuilder.Entity("DataRepository.DataRepositoryEntities.Questions", b =>
+            modelBuilder.Entity("Domain.Entities.Questions", b =>
                 {
-                    b.HasOne("DataRepository.DataRepositoryEntities.DifficultyLevels", "DifficultyLevel")
+                    b.HasOne("Domain.Entities.DifficultyLevels", "DifficultyLevel")
                         .WithMany()
                         .HasForeignKey("DifficultyLevelId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -440,17 +440,17 @@ namespace DataRepository.Migrations
                     b.Navigation("DifficultyLevel");
                 });
 
-            modelBuilder.Entity("DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses.ExamSections", b =>
+            modelBuilder.Entity("Domain.Entities.ExamSections", b =>
                 {
                     b.Navigation("examSectionRules");
                 });
 
-            modelBuilder.Entity("DataRepository.DataRepositoryEntities.Exams", b =>
+            modelBuilder.Entity("Domain.Aggregates.Exam", b =>
                 {
                     b.Navigation("Sections");
                 });
 
-            modelBuilder.Entity("DataRepository.DataRepositoryEntities.Questions", b =>
+            modelBuilder.Entity("Domain.Entities.Questions", b =>
                 {
                     b.Navigation("QuestionAnswers");
                 });

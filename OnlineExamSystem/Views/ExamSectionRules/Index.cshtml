@@ -1,5 +1,5 @@
-@model List<DataModel.ExamSectionRulesDataModel>
-@{ var definition = (DataModel.ExamSectionsDataModel)ViewBag.Section; var total = Model.Sum(r => r.NoOfQuestions); }
+@model List<Domain.DTOs.ExamSectionRulesDTO>
+@{ var definition = (Domain.DTOs.ExamSectionsDTO)ViewBag.Section; var total = Model.Sum(r => r.NoOfQuestions); }
 <h3>@definition.SectionName - Rules</h3>
 <a asp-action="Create" asp-route-sectionId="@definition.Id" class="btn btn-primary">Add rule</a>
 <table class="table"><thead><tr><th>Difficulty</th><th>Number of questions</th><th></th></tr></thead><tbody>

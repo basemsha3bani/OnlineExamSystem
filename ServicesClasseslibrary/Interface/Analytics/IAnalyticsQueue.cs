@@ -1,4 +1,4 @@
-﻿using DataModel;
+﻿using Domain.DTOs;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +8,7 @@ namespace ServicesClasseslibrary.Interface.Analytics
 {
      public interface IAnalyticsQueue
     {
-        void Enqueue(AnalyticsJob job);
-        bool TryDequeue(out AnalyticsJob job);
+        void Enqueue(AnalyticsJobDTO job);
+        bool TryDequeue(out AnalyticsJobDTO job);
     }
 }

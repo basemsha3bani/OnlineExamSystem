@@ -1,4 +1,4 @@
-﻿using DataModel;
+﻿using Domain.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,7 +7,7 @@ namespace ServicesClasseslibrary
 {
     public class ExamTypesDetailsService : IExamTypesDetailsService
     {
-        public void Add(ExamTypesDetailsDataModel examTypesDetails)
+        public void Add(ExamTypesDetailsDTO examTypesDetails)
         {
             throw new NotImplementedException();
         }
@@ -17,17 +17,17 @@ namespace ServicesClasseslibrary
             throw new NotImplementedException();
         }
 
-        public void Edit(ExamTypesDetailsDataModel examTypesDetails)
+        public void Edit(ExamTypesDetailsDTO examTypesDetails)
         {
             throw new NotImplementedException();
         }
 
-        public ExamTypesDetailsDataModel GetById(int id)
+        public ExamTypesDetailsDTO GetById(int id)
         {
             throw new NotImplementedException();
         }
 
-        public List<ExamTypesDetailsDataModel> list()
+        public List<ExamTypesDetailsDTO> list()
         {
             throw new NotImplementedException();
         }

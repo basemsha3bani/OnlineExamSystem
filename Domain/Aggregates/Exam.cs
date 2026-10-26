@@ -1,42 +1,66 @@
 using Domain.Exceptions;
-namespace Domain.Aggregates;
-public sealed record SectionChapter(int ChapterNumber);
-public sealed record SectionDifficulty(Difficulty Difficulty, int Count);
-public sealed class ExamSection
+using Domain.DTOs;
+using Domain.Entities;
+using System.Collections.Generic;
+
+namespace Domain.Aggregates
 {
-    public int Id { get; }
-    public int NumberOfQuestions { get; }
-    public IReadOnlyList<SectionChapter> SectionChapters { get; }
-    public IReadOnlyList<SectionDifficulty> SectionDifficulties { get; }
-    public ExamSection(int id, int numberOfQuestions, IEnumerable<SectionChapter> chapters, IEnumerable<SectionDifficulty> difficulties)
+    public class Exam : Domain.Abstractions.IAggregateRoot
     {
-        ArgumentNullException.ThrowIfNull(chapters); ArgumentNullException.ThrowIfNull(difficulties);
-        var c = chapters.ToList(); var d = difficulties.ToList();
-        if (numberOfQuestions < 1 || c.Count == 0 || d.Count == 0 || c.Any(x => x is null) || d.Any(x => x is null || x.Count < 1 || x.Difficulty.Id < 1))
-            throw new DomainException("Sections require chapters and positive difficulty counts.");
-        if (d.Sum(x => (long)x.Count) != numberOfQuestions)
-            throw new DomainException("Difficulty counts must equal the section question count.");
-        if (c.Distinct().Count() != c.Count || d.Select(x => x.Difficulty).Distinct().Count() != d.Count)
-            throw new DomainException("Section chapters and difficulties must be unique.");
-        Id = id; NumberOfQuestions = numberOfQuestions;
-        SectionChapters = c.AsReadOnly(); SectionDifficulties = d.AsReadOnly();
-    }
-}
-public sealed class Exam
-{
-    public int Id { get; }
-    public int SubjectId => Subject.Id;
-    public StudySubject Subject { get; }
-    public IReadOnlyList<ExamSection> Sections { get; }
-    public Exam(int id, StudySubject subject, IEnumerable<ExamSection> sections)
-    {
-        ArgumentNullException.ThrowIfNull(subject); ArgumentNullException.ThrowIfNull(sections);
-        var items = sections.ToList();
-        foreach (var section in items)
+        public int Id { get; private set; }
+        public string Title { get; private set; }
+        public int StudySubjectId { get; private set; }
+
+        public decimal TotalMarks { get; private set; }
+
+        public StudySubject StudySubject { get; private set; }
+
+        public List<ExamSections> Sections { get; private set; } = new List<ExamSections>();
+
+        private Exam() { }
+        public static Exam Define(int Id = default, string Title = default, int StudySubjectId = default, decimal TotalMarks = default, StudySubject StudySubject = default, List<ExamSections> Sections = default)
         {
-            if (section is null) throw new DomainException("Section is required.");
-            foreach (var chapter in section.SectionChapters) subject.ValidateChapter(chapter.ChapterNumber);
+            var value = new Exam();
+            value.ChangeId(Id);
+            value.ChangeTitle(Title);
+            value.ChangeStudySubjectId(StudySubjectId);
+            value.ChangeTotalMarks(TotalMarks);
+            value.ChangeStudySubject(StudySubject);
+            value.Sections = Sections ?? new List<ExamSections>();
+            return value;
         }
-        Id = id; Subject = subject; Sections = items.AsReadOnly();
+        public void ChangeId(int value) => Id = EntityRules.NonNegative(value, "Id");
+        public void ChangeTitle(string value) => Title = EntityRules.Required(value, "Title");
+        public void ChangeStudySubjectId(int value) => StudySubjectId = EntityRules.NonNegative(value, "StudySubjectId");
+        public void ChangeTotalMarks(decimal value) => TotalMarks = value;
+        public void ChangeStudySubject(StudySubject value) => StudySubject = value;
+        public void ChangeSections(List<ExamSections> value) => Sections = value;
+
+        public static Domain.Aggregates.StudySubject CheckDefinition(ExamDTO model, StudySubjectDTO subject, IEnumerable<int> usedChapters)
+        {
+            EntityRules.Exists(subject, "Subject");
+            EntityRules.Required(model.Title, "Exam title");
+            var definition = global::Domain.Aggregates.StudySubject.Define(Id: subject.Id, SubjectName: subject.SubjectName, NumberOfChapters: subject.NumberOfChapters);
+           
+            return definition;
+        }
+        public void CheckSectionIdentities(IEnumerable<ExamSectionsDTO> requested)
+        {
+            if (requested.Any(s => s.Id != 0 && Sections.All(e => e.Id != s.Id)))
+            throw new DomainException("Invalid section identity.");
+        }
+
+        public void ValidateForAttempt()
+        {
+            EntityRules.Exists(StudySubject, "Subject");
+            if (StudySubjectId != StudySubject.Id) throw new DomainException("Exam subject does not match its definition.");
+            if (Sections == null || Sections.Count == 0) throw new DomainException("This exam has no configured sections.");
+            foreach (var section in Sections)
+            {
+                EntityRules.Exists(section, "Section");
+                section.ValidateForAttempt(StudySubject);
+            }
+        }
+
     }
 }

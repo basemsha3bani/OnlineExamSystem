@@ -1,11 +1,12 @@
-﻿using DataModel;
-using DataRepository.DataRepositoryEntities;
+using Domain.Entities;
+using Domain.Aggregates;
+﻿using Domain.DTOs;
 
 namespace ServicesClasseslibrary.Interface
 {
     public interface IUserService
     {
-        void Add(LoginModel user);
-        LoginModel Validate(LoginModel model);
+        void Add(LoginDTO user);
+        LoginDTO Validate(LoginDTO model);
     }
 }

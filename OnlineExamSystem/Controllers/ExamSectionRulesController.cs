@@ -1,4 +1,4 @@
-using DataModel;
+using Domain.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using ServicesClasseslibrary;
@@ -24,13 +24,13 @@ namespace OnlineExamSystem.Controllers
         {
             if (sections.GetById(sectionId) == null) return NotFound();
             Options();
-            return View(new ExamSectionRulesDataModel { SectionId = sectionId });
+            return View(ExamSectionRulesDTO.Define( SectionId: sectionId ));
         }
         [HttpPost, ValidateAntiForgeryToken]
-        public IActionResult Create(ExamSectionRulesDataModel model)
+        public IActionResult Create(ExamSectionRulesDTO model)
         {
             if (sections.GetById(model.SectionId) == null) return NotFound();
-            model.Id = 0;
+            model.ChangeId(0);
             if (ModelState.IsValid)
             {
                 try { exams.AddSectionRule(model); return RedirectToAction("Index", new { sectionId = model.SectionId }); }
@@ -45,11 +45,11 @@ namespace OnlineExamSystem.Controllers
             Options(); return View(model);
         }
         [HttpPost, ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, ExamSectionRulesDataModel model)
+        public IActionResult Edit(int id, ExamSectionRulesDTO model)
         {
             var current = exams.GetSectionRule(id);
             if (current == null || id != model.Id) return NotFound();
-            model.SectionId = current.SectionId;
+            model.ChangeSectionId(current.SectionId);
             if (ModelState.IsValid)
             {
                 try { exams.EditSectionRule(model); return RedirectToAction("Index", new { sectionId = model.SectionId }); }

@@ -1,6 +1,7 @@
-﻿using DataModel;
-using DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses;
-using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
+using Domain.Entities;
+using Domain.Aggregates;
+using Domain.DTOs;
+using ServicesClasseslibrary.Interface.DataRepository;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -17,24 +18,21 @@ namespace ServicesClasseslibrary.Implmentation.Builder
             this.exams = exams; this.subjects = subjects;
         }
 
-        public List<ExamSectionsDataModel> List(int examId) => _examSectionsOperations.List(examId);
-        public void Add(ExamSectionsDataModel m)
+        public List<ExamSectionsDTO> List(int examId) => _examSectionsOperations.List(examId);
+        public void Add(ExamSectionsDTO m)
         {
-            if (exams.GetById(m.ExamId) == null) throw new Domain.Exceptions.DomainException("Exam not found.");
-            Domain.Services.ExamConfiguration.ValidateSectionName(m.SectionName);
-            m.NumberOfQuestions = 0; m.ChapterNumbers = new List<int>(); m.ExamSectionRules = new List<ExamSectionRulesDataModel>();
+            ExamSections.CheckDraft(m, exams.GetById(m.ExamId));
+            m.ChangeNumberOfQuestions(0); m.ChangeChapterNumbers(new List<int>()); m.ChangeExamSectionRules(new List<ExamSectionRulesDTO>());
             _examSectionsOperations.Add(m);
         }
-        public ExamSectionsDataModel GetById(int id) => _examSectionsOperations.GeById(id);
-        public void Edit(ExamSectionsDataModel m)
+        public ExamSectionsDTO GetById(int id) => _examSectionsOperations.GeById(id);
+        public void Edit(ExamSectionsDTO m)
         {
-            var current = GetById(m.Id) ?? throw new Domain.Exceptions.DomainException("Section not found.");
-            m.ExamId = current.ExamId;
+            var current = GetById(m.Id);
+            m.ChangeExamId(ExamSections.ParentOf(current));
             var exam = exams.GetById(m.ExamId);
-            var row = subjects.GetById(exam.StudySubjectId);
-            var subject = new Domain.Aggregates.StudySubject(row.Id, row.SubjectName, row.NumberOfChapters);
-            Domain.Services.ExamConfiguration.ValidateSectionDraft(subject, m.SectionName, m.NumberOfQuestions, m.ChapterNumbers);
-            Domain.Services.ExamConfiguration.ValidateAllocation(m.NumberOfQuestions, current.ExamSectionRules.Select(r => new Domain.Aggregates.SectionDifficulty(new Domain.Aggregates.Difficulty(r.DifficultyLevelId), r.NoOfQuestions)));
+            var row = subjects.GetById(ExamSections.SubjectOf(exam));
+            ExamSections.CheckConfiguration(m, current, row);
             _examSectionsOperations.Edit(m);
         }
     }

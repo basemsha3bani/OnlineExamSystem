@@ -1,11 +1,12 @@
+using Domain.Entities;
+using Domain.Aggregates;
 using AutoMapper;
-using DataModel;
-using DataRepository.DataRepositoryEntities;
+using Domain.DTOs;
 using DataRepository.GateWay;
 using Domain.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.SqlClient;
-using ServicesClasseslibrary.Implmentation.Builder;
+using DataRepository.Builders;
 using System.Text.Json;
 static class ExamAttemptBuilderDatabaseChecks
 {
@@ -29,18 +30,18 @@ static class ExamAttemptBuilderDatabaseChecks
                 if (connection.InitialCatalog != database || connection.DataSource != @"(localdb)\MSSQLLocalDB")
                     throw new Exception("Refusing to run regression checks against a non-test database.");
                 db.Database.EnsureCreated(); created = true;
-                var subject = new StudySubject { SubjectName = "Builder regression", NumberOfChapters = 2 };
-                var otherSubject = new StudySubject { SubjectName = "Other subject", NumberOfChapters = 2 };
-                var easy = new DifficultyLevels { DifficultyLevelName = "Easy" };
-                var medium = new DifficultyLevels { DifficultyLevelName = "Medium" };
-                var hard = new DifficultyLevels { DifficultyLevelName = "Hard" };
+                var subject = StudySubject.Define( SubjectName: "Builder regression", NumberOfChapters: 2 );
+                var otherSubject = StudySubject.Define( SubjectName: "Other subject", NumberOfChapters: 2 );
+                var easy = DifficultyLevels.Define( DifficultyLevelName: "Easy" );
+                var medium = DifficultyLevels.Define( DifficultyLevelName: "Medium" );
+                var hard = DifficultyLevels.Define( DifficultyLevelName: "Hard" );
                 db.AddRange(subject, otherSubject, easy, medium, hard); db.SaveChanges();
                 subjectId = subject.Id; easyId = easy.Id; hardId = hard.Id;
-                var exam = new Exams { Title = "Builder regression", StudySubjectId = subjectId };
+                var exam = Exam.Define( Title: "Builder regression", StudySubjectId: subjectId );
                 db.Add(exam); db.SaveChanges(); examId = exam.Id;
-                Questions Question(int difficulty, int chapter = 1, int? owner = null) => new() {
-                    QuestionText = "Regression question", StudySubjectId = owner ?? subjectId, DifficultyLevelId = difficulty, ChapterNumber = chapter,
-                    QuestionAnswers = Enumerable.Range(1, 3).Select(i => new QuestionAnswers { AnswerText = "Answer " + i, IsCorrect = i == 1 }).ToList() };
+                Questions Question(int difficulty, int chapter = 1, int? owner = null) => Questions.Define(
+                    QuestionText: "Regression question", StudySubjectId: owner ?? subjectId, DifficultyLevelId: difficulty, ChapterNumber: chapter,
+                    QuestionAnswers: Enumerable.Range(1, 3).Select(i => QuestionAnswers.Define( AnswerText: "Answer " + i, IsCorrect: i == 1 )).ToList());
                 db.AddRange(Enumerable.Range(1, 4).Select(_ => Question(easyId)));
                 db.AddRange(Enumerable.Range(1, 2).Select(_ => Question(hardId)));
                 // Irrelevant difficulty/chapter must not be materialized into domain questions.
@@ -53,8 +54,8 @@ static class ExamAttemptBuilderDatabaseChecks
                 Console.WriteLine($"Original randomized Include returned {oldRows.Count} rows for {oldRows.Select(q => q.Id).Distinct().Count()} question IDs.");
             }
             var builder = new ExamAttemptQuestionBuilder(factory, mapper);
-            ExamSectionsDataModel Section(int id) => new() { Id = id, ExamId = examId, NumberOfQuestions = 3, ChapterNumbers = new() { 1 }, ExamSectionRules = new() {
-                new() { DifficultyLevelId = easyId, NoOfQuestions = 2 }, new() { DifficultyLevelId = hardId, NoOfQuestions = 1 } } };
+            ExamSectionsDTO Section(int id) => ExamSectionsDTO.Define( Id: id, ExamId: examId, NumberOfQuestions: 3, ChapterNumbers: new() { 1 }, ExamSectionRules: new() {
+                ExamSectionRulesDTO.Define( DifficultyLevelId: easyId, NoOfQuestions: 2 ), ExamSectionRulesDTO.Define( DifficultyLevelId: hardId, NoOfQuestions: 1 ) } );
             for (int run = 0; run < 10; run++)
             {
                 var result = builder.BuildExamAttemptQuestions(examId, new() { Section(1), Section(2) });
@@ -62,13 +63,13 @@ static class ExamAttemptBuilderDatabaseChecks
                 if (questions.Count != 6 || questions.Select(q => q.Id).Distinct().Count() != 6) throw new Exception("Duplicate question IDs in attempt");
                 foreach (var part in result.Values)
                     if (part.Count(q => q.DifficultyLevelId == easyId) != 2 || part.Count(q => q.DifficultyLevelId == hardId) != 1
-                        || part.Any(q => q.StudySubjectId != subjectId || q.ChapterNumber != 1 || q.QuestionAnswersDataModel.Count != 3))
+                        || part.Any(q => q.StudySubjectId != subjectId || q.ChapterNumber != 1 || q.QuestionAnswersDTO.Count != 3))
                         throw new Exception("Incorrect difficulty/chapter/answer materialization");
             }
-            var first = builder.BuildExamAttemptQuestions(subjectId, new ExamSectionRulesDataModel { DifficultyLevelId = easyId, NoOfQuestions = 2 });
-            var second = builder.BuildExamAttemptQuestions(subjectId, new ExamSectionRulesDataModel { DifficultyLevelId = easyId, NoOfQuestions = 2 }, first.Select(q => q.Id));
+            var first = builder.BuildExamAttemptQuestions(subjectId, ExamSectionRulesDTO.Define( DifficultyLevelId: easyId, NoOfQuestions: 2 ));
+            var second = builder.BuildExamAttemptQuestions(subjectId, ExamSectionRulesDTO.Define( DifficultyLevelId: easyId, NoOfQuestions: 2 ), first.Select(q => q.Id));
             if (second.Count != 2 || second.Any(q => q.DifficultyLevelId != easyId || first.Any(p => p.Id == q.Id))) throw new Exception("Single-rule difficulty/exclusion filter failed");
-            var demanding = Section(1); demanding.NumberOfQuestions = 4; demanding.ExamSectionRules[0].NoOfQuestions = 3;
+            var demanding = Section(1); demanding.ChangeNumberOfQuestions(4); demanding.ExamSectionRules[0].ChangeNoOfQuestions(3);
             try { builder.BuildExamAttemptQuestions(examId, new() { demanding, Section(2) }); throw new Exception("Expected shortage"); }
             catch (NotEnoughQuestionsException) { }
             Console.WriteLine("Passed SQL Server builder regression: required difficulties/chapters, unique question IDs, complete answers, exclusions, and shortages.");

@@ -1,3 +1,5 @@
+using Domain.Entities;
+using Domain.Aggregates;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,10 +7,9 @@ using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using AutoMapper;
-using DataModel;
+using Domain.DTOs;
 using DataRepository.GateWay;
-using DataRepository.DataRepositoryEntities;
-using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
+using ServicesClasseslibrary.Interface.DataRepository;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
@@ -45,39 +46,39 @@ static class MaintenanceChecks
                 services.GetRequiredService<MapperConfiguration>().AssertConfigurationIsValid();
                 Check(true, "All AutoMapper profiles validate");
                 var levels = services.GetRequiredService<IDifficultyLevelsOperations>();
-                levels.Add(new DifficultyLevelsDataModel { DifficultyLevelName = "Mapping check" });
+                levels.Add(DifficultyLevelsDTO.Define( DifficultyLevelName: "Mapping check" ));
                 var level = levels.list().Single(l => l.DifficultyLevelName == "Mapping check");
                 level.DifficultyLevelName = "Updated level";
                 levels.Edit(level);
                 Check(levels.GetById(level.Id).DifficultyLevelName == "Updated level", "Difficulty-level mapping supports create, read and edit");
                 var subjects = services.GetRequiredService<IStudySubjectsOperations>();
-                subjects.Add(new StudySubjectDataModel { SubjectName = "Mapping subject" });
+                subjects.Add(StudySubjectDTO.Define( SubjectName: "Mapping subject" ));
                 var subject = subjects.list().Single(s => s.SubjectName == "Mapping subject");
                 var questions = services.GetRequiredService<IQuestionsOperations>();
-                questions.Add(new QuestionsDataModel { QuestionText = "Mapping question", DifficultyLevelId = level.Id,
-                    StudySubjectId = subject.Id, QuestionAnswersDataModel = new List<QuestionAnswersDataModel> {
-                        new QuestionAnswersDataModel { AnswerText = "Correct", IsCorrect = true },
-                        new QuestionAnswersDataModel { AnswerText = "Incorrect" } } });
+                questions.Add(QuestionsDTO.Define( QuestionText: "Mapping question", DifficultyLevelId: level.Id,
+                    StudySubjectId: subject.Id, QuestionAnswersDTO: new List<QuestionAnswersDTO> {
+                        QuestionAnswersDTO.Define( AnswerText: "Correct", IsCorrect: true ),
+                        QuestionAnswersDTO.Define( AnswerText: "Incorrect" ) } ));
                 var question = questions.list().Single(q => q.QuestionText == "Mapping question");
-                var answerId = question.QuestionAnswersDataModel[0].Id;
+                var answerId = question.QuestionAnswersDTO[0].Id;
                 question.QuestionText = "Edited question";
-                question.QuestionAnswersDataModel[0].AnswerText = "Edited answer";
+                question.QuestionAnswersDTO[0].AnswerText = "Edited answer";
                 questions.Edit(question);
-                Check(questions.GetById(question.Id).QuestionAnswersDataModel.Any(a => a.Id == answerId && a.AnswerText == "Edited answer"), "Question edits preserve tracked answer identities");
+                Check(questions.GetById(question.Id).QuestionAnswersDTO.Any(a => a.Id == answerId && a.AnswerText == "Edited answer"), "Question edits preserve tracked answer identities");
                 var exams = services.GetRequiredService<IExamOprations>();
-                exams.Add(new ExamDataModel { Title = "Mapping exam", StudySubjectId = subject.Id,
-                    Sections = new List<ExamSectionsDataModel> { new ExamSectionsDataModel { SectionName = "Original", Percentage = 50 } } });
+                exams.Add(ExamDTO.Define( Title: "Mapping exam", StudySubjectId: subject.Id,
+                    Sections: new List<ExamSectionsDTO> { ExamSectionsDTO.Define( SectionName: "Original", Percentage: 50 ) } ));
                 var exam = exams.GetById(exams.list().Single(e => e.Title == "Mapping exam").Id);
                 var sectionId = exam.Sections[0].Id;
                 exam.Title = "Edited exam";
                 exam.Sections[0].SectionName = "Edited section";
-                exam.Sections.Add(new ExamSectionsDataModel { SectionName = "New section", Percentage = 50 });
+                exam.Sections.Add(ExamSectionsDTO.Define( SectionName: "New section", Percentage: 50 ));
                 exams.Edit(exam);
                 var saved = exams.GetById(exam.Id);
                 Check(saved.Title == "Edited exam" && saved.Sections.Count == 2 && saved.Sections.Any(s => s.Id == sectionId && s.SectionName == "Edited section"), "Exam edits preserve existing sections and add new sections");
                 var userRepo = services.GetRequiredService<IUserOperations>();
-                userRepo.Add(new LoginModel { Username = "mapping-user", Password = "test-hash", Role = "Examiner" });
-                var user = userRepo.Validate(new LoginModel { Username = "mapping-user", Password = "test-hash" });
+                userRepo.Add(LoginDTO.Define( Username: "mapping-user", Password: "test-hash", Role: "Examiner" ));
+                var user = userRepo.Validate(LoginDTO.Define( Username: "mapping-user", Password: "test-hash" ));
                 Check(user?.Role == "Examiner" && user.Password == null, "User mapping preserves login behavior without returning password hashes");
             }
             var address = host.Services.GetRequiredService<IServer>().Features.Get<IServerAddressesFeature>().Addresses.Single();

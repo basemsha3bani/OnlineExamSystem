@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using System.Linq;
 
 namespace OnlineExamSystem.Models
 {
@@ -11,6 +13,16 @@ namespace OnlineExamSystem.Models
         {
          
             if (ctx.HttpContext.Session.GetString("Role") != _role || !ctx.HttpContext.Session.GetInt32("UserId").HasValue)
+                ctx.Result = new RedirectToActionResult("Login", "Auth", null);
+        }
+    }
+    public class GeneralAthorizationFilter:ActionFilterAttribute
+    {
+        public override void OnActionExecuting(ActionExecutingContext ctx)
+        {
+            if (ctx.ActionDescriptor.EndpointMetadata.OfType<AllowAnonymousAttribute>().Any()) return;
+
+            if (!ctx.HttpContext.Session.GetInt32("UserId").HasValue)
                 ctx.Result = new RedirectToActionResult("Login", "Auth", null);
         }
     }

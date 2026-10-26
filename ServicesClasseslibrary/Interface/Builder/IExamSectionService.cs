@@ -1,15 +1,16 @@
-﻿using DataModel;
-using DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses;
+using Domain.Entities;
+using Domain.Aggregates;
+﻿using Domain.DTOs;
 using System.Collections.Generic;
 
 namespace ServicesClasseslibrary
 {
     public interface IExamSectionService
     {
-        public List<ExamSectionsDataModel> List(int examId);
-        ExamSectionsDataModel GetById(int id);
-        void Edit(ExamSectionsDataModel model);
-        public void Add(ExamSectionsDataModel m);
+        public List<ExamSectionsDTO> List(int examId);
+        ExamSectionsDTO GetById(int id);
+        void Edit(ExamSectionsDTO model);
+        public void Add(ExamSectionsDTO m);
     }
 }
 

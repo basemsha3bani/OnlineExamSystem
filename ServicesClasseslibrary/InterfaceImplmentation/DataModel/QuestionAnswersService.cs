@@ -1,4 +1,4 @@
-﻿using DataModel;
+﻿using Domain.DTOs;
 using ServicesClasseslibrary.Interface;
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ namespace ServicesClasseslibrary
 {
     public class QuestionAnswersService : IQuestionAnswersService
     {
-        public void Add(QuestionAnswersDataModel questionAnswers)
+        public void Add(QuestionAnswersDTO questionAnswers)
         {
            
         }
@@ -18,17 +18,17 @@ namespace ServicesClasseslibrary
            
         }
 
-        public void Edit(QuestionAnswersDataModel questionAnswers)
+        public void Edit(QuestionAnswersDTO questionAnswers)
         {
             
         }
 
-        public QuestionAnswersDataModel GetById(int id)
+        public QuestionAnswersDTO GetById(int id)
         {
             return null;
         }
 
-        public List<QuestionAnswersDataModel> list()
+        public List<QuestionAnswersDTO> list()
         {
             return null;
         }

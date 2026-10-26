@@ -1,6 +1,8 @@
+using Domain.Entities;
+using Domain.Aggregates;
 using AutoMapper;
-using DataModel;
-using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
+using Domain.DTOs;
+using ServicesClasseslibrary.Interface.DataRepository;
 using DataRepository.GateWay;
 using System;
 using System.Collections.Generic;
@@ -13,13 +15,13 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
         private readonly IMapper mapper;
         public DifficultyLevelsOperations(ContextGateway<DifficultyLevels> gateway, IMapper mapper)
         { this.gateway = gateway; this.mapper = mapper; }
-        public void Add(DifficultyLevelsDataModel model)
+        public void Add(DifficultyLevelsDTO model)
         {
             var entity = mapper.Map<DifficultyLevels>(model);
-            entity.Id = 0;
+            entity.ChangeId(0);
             gateway.Add(entity); gateway.SaveChanges();
         }
-        public void Edit(DifficultyLevelsDataModel model)
+        public void Edit(DifficultyLevelsDTO model)
         {
             var entity = gateway.GetById(e => e.Id == model.Id) ?? throw new InvalidOperationException("Difficulty level not found.");
             mapper.Map(model, entity); gateway.SaveChanges();
@@ -30,7 +32,7 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
             if (entity == null) return;
             gateway.Delete(entity); gateway.SaveChanges();
         }
-        public DifficultyLevelsDataModel GetById(int id) => mapper.Map<DifficultyLevelsDataModel>(gateway.GetById(e => e.Id == id));
-        public List<DifficultyLevelsDataModel> list() => mapper.Map<List<DifficultyLevelsDataModel>>(gateway.List());
+        public DifficultyLevelsDTO GetById(int id) => mapper.Map<DifficultyLevelsDTO>(gateway.GetById(e => e.Id == id));
+        public List<DifficultyLevelsDTO> list() => mapper.Map<List<DifficultyLevelsDTO>>(gateway.List());
     }
 }

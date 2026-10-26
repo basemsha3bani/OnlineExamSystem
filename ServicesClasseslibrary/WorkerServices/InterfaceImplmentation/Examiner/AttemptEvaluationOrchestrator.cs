@@ -1,4 +1,4 @@
-using DataModel;
+using Domain.DTOs;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -33,7 +33,7 @@ namespace ServicesClasseslibrary.WorkerServices.InterfaceImplementation.Examiner
             var evaluated = await service.EvaluatePending((id, ex) => logger.LogError(ex, "Evaluation failed for attempt {AttemptId}", id));
             foreach (var attempt in evaluated.DistinctBy(a => a.Item1))
             {
-                analytics.Enqueue(new AnalyticsJob { ExaminerId = attempt.Item2, TriggerAttemptId = attempt.Item1 });
+                analytics.Enqueue(AnalyticsJobDTO.Define( ExaminerId: attempt.Item2, TriggerAttemptId: attempt.Item1 ));
                 await results.Enqueue(attempt);
             }
         }

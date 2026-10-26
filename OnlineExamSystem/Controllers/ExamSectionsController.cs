@@ -1,4 +1,4 @@
-using DataModel;
+using Domain.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using ServicesClasseslibrary;
@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 namespace OnlineExamSystem.Controllers
 {
-    public class ExamSectionsController : Controller
+    public class ExamSectionsController : Controller    
     {
         private readonly IExamService exams;
         private readonly IExamSectionService sections;
@@ -26,10 +26,10 @@ namespace OnlineExamSystem.Controllers
         public IActionResult Create(int examId)
         {
             if (exams.GetById(examId) == null) return NotFound();
-            return View(new ExamSectionsDataModel { ExamId = examId });
+            return View(ExamSectionsDTO.Define( ExamId: examId ));
         }
         [HttpPost, ValidateAntiForgeryToken]
-        public IActionResult Create(ExamSectionsDataModel model)
+        public IActionResult Create(ExamSectionsDTO model)
         {
             if (exams.GetById(model.ExamId) == null) return NotFound();
             if (ModelState.IsValid)
@@ -39,7 +39,7 @@ namespace OnlineExamSystem.Controllers
             }
             return View(model);
         }
-        private void Chapters(ExamSectionsDataModel model)
+        private void Chapters(ExamSectionsDTO model)
         {
             var exam = exams.GetById(model.ExamId);
             ViewBag.Chapters = new SelectList(Enumerable.Range(1, subjects.GetById(exam.StudySubjectId).NumberOfChapters));
@@ -52,11 +52,11 @@ namespace OnlineExamSystem.Controllers
             return View(model);
         }
         [HttpPost, ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, ExamSectionsDataModel model)
+        public IActionResult Edit(int id, ExamSectionsDTO model)
         {
             var current = sections.GetById(id);
             if (current == null || id != model.Id) return NotFound();
-            model.ExamId = current.ExamId;
+            model.ChangeExamId(current.ExamId);
             if (ModelState.IsValid)
             {
                 try
@@ -73,7 +73,7 @@ namespace OnlineExamSystem.Controllers
                 }
             }
             ViewData["SectionFailure"] = "Section configuration was not saved. Please review the errors below.";
-            model.ExamSectionRules = current.ExamSectionRules;
+            model.ChangeExamSectionRules(current.ExamSectionRules);
             Chapters(model);
             return View(model);
         }

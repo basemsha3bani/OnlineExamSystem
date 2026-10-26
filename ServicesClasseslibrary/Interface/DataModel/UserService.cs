@@ -1,6 +1,7 @@
-﻿using DataModel;
-using DataRepository.DataRepositoryEntities;
-using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
+using Domain.Entities;
+using Domain.Aggregates;
+using Domain.DTOs;
+using ServicesClasseslibrary.Interface.DataRepository;
 
 namespace ServicesClasseslibrary.Interface
 {
@@ -12,12 +13,12 @@ namespace ServicesClasseslibrary.Interface
             _userOperations= userOperations;
         }
 
-        public void Add(LoginModel user)
+        public void Add(LoginDTO user)
         {
             _userOperations.Add(user);
         }
 
-        public  LoginModel Validate(LoginModel model)
+        public  LoginDTO Validate(LoginDTO model)
         {
             return _userOperations.Validate(model);
         }

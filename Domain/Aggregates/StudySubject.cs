@@ -1,18 +1,46 @@
 using Domain.Exceptions;
-namespace Domain.Aggregates;
-public sealed class StudySubject
+using Domain.DTOs;
+using Domain.Entities;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Domain.Aggregates
 {
-    public int Id { get; }
-    public string Name { get; }
-    public int NumberOfChapters { get; }
-    public StudySubject(int id, string name, int numberOfChapters)
+    public class StudySubject : Domain.Abstractions.IAggregateRoot
     {
-        if (string.IsNullOrWhiteSpace(name)) throw new DomainException("Subject name is required.");
-        if (numberOfChapters < 1) throw new DomainException("A subject requires at least one chapter.");
-        Id = id; Name = name; NumberOfChapters = numberOfChapters;
-    }
-    public void ValidateChapter(int chapter)
-    {
-        if (chapter < 1 || chapter > NumberOfChapters) throw new InvalidChapterException(chapter, NumberOfChapters);
+        public int Id { get; private set; }
+        public int NumberOfChapters { get; private set; } = 1;
+
+        public string SubjectName { get; private set; }
+
+        private StudySubject() { }
+        public static StudySubject Define(int Id = default, int NumberOfChapters = 1, string SubjectName = default)
+        {
+            var value = new StudySubject();
+            value.ChangeId(Id);
+            value.ChangeNumberOfChapters(NumberOfChapters);
+            value.ChangeSubjectName(SubjectName);
+            return value;
+        }
+        public void ChangeId(int value) => Id = EntityRules.NonNegative(value, "Id");
+        public void ChangeNumberOfChapters(int value) => NumberOfChapters = EntityRules.Positive(value, "NumberOfChapters");
+        public void ChangeSubjectName(string value) => SubjectName = EntityRules.Required(value, "SubjectName");
+        public void ValidateChapter(int chapter)
+        {
+            if (chapter < 1 || chapter > NumberOfChapters) throw new InvalidChapterException(chapter, NumberOfChapters);
+        }
+
+        public static void CheckDefinition(StudySubjectDTO model, IEnumerable<int> usedChapters)
+        {
+            int RequiredNumberOfChapters = usedChapters?.Max()??1;
+            if(model.NumberOfChapters < RequiredNumberOfChapters)
+            {
+                throw new InvalidNumberOfChapterException(RequiredNumberOfChapters);
+            }
+            var subject = StudySubject.Define(Id: model.Id, SubjectName: model.SubjectName, NumberOfChapters: model.NumberOfChapters);
+           
+        }
+
     }
 }

@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OnlineExamSystem.Models;
-using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
-using DataModel;
+using ServicesClasseslibrary.Interface.DataRepository;
+using Domain.DTOs;
 
 using ServicesClasseslibrary.Interface.Examiner;
 using System.Threading.Tasks;

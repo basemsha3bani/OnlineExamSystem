@@ -1,7 +1,10 @@
-﻿using DataModel;
-using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
+using Domain.Entities;
+using Domain.Aggregates;
+using Domain.DTOs;
+using ServicesClasseslibrary.Interface.DataRepository;
 using ServicesClasseslibrary.Interface.DataModel;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ServicesClasseslibrary
 {
@@ -12,20 +15,25 @@ namespace ServicesClasseslibrary
         private readonly IExamOprations exams;
         private readonly IExamSectionsOperations sections;
         public StudySubjectsService(IStudySubjectsOperations ops, IQuestionsOperations questions, IExamOprations exams, IExamSectionsOperations sections) { _ops = ops; this.questions = questions; this.exams = exams; this.sections = sections; }
-        public void Add(StudySubjectDataModel m) { Validate(m); _ops.Add(m); }
-        private static void Validate(StudySubjectDataModel m) => _ = new Domain.Aggregates.StudySubject(m.Id, m.SubjectName, m.NumberOfChapters);
+        public void Add(StudySubjectDTO m) { Validate(m); _ops.Add(m); }
+        private static void Validate(StudySubjectDTO m) => Domain.Aggregates.StudySubject.CheckDefinition(m, System.Array.Empty<int>());
         public void Delete(int id) => _ops.Delete(id);
-        public void Edit(StudySubjectDataModel m)
+        public void Edit(StudySubjectDTO m)
         {
-            Validate(m);
-            var subject = new Domain.Aggregates.StudySubject(m.Id, m.SubjectName, m.NumberOfChapters);
-            foreach (var q in questions.list()) if (q.StudySubjectId == m.Id) subject.ValidateChapter(q.ChapterNumber);
-            foreach (var exam in exams.list()) if (exam.StudySubjectId == m.Id)
-                foreach (var section in sections.List(exam.Id))
-                    foreach (var chapter in section.ChapterNumbers) subject.ValidateChapter(chapter);
+
+            var used = questions.list().Where(q => q.StudySubjectId == m.Id)
+                .Select(q => q.ChapterNumber)
+                .Concat(
+                        exams.list()
+                              .Where(e => e.StudySubjectId == m.Id)
+                             .SelectMany(e => sections.List(e.Id))
+                              .SelectMany(s => s.ChapterNumbers)
+                        ).GroupBy(g =>(int) g).Select(s=>s.First()).ToList();
+
+            Domain.Aggregates.StudySubject.CheckDefinition(m, used);
             _ops.Edit(m);
         }
-        public StudySubjectDataModel GetById(int id) => _ops.GetById(id);
-        public List<StudySubjectDataModel> list() => _ops.list();
+        public StudySubjectDTO GetById(int id) => _ops.GetById(id);
+        public List<StudySubjectDTO> list() => _ops.list();
     }
 }

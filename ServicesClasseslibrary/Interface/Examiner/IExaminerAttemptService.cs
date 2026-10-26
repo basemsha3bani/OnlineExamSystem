@@ -1,4 +1,4 @@
-﻿using DataModel;
+﻿using Domain.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,8 +10,8 @@ namespace ServicesClasseslibrary.Interface.Examiner
     public interface IExaminerAttemptService
     {
         int Start(int examId, int userId);
-        ExamAttemptDataModel Get(int id);
-        List<ExamAttemptDataModel> List(int userId);
+        ExamAttemptDTO Get(int id);
+        List<ExamAttemptDTO> List(int userId);
         Task  Save(int id, int sectionIndex, Dictionary<int, int?> answers, bool submit);
         Task<List<Tuple<int, int,decimal>>> EvaluatePending(Action<int, Exception> onFailure = null);
     }

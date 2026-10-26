@@ -1,7 +1,7 @@
-﻿using DataModel;
-using DataRepository;
-using DataRepository.DataRepositoryEntities;
-using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
+using Domain.Entities;
+using Domain.Aggregates;
+using Domain.DTOs;
+using ServicesClasseslibrary.Interface.DataRepository;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.IdentityModel.Abstractions;
@@ -27,7 +27,7 @@ namespace ServicesClasseslibrary
 
         }
        
-        public void Add(DifficultyLevelsDataModel difficultyLevels)
+        public void Add(DifficultyLevelsDTO difficultyLevels)
         {
             _difficultyLevelsOperations.Add(difficultyLevels);
             _logQueue.Enqueue(new LogEntry
@@ -48,18 +48,18 @@ namespace ServicesClasseslibrary
             _difficultyLevelsOperations.Delete(id);
         }
 
-        public void Edit(DifficultyLevelsDataModel model)
+        public void Edit(DifficultyLevelsDTO model)
         {
             _difficultyLevelsOperations.Edit(model);
         }
 
-        public DifficultyLevelsDataModel GetById(int id)
+        public DifficultyLevelsDTO GetById(int id)
         {
             return _difficultyLevelsOperations.GetById(id);
 
         }
 
-        public List<DifficultyLevelsDataModel> list()
+        public List<DifficultyLevelsDTO> list()
         {
             return _difficultyLevelsOperations.list();
         }

@@ -1,4 +1,6 @@
-﻿using DataModel;
+using Domain.Entities;
+using Domain.Aggregates;
+﻿using Domain.DTOs;
 using DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -24,10 +26,10 @@ namespace OnlineExamSystem.Controllers
         public IActionResult Create()
         {
             ViewBag.Subjects = new SelectList(_subjectService.list(), "Id", "SubjectName");
-            return View(new ExamDataModel());
+            return View(ExamDTO.Define());
         }
         [HttpPost, ValidateAntiForgeryToken]
-        public IActionResult Create(ExamDataModel model)
+        public IActionResult Create(ExamDTO model)
         {
             if (ModelState.IsValid)
             {

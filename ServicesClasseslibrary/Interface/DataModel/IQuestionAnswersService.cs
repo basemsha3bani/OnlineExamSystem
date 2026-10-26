@@ -1,4 +1,4 @@
-﻿using DataModel;
+﻿using Domain.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,16 +7,16 @@ namespace ServicesClasseslibrary.Interface
 {
     public interface IQuestionAnswersService
     {
-        void Add(QuestionAnswersDataModel questionAnswers);
-        void Edit(QuestionAnswersDataModel questionAnswers);
+        void Add(QuestionAnswersDTO questionAnswers);
+        void Edit(QuestionAnswersDTO questionAnswers);
 
 
 
         void Delete(int id);
 
 
-        QuestionAnswersDataModel GetById(int id);
+        QuestionAnswersDTO GetById(int id);
 
-        List<QuestionAnswersDataModel> list();
+        List<QuestionAnswersDTO> list();
     }
 }

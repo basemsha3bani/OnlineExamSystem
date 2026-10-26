@@ -1,6 +1,8 @@
+using Domain.Entities;
+using Domain.Aggregates;
 using AutoMapper;
-using DataModel;
-using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
+using Domain.DTOs;
+using ServicesClasseslibrary.Interface.DataRepository;
 using DataRepository.GateWay;
 using System;
 using System.Collections.Generic;
@@ -13,13 +15,13 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
         private readonly IMapper mapper;
         public StudySubjectsOperations(ContextGateway<StudySubject> gateway, IMapper mapper)
         { this.gateway = gateway; this.mapper = mapper; }
-        public void Add(StudySubjectDataModel model)
+        public void Add(StudySubjectDTO model)
         {
             var entity = mapper.Map<StudySubject>(model);
-            entity.Id = 0;
+            entity.ChangeId(0);
             gateway.Add(entity); gateway.SaveChanges();
         }
-        public void Edit(StudySubjectDataModel model)
+        public void Edit(StudySubjectDTO model)
         {
             var entity = gateway.GetById(e => e.Id == model.Id) ?? throw new InvalidOperationException("Subject not found.");
             mapper.Map(model, entity); gateway.SaveChanges();
@@ -30,7 +32,7 @@ namespace DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsCl
             if (entity == null) return;
             gateway.Delete(entity); gateway.SaveChanges();
         }
-        public StudySubjectDataModel GetById(int id) => mapper.Map<StudySubjectDataModel>(gateway.GetById(e => e.Id == id));
-        public List<StudySubjectDataModel> list() => mapper.Map<List<StudySubjectDataModel>>(gateway.List());
+        public StudySubjectDTO GetById(int id) => mapper.Map<StudySubjectDTO>(gateway.GetById(e => e.Id == id));
+        public List<StudySubjectDTO> list() => mapper.Map<List<StudySubjectDTO>>(gateway.List());
     }
 }

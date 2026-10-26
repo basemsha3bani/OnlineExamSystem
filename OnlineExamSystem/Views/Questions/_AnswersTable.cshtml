@@ -1,5 +1,5 @@
-﻿@using DataModel
-@model QuestionsDataModel
+﻿@using Domain.DTOs
+@model QuestionsDTO
 
 <table class="table table-bordered" id="answersTable">
     <thead>
@@ -9,7 +9,7 @@
         </tr>
     </thead>
     <tbody>
-        @for (int i = 0; i < Model.QuestionAnswersDataModel.Count; i++)
+        @for (int i = 0; i < Model.QuestionAnswersDTO.Count; i++)
         {
             <tr>
                 <td class="text-center">
@@ -17,13 +17,13 @@
                     <input type="radio"
                            name="CorrectAnswerIndex"
                            value="@i"
-                           @(Model.QuestionAnswersDataModel[i].IsCorrect ? "checked" : "") />
-                    @Html.HiddenFor(m => m.QuestionAnswersDataModel[i].Id)
-                    @Html.HiddenFor(m => m.QuestionAnswersDataModel[i].QuestionId)
+                           @(Model.QuestionAnswersDTO[i].IsCorrect ? "checked" : "") />
+                    @Html.HiddenFor(m => m.QuestionAnswersDTO[i].Id)
+                    @Html.HiddenFor(m => m.QuestionAnswersDTO[i].QuestionId)
                 </td>
                 <td>
-                    <input asp-for="QuestionAnswersDataModel[i].AnswerText" class="form-control" required />
-                    <span asp-validation-for="QuestionAnswersDataModel[i].AnswerText" class="text-danger"></span>
+                    <input asp-for="QuestionAnswersDTO[i].AnswerText" class="form-control" required />
+                    <span asp-validation-for="QuestionAnswersDTO[i].AnswerText" class="text-danger"></span>
                 </td>
             </tr>
         }

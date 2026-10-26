@@ -1,17 +1,19 @@
+using Domain.Entities;
 using Domain.Aggregates;
 using Domain.Exceptions;
 namespace Domain.Services;
 public sealed class ExamDomainService
 {
-    public List<Question> BuildExamAttemptQuestions(Exam exam, List<Question> allQuestionsForSubject)
+    public List<Questions> BuildExamAttemptQuestions(Exam exam, List<Questions> allQuestionsForSubject)
     {
         ArgumentNullException.ThrowIfNull(exam); ArgumentNullException.ThrowIfNull(allQuestionsForSubject);
-        var pool = allQuestionsForSubject.Where(q => q.SubjectId == exam.SubjectId).DistinctBy(q => q.Id).ToList();
-        foreach (var question in pool) exam.Subject.ValidateChapter(question.ChapterNumber);
-        var slots = exam.Sections.SelectMany(s => s.SectionDifficulties.SelectMany(d =>
-            Enumerable.Range(0, d.Count).Select(_ => (Section: s, Difficulty: d.Difficulty)))).ToList();
-        var candidates = slots.Select(s => pool.Where(q => q.Difficulty == s.Difficulty &&
-            s.Section.SectionChapters.Any(c => c.ChapterNumber == q.ChapterNumber)).ToList()).ToList();
+        exam.ValidateForAttempt();
+        var pool = allQuestionsForSubject.Where(q => q.StudySubjectId == exam.StudySubjectId).DistinctBy(q => q.Id).ToList();
+        foreach (var question in pool) question.ValidateForSubject(exam.StudySubject);
+        var slots = exam.Sections.SelectMany(s => s.examSectionRules.SelectMany(d =>
+            Enumerable.Range(0, d.NoOfQuestions).Select(_ => (Section: s, Difficulty: d.DifficultyLevelId)))).ToList();
+        var candidates = slots.Select(s => pool.Where(q => q.DifficultyLevelId == s.Difficulty &&
+            s.Section.ChapterNumbers.Contains(q.ChapterNumber)).ToList()).ToList();
         // Augmenting paths avoid false shortages when chapter filters overlap.
         var owners = new Dictionary<int, int>();
         bool Assign(int slot, HashSet<int> visited)
@@ -25,8 +27,8 @@ public sealed class ExamDomainService
             if (!Assign(slot, new HashSet<int>()))
             {
                 var requirement = slots[slot];
-                throw new NotEnoughQuestionsException(requirement.Section.Id, requirement.Difficulty.Id,
-                    requirement.Section.SectionDifficulties.Single(d => d.Difficulty == requirement.Difficulty).Count,
+                throw new NotEnoughQuestionsException(requirement.Section.Id, requirement.Difficulty,
+                    requirement.Section.examSectionRules.Single(d => d.DifficultyLevelId == requirement.Difficulty).NoOfQuestions,
                     owners.Values.Count(i => ReferenceEquals(slots[i].Section, requirement.Section) && slots[i].Difficulty == requirement.Difficulty));
             }
         var byId = pool.ToDictionary(q => q.Id);

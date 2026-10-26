@@ -1,5 +1,5 @@
-@model List<DataModel.ExamSectionsDataModel>
-@{ var exam = (DataModel.ExamDataModel)ViewBag.Exam; }
+@model List<Domain.DTOs.ExamSectionsDTO>
+@{ var exam = (Domain.DTOs.ExamDTO)ViewBag.Exam; }
 <h3>@exam.Title - Sections</h3>
 <a asp-action="Create" asp-route-examId="@exam.Id" class="btn btn-primary">Add section</a>
 <table class="table"><thead><tr><th>Section name</th><th>Questions</th><th>Actions</th></tr></thead><tbody>

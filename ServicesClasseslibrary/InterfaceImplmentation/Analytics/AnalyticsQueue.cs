@@ -1,4 +1,4 @@
-﻿using DataModel;
+﻿using Domain.DTOs;
 using ServicesClasseslibrary.Interface.Analytics;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -9,10 +9,10 @@ namespace ServicesClasseslibrary.Implmentation.Analytics
 {
     public class AnalyticsQueue : IAnalyticsQueue
     {
-        private readonly ConcurrentQueue<AnalyticsJob> _queue = new();
+        private readonly ConcurrentQueue<AnalyticsJobDTO> _queue = new();
         private readonly ConcurrentDictionary<int, byte> _inQueue = new(); // idempotency guard
 
-        public void Enqueue(AnalyticsJob job)
+        public void Enqueue(AnalyticsJobDTO job)
         {
             // prevent duplicate clicks / double enqueue
             if (_inQueue.TryAdd(job.ExaminerId, 0))
@@ -21,7 +21,7 @@ namespace ServicesClasseslibrary.Implmentation.Analytics
             }
         }
 
-        public bool TryDequeue(out AnalyticsJob job)
+        public bool TryDequeue(out AnalyticsJobDTO job)
         {
             if (_queue.TryDequeue(out job!))
             {

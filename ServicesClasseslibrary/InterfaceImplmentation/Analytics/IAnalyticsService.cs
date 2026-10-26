@@ -1,5 +1,5 @@
-﻿using DataModel;
-using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
+using Domain.DTOs;
+using ServicesClasseslibrary.Interface.DataRepository;
 using ServicesClasseslibrary.Interface.Analytics;
 using System;
 using System.Collections.Generic;
@@ -17,7 +17,7 @@ namespace ServicesClasseslibrary.Implmentation.Analytics
             PerformanceOperations = examinerPerformanceOperations;
         }
 
-        public async Task RecalculateAsync(AnalyticsJob job)
+        public async Task RecalculateAsync(AnalyticsJobDTO job)
         {
            await PerformanceOperations.UpdateExaminerPerformance(job);
         }

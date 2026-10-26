@@ -1,16 +1,14 @@
-﻿//using DataRepository.ModelMappers;
+using Domain.Entities;
+using Domain.Aggregates;
+//using DataRepository.ModelMappers;
 //using DataRepository.ModelMappers.Interface;
-using DataRepository;
-using DataRepository.DataRepositoryEntities.DataRepositoryEntityOperationsClasses;
-using DataRepository.DataRepositoryEntities.DataRepositoryOperationsInterface;
-using DataRepository.GateWay;
+using ServicesClasseslibrary.Interface.DataRepository;
 using Microsoft.AspNetCore.Builder;
 
 using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
 using Serilog;
 using ServicesClasseslibrary.Implmentation.Builder;
-using ServicesClasseslibrary.Implmentation.DataModel;
 using ServicesClasseslibrary.Interface.Builder;
 using ServicesClasseslibrary.Interface.Examiner;
 using ServicesClasseslibrary.InterfaceImplmentation.Examiner;
@@ -48,7 +46,6 @@ namespace ServicesClasseslibrary.WorkerServices.InterfaceImplementation.Examiner
             services.AddHostedService<AttemptEvaluationCompletionChecker>();
             services.AddSignalR();
             services.AddScoped<IExaminerAttemptService, ExaminerAttemptService>();
-            services.AddScoped<IExamAttemptQuestionBuilder, ExamAttemptQuestionBuilder>();
             services.AddSingleton<IEvaluationResultQueue, RabbitMqEvaluationResultQueue>();
             services.AddScoped<IEvaluationPublisher, AttemptEvaluationOrchestrator>();
             services.AddScoped<IEvaluationNotifier, AttemptEvaluationOrchestrator>();

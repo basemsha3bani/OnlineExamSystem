@@ -1,5 +1,6 @@
-﻿using DataModel;
-using DataRepository.DataRepositoryEntities;
+using Domain.Entities;
+using Domain.Aggregates;
+﻿using Domain.DTOs;
 using DataRepository.GateWay;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -32,7 +33,7 @@ namespace OnlineExamSystem.Controllers
         // GET: Questions
         public IActionResult Index(int? studySubjectId, int? chapterNumber, int page = 1, int pageSize = 20)
         {
-            var result = _questionsService.Search(new QuestionSearch(studySubjectId, chapterNumber, page, pageSize));
+            var result = _questionsService.Search(QuestionSearchDTO.Define(studySubjectId, chapterNumber, page, pageSize));
             ModelState.Clear(); // Render the normalized filter and page-size values.
             var subjects = _studySubjectsService.list();
             var chapterCount = result.Search.StudySubjectId.HasValue
@@ -49,12 +50,12 @@ namespace OnlineExamSystem.Controllers
         // GET: Questions/Create
         public IActionResult Create()
         {
-            var x = new List<QuestionAnswersDataModel>(4) {
-            new QuestionAnswersDataModel(),new QuestionAnswersDataModel(),new QuestionAnswersDataModel(),new QuestionAnswersDataModel() };
+            var x = new List<QuestionAnswersDTO>(4) {
+            QuestionAnswersDTO.Define(),QuestionAnswersDTO.Define(),QuestionAnswersDTO.Define(),QuestionAnswersDTO.Define() };
 
             ViewData["DifficultyLevelId"] = new SelectList(_difficultyLevelsService.list(), "Id", "DifficultyLevelName");
             ViewData["StudySubjectsId"] = new SelectList(_studySubjectsService.list(), "Id", "SubjectName");
-            return View(new QuestionsDataModel { QuestionAnswersDataModel=x });
+            return View(QuestionsDTO.Define( QuestionAnswersDTO:x ));
         }
 
         // POST: Questions/Create
@@ -62,15 +63,11 @@ namespace OnlineExamSystem.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(QuestionsDataModel questions,int  CorrectAnswerIndex)
+        public IActionResult Create(QuestionsDTO questions,int  CorrectAnswerIndex)
         {
             if (ModelState.IsValid)
             {
-                for (int i = 0; i < questions.QuestionAnswersDataModel.Count; i++)
-                {
-                    questions.QuestionAnswersDataModel[i].IsCorrect = (i == CorrectAnswerIndex);
-                }
-                try { _questionsService.Add(questions); return RedirectToAction(nameof(Index)); }
+                try { questions.SelectCorrectAnswer(CorrectAnswerIndex); _questionsService.Add(questions); return RedirectToAction(nameof(Index)); }
                 catch (Domain.Exceptions.DomainException ex) { ModelState.AddModelError("", ex.Message); }
             }
             ViewData["DifficultyLevelId"] = new SelectList(_difficultyLevelsService.list(), "Id", "DifficultyLevelName");
@@ -101,7 +98,7 @@ namespace OnlineExamSystem.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, QuestionsDataModel questions, int CorrectAnswerIndex)
+        public IActionResult Edit(int id, QuestionsDTO questions, int CorrectAnswerIndex)
         {
             if (id != questions.Id)
             {
@@ -112,10 +109,7 @@ namespace OnlineExamSystem.Controllers
             {
                 try
                 {
-                    for (int i = 0; i < questions.QuestionAnswersDataModel.Count; i++)
-                    {
-                        questions.QuestionAnswersDataModel[i].IsCorrect = (i == CorrectAnswerIndex);
-                    }
+                    questions.SelectCorrectAnswer(CorrectAnswerIndex);
                     _questionsService.Edit(questions);
                   
                 }
