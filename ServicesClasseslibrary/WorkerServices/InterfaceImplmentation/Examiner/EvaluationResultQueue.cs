@@ -2,8 +2,7 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using ServicesClasseslibrary.Interface.Analytics;
-using ServicesClasseslibrary.Interface.Examiner;
+
 using ServicesClasseslibrary.WorkerServices.ExamEvaluation;
 using ServicesClasseslibrary.WorkerServices.Interface.Examiner;
 using System;

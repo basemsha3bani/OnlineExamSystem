@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using ServicesClasseslibrary.Interface.Analytics;
+using ServicesClasseslibrary.WorkerServices.Interface.Analytics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,6 +31,7 @@ namespace ServicesClasseslibrary.WorkerServices.Analytics
                     {
                         using var scope = _scopes.CreateScope();
                         var analyticsService = scope.ServiceProvider.GetRequiredService<IAnalyticsService>();
+                        // A job rebuilds every subject summary for this candidate from all attempts.
                         await analyticsService.RecalculateAsync(job);
                     }
                     catch (Exception ex)

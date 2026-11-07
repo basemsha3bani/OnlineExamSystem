@@ -5,6 +5,8 @@ using Domain.Entities;
 using Domain.Exceptions;
 using Domain.Services;
 
+AnalyticsChecks.Run();
+if (args.Contains("--analytics-only")) return;
 EntityChecks.Run();
 var roots = typeof(Exam).Assembly.GetTypes().Where(t => t.IsClass && typeof(IAggregateRoot).IsAssignableFrom(t)).Select(t => t.Name).OrderBy(n => n).ToArray();
 if (!roots.SequenceEqual(new[] { "Exam", "ExamAttempt", "StudySubject" })) throw new Exception("The aggregate roots must be StudySubject, Exam, and ExamAttempt.");

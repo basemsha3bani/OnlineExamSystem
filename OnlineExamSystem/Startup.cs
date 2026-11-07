@@ -11,12 +11,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OnlineExamSystem.Models;
+using OnlineExamSystem.Application;
 using ServicesClasseslibrary;
-using ServicesClasseslibrary.Implmentation.Builder;
-using ServicesClasseslibrary.Interface;
-using ServicesClasseslibrary.Interface.Builder;
-using ServicesClasseslibrary.Interface.DataModel;
-using ServicesClasseslibrary.Interface.DataRepository;
+
 using ServicesClasseslibrary.WorkerServices.ExamEvaluation;
 using System;
 using System.Collections.Generic;
@@ -52,8 +49,10 @@ namespace OnlineExamSystem
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
             });
-            services.AddDataRepository();
-            services.AddServiceClasses();
+            services.AddInfraStructure();
+            services.AddBusinessLogicClasses();
+            services.AddBackGroundServiceClasses();
+           
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

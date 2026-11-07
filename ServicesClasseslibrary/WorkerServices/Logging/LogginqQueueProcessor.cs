@@ -2,9 +2,11 @@ using Domain.Entities;
 using Domain.Aggregates;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Abstractions;
-using ServicesClasseslibrary.Interface.Logging;
+
 using System.Threading;
 using System.Threading.Tasks;
+using OnlineExamSystem.Application.Interface.Logging;
+
 
 namespace ServicesClasseslibrary.WorkerServices.Logging
 {

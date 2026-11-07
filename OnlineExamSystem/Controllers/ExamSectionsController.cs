@@ -2,10 +2,13 @@ using Domain.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using ServicesClasseslibrary;
-using ServicesClasseslibrary.Interface.DataModel;
+
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using OnlineExamSystem.Application;
+using OnlineExamSystem.Application.Interface;
+using OnlineExamSystem.Application.Interface.Builder;
 namespace OnlineExamSystem.Controllers
 {
     public class ExamSectionsController : Controller    

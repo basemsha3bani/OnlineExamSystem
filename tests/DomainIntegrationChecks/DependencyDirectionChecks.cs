@@ -3,11 +3,12 @@ using DataRepository;
 using DataRepository.GateWay;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using ServicesClasseslibrary;
-using ServicesClasseslibrary.Interface.DataRepository;
-using ServicesClasseslibrary.Implmentation.Builder;
-using ServicesClasseslibrary.Interface.Builder;
-using ServicesClasseslibrary.InterfaceImplmentation.Examiner;
+using OnlineExamSystem.Application;
+using OnlineExamSystem.Application.Implmentation.Builder;
+using OnlineExamSystem.Application.Interface.Builder;
+using OnlineExamSystem.Application.Interface.DataRepository;
+using OnlineExamSystem.Application.InterfaceImplmentation.Examiner;
+
 
 static class DependencyDirectionChecks
 {
@@ -25,7 +26,7 @@ static class DependencyDirectionChecks
         var services = new ServiceCollection();
         services.AddLogging();
         services.AddDbContextFactory<DbConext>();
-        services.AddDataRepository();
+        services.AddInfraStructure();
         using var provider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateScopes = true, ValidateOnBuild = true });
         using var scope = provider.CreateScope();
         foreach (var contract in new[] { typeof(IDifficultyLevelsOperations), typeof(IQuestionsOperations), typeof(IStudySubjectsOperations),

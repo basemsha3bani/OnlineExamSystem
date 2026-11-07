@@ -1,35 +1,34 @@
-﻿@using Domain.Entities
-@model ExaminerPerformance
-
-@{
-    ViewData["Title"] = "Edit";
-}
-
-<h1>Edit</h1>
-
-<h4>Questions</h4>
-<hr />
-<form asp-action="Edit">
-    <div class="row">
-        <div class="col-md-4">
-
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-           
-            <div class="form-group">
-                <label asp-for="AverageScore" class="control-label"></label>
-                <input asp-for="AverageScore" class="form-control" />
-         
-        </div>
-    </div>
-  
-
+@model OnlineExamSystem.Models.PerformanceAnalyticsViewModel
+@{ ViewData["Title"] = "Performance analytics"; }
+<h1>Performance analytics</h1>
+<p>All attempts are counted. Scores and pass rates use scored attempts only; each attempt has equal weight.</p>
+<form method="get" asp-action="Analytics" class="mb-4">
+    <label for="subjectId">Subject</label>
+    <select id="subjectId" name="subjectId" class="form-control">
+        <option value="">All subjects</option>
+        @foreach (var subject in Model.Subjects)
+        {
+            <option value="@subject.SubjectId" selected="@(Model.SubjectId == subject.SubjectId)">@subject.Subject.SubjectName</option>
+        }
+    </select>
+    <button type="submit" class="btn btn-primary mt-2">Show summary</button>
 </form>
-
-
-
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+@if (Model.Summaries.Count == 0)
+{
+    <p>No performance data is available for this selection yet. Summaries appear after evaluation completes.</p>
+}
+else
+{
+    <div class="table-responsive">
+    <table class="table">
+        <caption>Subject performance summary across all attempts</caption>
+        <thead><tr><th>Subject</th><th>Attempts</th><th>Scored</th><th>In progress</th><th>Average</th><th>Highest</th><th>Lowest</th><th>Pass rate</th></tr></thead>
+        <tbody>
+        @foreach (var row in Model.Summaries)
+        {
+            <tr><th scope="row">@row.Subject.SubjectName</th><td>@row.TotalAttempts</td><td>@row.EvaluatedCount</td><td>@row.InProgressCount</td><td>@row.AverageScore.ToString("0.##")%</td><td>@row.HighestScore.ToString("0.##")%</td><td>@row.LowestScore.ToString("0.##")%</td><td>@row.PassRate.ToString("0.##")%</td></tr>
+        }
+        </tbody>
+    </table>
+    </div>
 }

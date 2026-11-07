@@ -1,8 +1,11 @@
 using Domain.DTOs;
-using ServicesClasseslibrary.Interface.DataRepository;
+
 using Domain.Exceptions;
 using ServicesClasseslibrary;
-using ServicesClasseslibrary.Implmentation.Builder;
+
+using OnlineExamSystem.Application.Interface.DataRepository;
+using OnlineExamSystem.Application.Implmentation.Builder;
+using OnlineExamSystem.Application;
 static class AuthoringChecks
 {
     public static void Run()

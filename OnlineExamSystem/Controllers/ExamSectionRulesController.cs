@@ -1,8 +1,11 @@
 using Domain.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using OnlineExamSystem.Application;
+using OnlineExamSystem.Application.Interface;
+using OnlineExamSystem.Application.Interface.Builder;
 using ServicesClasseslibrary;
-using ServicesClasseslibrary.Interface;
+
 namespace OnlineExamSystem.Controllers
 {
     public class ExamSectionRulesController : Controller

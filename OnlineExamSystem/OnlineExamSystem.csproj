@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -21,7 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DataRepository\DataRepository.csproj" />
+    <ProjectReference Include="..\OnlineExamSystem.InfraStructure\OnlineExamSystem.InfraStructure.csproj" />
+    <ProjectReference Include="..\OnlineExamSystem.Application\OnlineExamSystem.Application.csproj" />
     <ProjectReference Include="..\ServicesClasseslibrary\ServicesClasseslibrary.csproj" />
   </ItemGroup>
 

@@ -8,6 +8,10 @@ using System.Collections.Concurrent;
 using System.Reflection;
 using System.Net;
 using System.Net.Sockets;
+using ServicesClasseslibrary.WorkerServices.ExamEvaluation.JobExecuting;
+using ServicesClasseslibrary.WorkerServices.Interface.Examiner;
+using ServicesClasseslibrary.WorkerServices.InterfaceImplementation.Examiner;
+using OnlineExamSystem.Application.Interface.Events;
 static class BrokerResilienceChecks
 {
     public static async Task RunAsync()
@@ -45,12 +49,28 @@ static class BrokerResilienceChecks
             await worker.StopAsync(CancellationToken.None);
         }
         scopes = new ThrowingScopes();
-        using (var checker = new AttemptEvaluationCompletionChecker(scopes, NullLogger<AttemptEvaluationCompletionChecker>.Instance, options))
+        using (var checker = new AttemptEvaluationCompletionChecker(scopes, NullLogger<AttemptEvaluationCompletionChecker>.Instance, options, new EvaluationResultQueue()))
         {
             await checker.StartAsync(CancellationToken.None);
             await Until(() => scopes.Calls >= 2);
             if (checker.ExecuteTask.IsFaulted) throw new Exception("Service-resolution failures must not terminate notification checking");
             await checker.StopAsync(CancellationToken.None);
+        }
+        var completion = new CompletionProbe();
+        using (var services = new ServiceCollection()
+            .AddSingleton<IEventBus>(completion)
+            .AddSingleton<IEvaluationPublisher>(completion)
+            .AddSingleton<IEvaluationNotifier>(completion)
+            .BuildServiceProvider())
+        using (var checker = new AttemptEvaluationCompletionChecker(services.GetRequiredService<IServiceScopeFactory>(),
+            NullLogger<AttemptEvaluationCompletionChecker>.Instance, options, new EvaluationResultQueue()))
+        {
+            await checker.StartAsync(CancellationToken.None);
+            await Until(() => completion.Publishes >= 3 && completion.Notifications == 1);
+            if (completion.Subscriptions != 1 || checker.ExecuteTask.IsCompleted)
+                throw new Exception("Publishing must repeat with one subscription while the notification consumer stays active");
+            await checker.StopAsync(CancellationToken.None);
+            if (!checker.ExecuteTask.IsCompletedSuccessfully) throw new Exception("Completion checker must stop cleanly");
         }
         // Real RabbitMQ client against a deliberately closed loopback port: no external broker is changed.
         var listener = new TcpListener(IPAddress.Loopback, 0); listener.Start();
@@ -86,6 +106,24 @@ static class BrokerResilienceChecks
     {
         using var limit = new CancellationTokenSource(timeout);
         while (!condition()) await Task.Delay(10, limit.Token);
+    }
+    sealed class CompletionProbe : IEventBus, IEvaluationPublisher, IEvaluationNotifier
+    {
+        public int Subscriptions, Publishes, Notifications;
+        public Task SubscribeAsync<T>(Func<T, Task> handler) where T : IEvent
+        { Interlocked.Increment(ref Subscriptions); return Task.CompletedTask; }
+        public Task PublishAsync<T>(T evt) where T : IEvent => Task.CompletedTask;
+        public Task PublishEvaluatedExams()
+        {
+            if (Subscriptions != 1) throw new Exception("Subscribe before publishing");
+            Interlocked.Increment(ref Publishes);
+            return Task.CompletedTask;
+        }
+        public async Task SendOneBatchAsync(CancellationToken ct)
+        {
+            Interlocked.Increment(ref Notifications);
+            await Task.Delay(Timeout.Infinite, ct);
+        }
     }
     sealed class ThrowingLogger : ILogger
     {

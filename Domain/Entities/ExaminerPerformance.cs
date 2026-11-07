@@ -6,6 +6,9 @@ namespace Domain.Entities
     public class ExaminerPerformance
     {
         public int UserId { get; private set; }
+        public int SubjectId { get; private set; }
+        public virtual StudySubject Subject { get; private set; }
+        public void ChangeSubjectId(int value) => SubjectId = EntityRules.Positive(value, "Subject");
 
         public int TotalAttempts { get; private set; }
         public int EvaluatedCount { get; private set; }
@@ -60,8 +63,8 @@ namespace Domain.Entities
             TotalAttempts = attempts.Count; EvaluatedCount = scored.Count;
             InProgressCount = attempts.Count(a => a.Status == "InProgress");
             AverageScore = scored.Count == 0 ? 0 : (double)scored.Average(a => a.Score.Value) * 100;
-            HighestScore = scored.Count == 0 ? 0 : (double)scored.Max(a => a.Score.Value);
-            LowestScore = scored.Count == 0 ? 0 : (double)scored.Min(a => a.Score.Value);
+            HighestScore = scored.Count == 0 ? 0 : (double)scored.Max(a => a.Score.Value) * 100;
+            LowestScore = scored.Count == 0 ? 0 : (double)scored.Min(a => a.Score.Value) * 100;
             PassRate = scored.Count == 0 ? 0 : 100d * scored.Count(a => a.Score >= .5m) / scored.Count;
             LastCalculatedAt = DateTime.UtcNow; LastCalculatedAttemptId = triggerAttemptId;
         }

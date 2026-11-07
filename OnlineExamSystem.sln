@@ -5,7 +5,7 @@ VisualStudioVersion = 17.14.37516.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineExamSystem", "OnlineExamSystem\OnlineExamSystem.csproj", "{04CEEA62-B17E-4FD9-B5A9-4F70F04A03F3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataRepository", "DataRepository\DataRepository.csproj", "{92C3F51A-14C6-48D3-A1FE-C380AFF5F1BA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OnlineExamSystem.InfraStructure", "OnlineExamSystem.InfraStructure\OnlineExamSystem.InfraStructure.csproj", "{92C3F51A-14C6-48D3-A1FE-C380AFF5F1BA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServicesClasseslibrary", "ServicesClasseslibrary\ServicesClasseslibrary.csproj", "{1AF7450E-E8E3-4F16-A939-B65B04223162}"
 EndProject
@@ -18,6 +18,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DomainChecks", "tests\DomainChecks\DomainChecks.csproj", "{4A5DA0C9-E746-4CF3-933B-40E3C9735435}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DomainIntegrationChecks", "tests\DomainIntegrationChecks\DomainIntegrationChecks.csproj", "{AB87F412-6EB5-4B39-8F62-C6FE644A3FA5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineExamSystem.Application", "OnlineExamSystem.Application\OnlineExamSystem.Application.csproj", "{8FE28802-0C56-4893-A6CB-3DD37A0B3585}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -53,6 +55,10 @@ Global
 		{AB87F412-6EB5-4B39-8F62-C6FE644A3FA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AB87F412-6EB5-4B39-8F62-C6FE644A3FA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AB87F412-6EB5-4B39-8F62-C6FE644A3FA5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8FE28802-0C56-4893-A6CB-3DD37A0B3585}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8FE28802-0C56-4893-A6CB-3DD37A0B3585}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8FE28802-0C56-4893-A6CB-3DD37A0B3585}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8FE28802-0C56-4893-A6CB-3DD37A0B3585}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

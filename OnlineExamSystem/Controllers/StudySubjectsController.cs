@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Domain.DTOs;
-using ServicesClasseslibrary.Interface.DataModel;
+using OnlineExamSystem.Application.Interface;
+
 
 namespace OnlineExamSystem.Controllers
 {

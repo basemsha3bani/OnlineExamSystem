@@ -5,12 +5,15 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OnlineExamSystem.Models;
-using ServicesClasseslibrary.Interface.DataRepository;
+
 using Domain.DTOs;
 
-using ServicesClasseslibrary.Interface.Examiner;
+
 using System.Threading.Tasks;
-using ServicesClasseslibrary.InterfaceImplmentation.Examiner;
+using OnlineExamSystem.Application.Interface.Examiner;
+using OnlineExamSystem.Application.Interface.DataRepository;
+using OnlineExamSystem.Application.InterfaceImplmentation.Examiner;
+
 
 namespace OnlineExamSystem.Controllers
 {
@@ -75,10 +78,11 @@ namespace OnlineExamSystem.Controllers
             return View(attempt);
         }
 
-        public IActionResult Analytics()
+        public IActionResult Analytics(int? subjectId = null)
         {
-         var  beeso= examinerPerformanceOperations.GetPerformance(UserId);
-            return View(beeso);
+         var summaries = examinerPerformanceOperations.GetPerformances(UserId);
+            return View(new PerformanceAnalyticsViewModel { SubjectId = subjectId, Subjects = summaries,
+                Summaries = summaries.Where(p => !subjectId.HasValue || p.SubjectId == subjectId.Value).ToList() });
         }
     }
 }

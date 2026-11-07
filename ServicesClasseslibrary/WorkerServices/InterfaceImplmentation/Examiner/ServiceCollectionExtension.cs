@@ -1,19 +1,20 @@
-using Domain.Entities;
 using Domain.Aggregates;
+using Domain.Entities;
 //using DataRepository.ModelMappers;
 //using DataRepository.ModelMappers.Interface;
-using ServicesClasseslibrary.Interface.DataRepository;
-using Microsoft.AspNetCore.Builder;
 
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using OnlineExamSystem.Application.Interface.Events;
+using OnlineExamSystem.Application.Interface.Examiner;
 using RabbitMQ.Client;
 using Serilog;
-using ServicesClasseslibrary.Implmentation.Builder;
-using ServicesClasseslibrary.Interface.Builder;
-using ServicesClasseslibrary.Interface.Examiner;
-using ServicesClasseslibrary.InterfaceImplmentation.Examiner;
 using ServicesClasseslibrary.WorkerServices.ExamEvaluation;
+using ServicesClasseslibrary.WorkerServices.ExamEvaluation.JobCompletion.EventBus;
+using ServicesClasseslibrary.WorkerServices.ExamEvaluation.JobExecuting;
 using ServicesClasseslibrary.WorkerServices.Interface.Examiner;
+using ServicesClasseslibrary.WorkerServices.InterfaceImplmentation.Examiner;
+using System.Diagnostics;
 
 namespace ServicesClasseslibrary.WorkerServices.InterfaceImplementation.Examiner
 {
@@ -45,11 +46,14 @@ namespace ServicesClasseslibrary.WorkerServices.InterfaceImplementation.Examiner
             services.AddHostedService<AttemptEvaluationWorker>();
             services.AddHostedService<AttemptEvaluationCompletionChecker>();
             services.AddSignalR();
-            services.AddScoped<IExaminerAttemptService, ExaminerAttemptService>();
+            services.AddScoped<IExaminerAttemptBackgroundService, ExaminerAttemptBackgroundService>();
             services.AddSingleton<IEvaluationResultQueue, RabbitMqEvaluationResultQueue>();
             services.AddScoped<IEvaluationPublisher, AttemptEvaluationOrchestrator>();
             services.AddScoped<IEvaluationNotifier, AttemptEvaluationOrchestrator>();
-          
+            services.AddScoped<IExamAttemptEvaluator, AttemptEvaluationOrchestrator>();
+            
+            services.AddSingleton(new ActivitySource("ExamSystem"));
+            services.AddSingleton<IEventBus, InMemoryEventBus>();
             return services;
         }
     }

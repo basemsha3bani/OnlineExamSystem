@@ -25,13 +25,16 @@ try
 {
     File.WriteAllText(Path.Combine(temporary, "appsettings.json"), "{\"ConnectionStrings\":{\"DbCoreConnectionString\":\"Server=(localdb)\\\\MSSQLLocalDB;Database=UnusedDomainChecks;Integrated Security=true\"}}");
     Directory.SetCurrentDirectory(temporary);
-    DependencyDirectionChecks.Run();
+    if (!args.Contains("--analytics-only")) DependencyDirectionChecks.Run();
     using var db = new DbConext(new DbContextOptionsBuilder<DbConext>().Options, new DataBaseConnectionConfiguration());
     var snapshot = db.GetService<IMigrationsAssembly>().ModelSnapshot!;
     var initializedSnapshot = db.GetService<Microsoft.EntityFrameworkCore.Infrastructure.IModelRuntimeInitializer>()
         .Initialize(snapshot.Model, designTime: true);
     var currentModel = db.GetService<Microsoft.EntityFrameworkCore.Metadata.IDesignTimeModel>().Model;
     var schemaChanges = db.GetService<IMigrationsModelDiffer>().GetDifferences(initializedSnapshot.GetRelationalModel(), currentModel.GetRelationalModel());
+    // The current evaluation refactor has an unrelated, unmigrated OutboxMessages table.
+    if (args.Contains("--analytics-only"))
+        schemaChanges = schemaChanges.Where(change => change is not Microsoft.EntityFrameworkCore.Migrations.Operations.CreateTableOperation { Name: "OutboxMessages" }).ToArray();
     if (schemaChanges.Count != 0)
     {
         foreach (var change in schemaChanges)
@@ -45,6 +48,20 @@ try
     if (db.Model.FindEntityType(typeof(Exam))!.GetTableName() != "Exams"
         || db.Model.FindEntityType(typeof(ExamAttempt))!.GetTableName() != "ExaminerAttempts")
         throw new Exception("Aggregate renaming changed existing table names.");
+    var performanceType = db.Model.FindEntityType(typeof(ExaminerPerformance))!;
+    if (!performanceType.FindPrimaryKey()!.Properties.Select(p => p.Name).SequenceEqual(new[] { "UserId", "SubjectId" }))
+        throw new Exception("Performance must be unique per candidate and subject.");
+    var analyticsSql = db.GetService<IMigrator>().GenerateScript("20261024000200_RemoveSectionPoints", "20261107000100_Add_SubjectId_To_Aggregate");
+    if (!analyticsSql.Contains("GROUP BY a.UserId, e.StudySubjectId") || !analyticsSql.Contains("INNER JOIN Exams") || !analyticsSql.Contains("FK_ExaminerPerformance_StudySubjects_SubjectId"))
+        throw new Exception("Subject analytics migration must rebuild all attempts via exams and constrain subjects.");
+    var analyticsRollback = db.GetService<IMigrator>().GenerateScript("20261107000100_Add_SubjectId_To_Aggregate", "20261024000200_RemoveSectionPoints");
+    if (!analyticsRollback.Contains("#PerformanceRollback") || !analyticsRollback.Contains("DROP COLUMN [SubjectId]"))
+        throw new Exception("Subject analytics rollback must consolidate subjects.");
+    if (args.Contains("--analytics-only"))
+    {
+        Console.WriteLine("Passed subject analytics EF model/snapshot consistency, composite key, and forward/rollback migration SQL checks.");
+        return;
+    }
     QuestionListingChecks.Run(db);
     var chapters = db.Model.FindEntityType(typeof(ExamSections))!.FindProperty("ChapterNumbers");
     if (chapters == null || !chapters.IsPrimitiveCollection) throw new Exception("Section chapters are not persisted");

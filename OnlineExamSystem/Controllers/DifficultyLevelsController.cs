@@ -9,9 +9,10 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DataRepository.GateWay;
 using Domain.DTOs;
-using ServicesClasseslibrary.Interface;
+
 using Microsoft.Extensions.Caching.Distributed;
 using System.Text.Json;
+using OnlineExamSystem.Application.Interface;
 
 namespace OnlineExamSystem.Controllers
 {

@@ -1,7 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
+
 using Serilog;
-using ServicesClasseslibrary.Implmentation.Logging;
-using ServicesClasseslibrary.Interface.Logging;
+
+
 
 
 namespace ServicesClasseslibrary.WorkerServices.Logging
@@ -10,11 +11,9 @@ namespace ServicesClasseslibrary.WorkerServices.Logging
     {
         public static IServiceCollection AddLoggingService(this IServiceCollection services)
         {
-            Log.Logger = new LoggerConfiguration()
-           .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day)
-
-           .CreateLogger();
-            services.AddScoped<ILoggingQueue, LoggingQueue>();
+            Log.Logger = new LoggerConfiguration().WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day)
+                                                  .CreateLogger();
+          
             services.AddScoped<LogginqQueueProcessor>();
             services.AddHostedService<LogBackGroundService>();
            

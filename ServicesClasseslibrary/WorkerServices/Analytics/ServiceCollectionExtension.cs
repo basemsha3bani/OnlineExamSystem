@@ -1,6 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using ServicesClasseslibrary.Implmentation.Analytics;
-using ServicesClasseslibrary.Interface.Analytics;
+using Microsoft.Extensions.DependencyInjection;
+using OnlineExamSystem.Application.Implmentation.Analytics;
+using ServicesClasseslibrary.WorkerServices.Interface.Analytics;
+
 
 namespace ServicesClasseslibrary.WorkerServices.Analytics
 {
