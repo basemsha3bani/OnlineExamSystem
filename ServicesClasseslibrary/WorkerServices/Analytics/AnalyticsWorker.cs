@@ -1,49 +1,35 @@
-﻿using Domain.DTOs;
+using Domain.DTOs;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using ServicesClasseslibrary.WorkerServices.Messaging;
 using Microsoft.Extensions.Logging;
 using ServicesClasseslibrary.WorkerServices.Interface.Analytics;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace ServicesClasseslibrary.WorkerServices.Analytics
 {
-    public class AnalyticsWorker : BackgroundService
+    public class AnalyticsWorker : BackgroundWorkerLoop
     {
         private readonly IAnalyticsQueue _queue;
         private readonly IServiceScopeFactory _scopes;
         private readonly ILogger<AnalyticsWorker> _logger;
 
-        public AnalyticsWorker(IAnalyticsQueue queue, IServiceScopeFactory scopes, ILogger<AnalyticsWorker> logger)
+        public AnalyticsWorker(IAnalyticsQueue queue, IServiceScopeFactory scopes, ILogger<AnalyticsWorker> logger) : base(logger, TimeSpan.Zero, TimeSpan.FromSeconds(5))
         { _queue = queue; _scopes = scopes; _logger = logger; }
 
-        protected override async Task ExecuteAsync(CancellationToken ct)
+        protected override async Task RunAsync(CancellationToken ct)
         {
-            while (!ct.IsCancellationRequested)
+            if (_queue.TryDequeue(out AnalyticsJobDTO job))
             {
-                if (_queue.TryDequeue(out AnalyticsJobDTO job))
-                {
-                    try
-                    {
-                        using var scope = _scopes.CreateScope();
-                        var analyticsService = scope.ServiceProvider.GetRequiredService<IAnalyticsService>();
-                        // A job rebuilds every subject summary for this candidate from all attempts.
-                        await analyticsService.RecalculateAsync(job);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Analytics failed for {ExaminerId}", job.ExaminerId);
-                        // optionally re-enqueue with delay
-                    }
-                }
-                else
-                {
-                    await Task.Delay(1000, ct); // idle wait, like logging worker
-                }
+                using var scope = _scopes.CreateScope();
+                var analyticsService = scope.ServiceProvider.GetRequiredService<IAnalyticsService>();
+                // A job rebuilds every subject summary for this candidate from all attempts.
+                await analyticsService.RecalculateAsync(job);
+            }
+            else
+            {
+                await Task.Delay(1000, ct); // idle wait, like logging worker
             }
         }
     }

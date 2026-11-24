@@ -15,6 +15,7 @@ using ServicesClasseslibrary.WorkerServices.ExamEvaluation.JobExecuting;
 using ServicesClasseslibrary.WorkerServices.Interface.Examiner;
 using ServicesClasseslibrary.WorkerServices.InterfaceImplmentation.Examiner;
 using System.Diagnostics;
+using static ServicesClasseslibrary.WorkerServices.ExamEvaluation.AttemptEvaluationCompletionChecker;
 
 namespace ServicesClasseslibrary.WorkerServices.InterfaceImplementation.Examiner
 {
@@ -45,6 +46,7 @@ namespace ServicesClasseslibrary.WorkerServices.InterfaceImplementation.Examiner
             services.AddSingleton<ServicesClasseslibrary.WorkerServices.Messaging.RabbitMqConsumer>();
             services.AddHostedService<AttemptEvaluationWorker>();
             services.AddHostedService<AttemptEvaluationCompletionChecker>();
+            services.AddHostedService<AttemptEvaluationsCompletionNotifier>(); 
             services.AddSignalR();
             services.AddScoped<IExaminerAttemptBackgroundService, ExaminerAttemptBackgroundService>();
             services.AddSingleton<IEvaluationResultQueue, RabbitMqEvaluationResultQueue>();

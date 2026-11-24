@@ -83,6 +83,7 @@ namespace ServicesClasseslibrary.WorkerServices.InterfaceImplementation.Examiner
                 using var scope = scopes.CreateScope();
                 await scope.ServiceProvider.GetRequiredService<IExamAttemptOprations>()
                     .MarkOutboxMessageProcessedAsync(result.Item1, ct);
+                results.TryDequeue(result);
             }, ct);
     }
 }

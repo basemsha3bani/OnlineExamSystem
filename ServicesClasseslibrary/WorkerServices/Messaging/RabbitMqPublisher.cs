@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using System;
@@ -11,7 +10,7 @@ namespace ServicesClasseslibrary.WorkerServices.Messaging
     {
         void Enqueue(string exchange, string routingKey, byte[] body);
     }
-    public sealed class RabbitMqPublisher : BackgroundService, IRabbitMqPublisher
+    public sealed class  RabbitMqPublisher : BackgroundWorkerLoop, IRabbitMqPublisher
     {
         private sealed record Message(string Exchange, string RoutingKey, byte[] Body);
         private readonly ConcurrentQueue<Message> pending = new();
@@ -19,10 +18,10 @@ namespace ServicesClasseslibrary.WorkerServices.Messaging
         private readonly ILogger<RabbitMqPublisher> logger;
         private readonly BrokerWorkerOptions options;
         public int PendingCount => pending.Count;
-        public RabbitMqPublisher(IRabbitMqConnectionProvider connections, ILogger<RabbitMqPublisher> logger, BrokerWorkerOptions options)
+        public RabbitMqPublisher(IRabbitMqConnectionProvider connections, ILogger<RabbitMqPublisher> logger, BrokerWorkerOptions options) : base(logger, options.PublishIdleDelay, options.RetryDelay)
         { this.connections = connections; this.logger = logger; this.options = options; }
         public void Enqueue(string exchange, string routingKey, byte[] body) => pending.Enqueue(new(exchange, routingKey, body));
-        protected override Task ExecuteAsync(CancellationToken ct) => BackgroundWorkerLoop.RunAsync(PublishAsync, logger, options.PublishIdleDelay, options.RetryDelay, ct);
+        protected override Task RunAsync(CancellationToken ct) => PublishAsync(ct);
         private async Task PublishAsync(CancellationToken ct)
         {
             await using var channel = await connections.OpenChannelAsync(true, ct);

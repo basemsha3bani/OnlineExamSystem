@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
@@ -10,29 +11,48 @@ namespace ServicesClasseslibrary.WorkerServices.Messaging
         public TimeSpan EvaluationInterval { get; set; } = TimeSpan.FromSeconds(5);
         public TimeSpan PublishIdleDelay { get; set; } = TimeSpan.FromMilliseconds(500);
     }
-    public static class BackgroundWorkerLoop
+    public abstract class BackgroundWorkerLoop : BackgroundService
     {
-        public static async Task RunAsync(Func<CancellationToken, Task> operation, ILogger logger,
-            TimeSpan interval, TimeSpan retryDelay, CancellationToken ct)
+        private readonly ILogger logger;
+        private readonly TimeSpan interval;
+        private readonly TimeSpan retryDelay;
+
+        protected BackgroundWorkerLoop(ILogger logger, TimeSpan interval, TimeSpan retryDelay)
+        {
+            this.logger = logger;
+            this.interval = interval;
+            this.retryDelay = retryDelay;
+        }
+
+        protected abstract Task RunAsync(CancellationToken ct);
+
+        protected override async Task ExecuteAsync(CancellationToken ct)
         {
             while (!ct.IsCancellationRequested)
             {
-                var delay = interval;
-                try { await operation(ct); }
+                try
+                {
+                    await RunAsync(ct);
+                    await Task.Delay(interval, ct);
+                }
                 catch (OperationCanceledException) when (ct.IsCancellationRequested) { break; }
                 catch (Exception ex)
                 {
-                    try { logger.LogError(ex, "Background operation failed; retrying in {RetryDelay} seconds", retryDelay.TotalSeconds); }
-                    catch (Exception loggingError)
-                    {
-                        // A failed Windows Event Log provider must not turn an outage into a host shutdown.
-                        Console.Error.WriteLine($"Background operation failed; retrying in {retryDelay.TotalSeconds} seconds. {ex} Logging provider failed: {loggingError.Message}");
-                    }
-                    delay = retryDelay;
+                    await HandleExceptionAsync(ex, ct);
                 }
-                try { await Task.Delay(delay, ct); }
-                catch (OperationCanceledException) when (ct.IsCancellationRequested) { break; }
             }
+        }
+
+        protected async Task HandleExceptionAsync(Exception exception, CancellationToken ct)
+        {
+            try { logger.LogError(exception, "Background operation failed; retrying in {RetryDelay} seconds", retryDelay.TotalSeconds); }
+            catch (Exception loggingError)
+            {
+                // A failed Windows Event Log provider must not turn an outage into a host shutdown.
+                Console.Error.WriteLine($"Background operation failed; retrying in {retryDelay.TotalSeconds} seconds. {exception} Logging provider failed: {loggingError.Message}");
+            }
+            try { await Task.Delay(retryDelay, ct); }
+            catch (OperationCanceledException) when (ct.IsCancellationRequested) { }
         }
     }
 }
